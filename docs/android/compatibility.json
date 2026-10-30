@@ -11,10 +11,29 @@
     "commit": "029eafed917ae853d6c0a59330ee273524168296",
     "package": "org.junimogate.app",
     "publishedApkSha256": "49bcce760ceda4b9080237000f713cfbd9485e5b237be4c38ed8b95b522295b4",
-    "installed": null
+    "downloadedApkSha256": "49bcce760ceda4b9080237000f713cfbd9485e5b237be4c38ed8b95b522295b4",
+    "installed": null,
+    "extractedReferenceIdentities": {
+      "StardewModdingAPI": "4.5.2.0",
+      "MonoGame.Framework": "1.0.0.0",
+      "JunimoGate.GameHost": "1.0.0.0",
+      "targetFramework": ".NETCoreApp,Version=v9.0"
+    }
   },
   "game": { "package": "com.chucklefish.stardewvalley", "version": null, "versionCode": null },
   "device": { "model": null, "api": null, "abi": null, "firmware": null },
   "mod": { "buildId": null, "zipSha256": null },
-  "tools": { "git": "2.51.0.windows.2", "python": "3.11.0", "adb": "36.0.2-14143358" }
+  "tools": {
+    "git": "2.51.0.windows.2",
+    "python": "3.11.0",
+    "adb": "36.0.2-14143358",
+    "dotnetSdk": "9.0.118",
+    "androidWorkload": "35.0.7/9.0.100",
+    "jdk": "Temurin 17.0.16+8",
+    "androidPlatform": "35 revision 2",
+    "androidBuildTools": "35.0.0",
+    "androidCommandLineTools": "19.0",
+    "toolchainReleaseLibraryCheck": "pass",
+    "gameInspectorReleaseBuild": "pass"
+  }
 }
