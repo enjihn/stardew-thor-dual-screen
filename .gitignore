@@ -5,3 +5,16 @@ obj/
 
 # Private working notes (device IP, local paths).
 BRIEF.md
+
+# Local Android toolchain, proprietary references, saves, and raw device evidence.
+.local/
+artifacts/private/
+.superpowers/
+*.apk
+*.aab
+*.aar
+*.dll
+*.pdb
+*.sav
+*.log
+__pycache__/
