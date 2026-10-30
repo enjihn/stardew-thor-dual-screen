@@ -10,7 +10,7 @@ USB authorization is resolved. The original Play app and saves are preserved. Ne
 |---|---|---|
 | 1: Source and environment | pass | Personal fork ancestry and pinned upstream checked; local Android Release library and GameInspector compiled; private paths ignored. |
 | 2: Device and unmodified host | partial | Play 1.6.15.3 under released JunimoGate 0.3.1; disposable save cold-reloaded; displays mapped; originals backed up. Save-export defect open. |
-| 3: Release host probe | pending | Exact references prepared; real runtime probe next. |
+| 3: Release host probe | partial | Release DLL loads, real assets render, lower taps and injected top key route pass; one pause/resume and vendor toggle pass. Physical controls remain pending. |
 | 4: Lifecycle/input/frame ownership | blocked | Requires real release-host probe. |
 | 5: Visual/data modes | blocked | Requires actual mobile metadata and working display path. |
 | 6: Consequential actions | blocked | Requires disposable hosted farm and native mobile behavior. |

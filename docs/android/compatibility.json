@@ -48,8 +48,11 @@
     ]
   },
   "mod": {
-    "buildId": null,
-    "zipSha256": null
+    "buildId": "6b39d60-probe1",
+    "version": "0.5.2-android.probe.1",
+    "zipSha256": "51f9b7d89f7c65a270f5678abe76d7380bea3dde48b7e83feaad5256547af125",
+    "purpose": "temporary Release-host probe, not shipping mod",
+    "selectedGroup": "ThorBaseline"
   },
   "tools": {
     "git": "2.51.0.windows.2",

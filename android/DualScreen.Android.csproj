@@ -1,0 +1,23 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net9.0-android35.0</TargetFramework>
+    <SupportedOSPlatformVersion>26.0</SupportedOSPlatformVersion>
+    <OutputType>Library</OutputType>
+    <AssemblyName>DualScreen</AssemblyName>
+    <RootNamespace>DualScreen</RootNamespace>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
+    <DefineConstants>$(DefineConstants);THOR_ANDROID</DefineConstants>
+    <ThorBuildId Condition="'$(ThorBuildId)' == ''">unversioned</ThorBuildId>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="ProbeEntry.cs" />
+    <Compile Include="../mod/MobileHost.cs" Link="MobileHost.cs" />
+    <AssemblyMetadata Include="ThorBuildId" Value="$(ThorBuildId)" />
+    <Reference Include="StardewValley"><HintPath>$(MobileReferenceDir)/StardewValley.dll</HintPath><Private>false</Private></Reference>
+    <Reference Include="StardewValley.GameData"><HintPath>$(MobileReferenceDir)/StardewValley.GameData.dll</HintPath><Private>false</Private></Reference>
+    <Reference Include="StardewModdingAPI"><HintPath>$(MobileReferenceDir)/StardewModdingAPI.dll</HintPath><Private>false</Private></Reference>
+    <Reference Include="MonoGame.Framework"><HintPath>$(MobileReferenceDir)/MonoGame.Framework.dll</HintPath><Private>false</Private></Reference>
+  </ItemGroup>
+</Project>

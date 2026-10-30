@@ -7,8 +7,8 @@ Execution active. The unmodified mobile game baseline works. No mod artifact is 
 - Host: unchanged publisher JunimoGate v0.3.1, commit `029eafed917ae853d6c0a59330ee273524168296`, code 11, SMAPI `junimogate-4.5.2.41`.
 - Game: installed Google Play 1.6.15.3 / code 245 / ARM64. Android 13 API 33.
 - Gate 1 passed. Gate 2 gameplay, preservation and display prerequisites passed; host save export defect remains open. Gates 3 through 8 pending.
-- Current mod artifact/build ID: none.
-- Next action: build/import the smallest Release probe against the actual game and host references, then test the released host's framework Presentation/ImageView/event adapters.
+- Current mod artifact/build ID: temporary `6b39d60-probe1`, version `0.5.2-android.probe.1`, imported and enabled in `ThorBaseline`. ZIP SHA256 in compatibility.json.
+- Next action: Task 4 production coordination tests and lifecycle integration, retaining the shared panels. Probe runtime boundary passed; physical controller acceptance remains pending.
 
 ## Verified baseline
 
@@ -34,3 +34,11 @@ Continue the independent release-host probe before considering any host patch. S
 Use the existing branch and local tools. Private task ledger: `.superpowers/sdd/2026-10-30-thor-stardew-android-plan/progress.md`. Sibling `JunimoGate/` is pinned to v0.3.1. Device serial, capture IDs, APK hashes, saves and screenshots are under ignored `artifacts/private/` and `.local/`. Do not republish them.
 
 Baseline reload evidence: `baseline-reload-ready.png`, `baseline-reloaded-logcat.txt`; backup manifest: `play-save-backup-manifest.json`. Current source checkpoint before probe: `f352bd02699b041f89756da65c65024b91811ffe`.
+
+## Release-host probe result
+
+Release probe built with zero warnings/errors. Exact build ID observed through SMAPI in the unchanged publisher host. Framework Presentation and ImageView with Presentation context rendered the actual game cursor texture and small font on logical display 4. Touch Down/Up visibly incremented the counter, with 1240x1080 drawable and top Activity focus true. Injected gamepad A reached SMAPI as Enter; this is injected key routing, not proof of physical buttons or axes.
+
+One Home/background/resume cycle restored the lower image and touch. One vendor top-only/dual-screen toggle via the existing `dual_screen_display_mode` setting blacked the lower panel and restored it with working touch; original mode and focus settings were restored exactly. This is the vendor cover/touch toggle, not physical disconnect or lid closure. A separate lower-size override/restoration survived; original 1080x1240 physical size (rotated logical 1240x1080), density 369, no override restored. No host patch is justified for framework window/touch loading.
+
+Evidence: `probe1-startup.txt`, `probe1-touch.txt`, `probe1-resume.txt`, `probe1-vendor-cycle-logcat.txt`, matching private images and original/restored setting records. All remain private. Production reliability and final physical acceptance are still pending.
