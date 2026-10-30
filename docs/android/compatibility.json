@@ -1,5 +1,5 @@
 {
-  "status": "unverified",
+  "status": "unmodified mobile game baseline verified; Release-host probe pending",
   "upstream": {
     "repository": "hung-eggie-do-covergo/stardew-thor-dual-screen",
     "version": "0.5.2",
@@ -12,17 +12,45 @@
     "package": "org.junimogate.app",
     "publishedApkSha256": "49bcce760ceda4b9080237000f713cfbd9485e5b237be4c38ed8b95b522295b4",
     "downloadedApkSha256": "49bcce760ceda4b9080237000f713cfbd9485e5b237be4c38ed8b95b522295b4",
-    "installed": null,
+    "installed": true,
     "extractedReferenceIdentities": {
       "StardewModdingAPI": "4.5.2.0",
       "MonoGame.Framework": "1.0.0.0",
       "JunimoGate.GameHost": "1.0.0.0",
       "targetFramework": ".NETCoreApp,Version=v9.0"
-    }
+    },
+    "versionCode": 11,
+    "smapiBuild": "junimogate-4.5.2.41",
+    "signerSha256": "fa26f2f183f4be61620423bf5585814a63af05caedf6e33dd77425a428c81036"
   },
-  "game": { "package": "com.chucklefish.stardewvalley", "version": null, "versionCode": null },
-  "device": { "model": null, "api": null, "abi": null, "firmware": null },
-  "mod": { "buildId": null, "zipSha256": null },
+  "game": {
+    "package": "com.chucklefish.stardewvalley",
+    "version": "1.6.15.3",
+    "versionCode": 245,
+    "installer": "com.android.vending",
+    "installedApkCount": 3
+  },
+  "device": {
+    "model": "AYN Thor",
+    "api": 33,
+    "abi": "arm64-v8a",
+    "firmware": "qti/kalama/kalama:13/TKQ1.231222.001/eng.Thor.20260206.163241:user/release-keys",
+    "manufacturer": "AYN",
+    "topLogicalDisplay": 0,
+    "companionLogicalDisplay": 4,
+    "topGeometry": [
+      1920,
+      1080
+    ],
+    "companionGeometry": [
+      1240,
+      1080
+    ]
+  },
+  "mod": {
+    "buildId": null,
+    "zipSha256": null
+  },
   "tools": {
     "git": "2.51.0.windows.2",
     "python": "3.11.0",

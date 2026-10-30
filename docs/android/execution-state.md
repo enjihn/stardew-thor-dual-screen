@@ -1,43 +1,36 @@
 # Android execution checkpoint
 
-Execution is waiting for Android USB authorization. No mod build or device gate has passed yet.
+Execution active. The unmodified mobile game baseline works. No mod artifact is accepted yet.
 
 - Branch: `android/thor-mobile` on `enjihn/stardew-thor-dual-screen`.
-- Upstream baseline: `15f05b63d3ca852f3729e20de67fc7446bfac112` (0.5.2), identical to upstream main at setup.
-- Preferred host: JunimoGate v0.3.1, source `029eafed917ae853d6c0a59330ee273524168296`.
-- Current artifact/build ID: none.
-- Gate 1: passed. Fork ancestry, pinned clean baseline, private-file exclusions and local build toolchain verified.
-- Gates 2 through 8: not passed.
-- Blocker: USB device is visible but unauthorized. Owner must accept Android's USB debugging RSA prompt before identification, extraction, or device tests.
-- Original Play installation and saves: no device access or changes performed.
-- Next action: after authorization, discover device properties and installed game/host packages using `tools/thor_adb.py inventory` with the authorized serial.
+- Upstream: `15f05b63d3ca852f3729e20de67fc7446bfac112` (0.5.2).
+- Host: unchanged publisher JunimoGate v0.3.1, commit `029eafed917ae853d6c0a59330ee273524168296`, code 11, SMAPI `junimogate-4.5.2.41`.
+- Game: installed Google Play 1.6.15.3 / code 245 / ARM64. Android 13 API 33.
+- Gate 1 passed. Gate 2 gameplay, preservation and display prerequisites passed; host save export defect remains open. Gates 3 through 8 pending.
+- Current mod artifact/build ID: none.
+- Next action: build/import the smallest Release probe against the actual game and host references, then test the released host's framework Presentation/ImageView/event adapters.
 
-## Completed local work
+## Verified baseline
 
-- Setup commit: `f25059e56c1e13f98d8ce908c4b48fe1b3dd66a8`. The commit containing this checkpoint adds the tested helper and final local setup record.
-- Installed project-local .NET SDK 9.0.118, Android workload 35.0.7, JDK 17.0.16+8, Android platform 35 and build-tools 35.0.0.
-- A scratch Release Android library using framework Presentation/ImageView compiled with zero warnings/errors. This verifies tools only, not game or device behavior.
-- Pinned JunimoGate GameInspector Release build succeeded with zero warnings/errors.
-- Downloaded released host APK and verified SHA256 against publisher; extracted SMAPI, MonoGame and host bridge references into ignored `.local/refs/host/` and inspected their managed identities.
-- Six focused ADB helper tests passed after their initial failing run. They cover serial scoping, timeout/exit checks, binary PNG preservation, failed capture, and staging checksum checks. No mock result counts as device acceptance.
-- Actual serial-scoped inventory failed with `device unauthorized`. No device inventory file was produced.
-- Source-only independent host investigation identified Activity, mod-import/group selection, and log-export APIs; it did not establish runtime success.
+- Empty `ThorBaseline` group selected, zero mods loaded. New disposable ThorTest farm created, starting gift collected, slept, exited to title, cold-started host and loaded Spring 2 with 500g and 15 parsnip seeds intact.
+- Top logical display 0: 1920x1080. Lower logical display 4: 1240x1080. Distinct physical capture IDs verified privately from screenshots and metadata.
+- Native touch movement and menus worked. Injected gamepad Start produced no observed menu response. Real physical controller acceptance is pending.
+- Original Play app untouched. Three original save files copied, remote/local hashes matched and archive entries verified. One complete regular save pair and one pre-existing emergency-only folder preserved. No original save imported or overwritten.
+- Host installed fresh alongside Play. Publisher APK SHA256 and signing certificate verified. Exact identities in compatibility.json.
+- All three installed Play APKs extracted privately by pinned GameInspector, yielding 65 assemblies. Host references extracted from the verified APK. Private dependencies remain under `.local/refs/`.
+- Local tools: SDK 9.0.118, Android workload 35.0.7, API 35, build-tools 35.0.0, JDK 17.0.16+8. Scratch Release Android library and GameInspector builds passed.
+- Six ADB helper tests passed. This does not establish mod acceptance.
+
+## Open host export defect
+
+Save Export opens Android document creation but produces a zero-byte ZIP. Source `LiveSavesFragment.OnStop` clears `pendingExport` while the picker opens; the result handler needs that value. Do not treat this file as a backup. Original Play backups are independently verified and untouched. The disposable hosted farm reloads successfully.
+
+Logs > More > Export all > Export > Downloads succeeded. Pulled diagnostic ZIP passed CRC/content checks (6004 bytes, SHA256 `425e88d87cbc175db4338ae422bd33f1042048bfb7615a786bb2787d5feac1d9`). Private evidence: `artifacts/private/host-baseline-diagnostics.zip`.
+
+Continue the independent release-host probe before considering any host patch. Save export must be resolved or explicitly blocked before final delivery.
 
 ## Resume details
 
-1. Read this checkpoint and `acceptance.md`. Keep the current branch and tools; do not restart setup.
-2. Run `adb devices -l` after the owner accepts the RSA prompt. Confirm model/manufacturer/ABI before selecting a Thor.
-3. Run `python tools/thor_adb.py inventory --serial SERIAL --out artifacts/private/device-inventory.json`.
-4. Inspect actual package identities and saves before any host install/update. Continue Task 2's unmodified-host disposable-save baseline.
-5. Pull the installed Play base and every split only after discovery. Run pinned GameInspector against those files, then proceed to Task 3's actual Release-host probe.
+Use the existing branch and local tools. Private task ledger: `.superpowers/sdd/2026-10-30-thor-stardew-android-plan/progress.md`. Sibling `JunimoGate/` is pinned to v0.3.1. Device serial, capture IDs, APK hashes, saves and screenshots are under ignored `artifacts/private/` and `.local/`. Do not republish them.
 
-Private resumable state: `.superpowers/sdd/2026-10-30-thor-stardew-android-plan/progress.md`; host checkout is the sibling `JunimoGate/` at the pinned tag. Local setup/build logs are under `.local/`; the ADB failure is in `artifacts/private/adb-inventory-error.txt`.
-
-## Decisions
-
-- A fresh dedicated clone on the task branch provides isolation; no existing user checkout was modified.
-- No desktop game substitutes or guessed game references were used. Exact Play version and all physical-device acceptance remain unknown pending authorized access.
-- No host patch, mod DLL, mod ZIP, fixture, install, or save operation has been performed.
-
-The complete specification is in `docs/superpowers/plans/2026-10-30-thor-stardew-android-plan.md`.
-Private evidence and dependencies belong only in `.local/` or `artifacts/private/`.
+Baseline reload evidence: `baseline-reload-ready.png`, `baseline-reloaded-logcat.txt`; backup manifest: `play-save-backup-manifest.json`. Current source checkpoint before probe: `f352bd02699b041f89756da65c65024b91811ffe`.

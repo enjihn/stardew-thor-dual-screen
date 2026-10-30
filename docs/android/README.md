@@ -1,8 +1,8 @@
 # Android execution and resumption
 
-This branch is an incomplete port checkpoint, not a mobile release. USB authorization blocked the installed-game inventory and every device gate. See `execution-state.md`, `compatibility.json`, and `acceptance.md` for the actual state.
+This branch is an incomplete port checkpoint, not a mobile release. USB is authorized; the unmodified Play game baseline now works under released JunimoGate. See `execution-state.md`, `compatibility.json`, and `acceptance.md` for the actual state.
 
-The original upstream desktop project and artwork-rendering source remain unchanged. No application or save on the device has been modified. There is no mod ZIP or installed mobile build to roll back yet.
+The original upstream desktop project and artwork-rendering source remain unchanged. JunimoGate was installed separately and a disposable hosted test farm created. The original Play app and real saves are preserved. There is no mod ZIP or installed mobile build to roll back yet.
 
 ## Build tools prepared
 
@@ -31,9 +31,9 @@ $sdkPath = (Resolve-Path .local/android-sdk).Path
 $jdkPath = (Resolve-Path '.local/jdk/jdk-17.0.16+8').Path
 ```
 
-Use `.local/dotnet/dotnet.exe` with explicit `AndroidSdkDirectory` and `JavaSdkDirectory` MSBuild properties. The mobile project is intentionally not created until references can be derived from the actual installed Play game.
+Use `.local/dotnet/dotnet.exe` with explicit `AndroidSdkDirectory` and `JavaSdkDirectory` MSBuild properties. Actual Play and host references are prepared privately for the mobile probe.
 
-Host source is pinned to JunimoGate v0.3.1, commit `029eafed917ae853d6c0a59330ee273524168296`. Its `tools/JunimoGate.GameInspector` builds using the local SDK without Android game references. Use that tool for the installed game's assembly stores once USB is authorized.
+Host source is pinned to JunimoGate v0.3.1, commit `029eafed917ae853d6c0a59330ee273524168296`. Its `tools/JunimoGate.GameInspector` builds using the local SDK without Android game references. Use that tool for the installed game's assembly stores for this exact installed version.
 
 ## Device helper
 
@@ -53,7 +53,7 @@ Inventory is private and may include device identifiers. Its command errors rema
 - Mod import: Mods, Import Mod ZIP, choose the ZIP, confirm import. Default import is library-only, then use Add to group and select/enable the revision. Restart the game process after changing selection.
 - Diagnostic export: Logs, More, Export all, Export, then select a local document destination. The ZIP includes current/previous game and SMAPI logs, with bounded source sizes.
 
-These routes were read in the pinned source, not exercised on this device. Installation, mod selection, save export/import, and rollback instructions must be completed from actual device observations before release.
+Diagnostic export was exercised successfully on the device. Save export currently produces a zero-byte file because its pending state is cleared on stop. Installation, mod selection, save export/import, and rollback instructions must be completed from actual device observations before release.
 
 ## Preservation and eventual rollback
 

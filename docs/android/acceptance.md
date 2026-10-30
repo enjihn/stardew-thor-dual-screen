@@ -1,16 +1,16 @@
 # Android acceptance status
 
-No physical-device acceptance row has passed. There is no candidate or final mod artifact.
+The unmodified mobile game baseline is verified. There is no accepted candidate or final mod artifact.
 
-The sole connected USB candidate returned `device unauthorized` from the serial-scoped inventory command. Android RSA authorization is required before the device model, Play version, host state, displays, or saves can be inspected. The actual serial and raw error are kept outside Git.
+USB authorization is resolved. The original Play app and saves are preserved. New disposable hosted farm saved and cold-reloaded at Spring 2, 500g, 15 seeds. Save Export produced an empty file; diagnostic export succeeded. See execution-state.md.
 
 ## Gates
 
 | Gate | Status | Evidence or blocker |
 |---|---|---|
 | 1: Source and environment | pass | Personal fork ancestry and pinned upstream checked; local Android Release library and GameInspector compiled; private paths ignored. |
-| 2: Device and unmodified host | blocked | USB authorization required. Device identity, game version, installed host and save persistence unknown. |
-| 3: Release host probe | blocked | Requires Gate 2 and actual game references. |
+| 2: Device and unmodified host | partial | Play 1.6.15.3 under released JunimoGate 0.3.1; disposable save cold-reloaded; displays mapped; originals backed up. Save-export defect open. |
+| 3: Release host probe | pending | Exact references prepared; real runtime probe next. |
 | 4: Lifecycle/input/frame ownership | blocked | Requires real release-host probe. |
 | 5: Visual/data modes | blocked | Requires actual mobile metadata and working display path. |
 | 6: Consequential actions | blocked | Requires disposable hosted farm and native mobile behavior. |
@@ -21,29 +21,29 @@ The sole connected USB candidate returned `device unauthorized` from the serial-
 
 | Area | Status | Observed result |
 |---|---|---|
-| Installation and identity | blocked | Not run. Requires authorized USB, installed-game identity, and the unmodified-host baseline. |
-| Display and input | blocked | Not run. Requires authorized USB, installed-game identity, and the unmodified-host baseline. |
-| Today | blocked | Not run. Requires authorized USB, installed-game identity, and the unmodified-host baseline. |
-| Gifts | blocked | Not run. Requires authorized USB, installed-game identity, and the unmodified-host baseline. |
-| People | blocked | Not run. Requires authorized USB, installed-game identity, and the unmodified-host baseline. |
-| Bag and tooltips | blocked | Not run. Requires authorized USB, installed-game identity, and the unmodified-host baseline. |
-| Quick stack | blocked | Not run. Requires authorized USB, installed-game identity, and the unmodified-host baseline. |
-| Craft | blocked | Not run. Requires authorized USB, installed-game identity, and the unmodified-host baseline. |
-| Aim | blocked | Not run. Requires authorized USB, installed-game identity, and the unmodified-host baseline. |
-| Chest | blocked | Not run. Requires authorized USB, installed-game identity, and the unmodified-host baseline. |
-| Shop | blocked | Not run. Requires authorized USB, installed-game identity, and the unmodified-host baseline. |
-| Shipping | blocked | Not run. Requires authorized USB, installed-game identity, and the unmodified-host baseline. |
-| Geodes | blocked | Not run. Requires authorized USB, installed-game identity, and the unmodified-host baseline. |
-| Community Center | blocked | Not run. Requires authorized USB, installed-game identity, and the unmodified-host baseline. |
-| Museum | blocked | Not run. Requires authorized USB, installed-game identity, and the unmodified-host baseline. |
-| Forge | blocked | Not run. Requires authorized USB, installed-game identity, and the unmodified-host baseline. |
-| Sewing/tailoring | blocked | Not run. Requires authorized USB, installed-game identity, and the unmodified-host baseline. |
-| Dialogue and events | blocked | Not run. Requires authorized USB, installed-game identity, and the unmodified-host baseline. |
-| Title and saves | blocked | Not run. Requires authorized USB, installed-game identity, and the unmodified-host baseline. |
-| End of day | blocked | Not run. Requires authorized USB, installed-game identity, and the unmodified-host baseline. |
-| Tabs/settings | blocked | Not run. Requires authorized USB, installed-game identity, and the unmodified-host baseline. |
-| Lifecycle and hardware | blocked | Not run. Requires authorized USB, installed-game identity, and the unmodified-host baseline. |
-| Release hygiene | blocked | Not run. Requires authorized USB, installed-game identity, and the unmodified-host baseline. |
+| Installation and identity | blocked | Not yet run on a shipping mod artifact. |
+| Display and input | blocked | Not yet run on a shipping mod artifact. |
+| Today | blocked | Not yet run on a shipping mod artifact. |
+| Gifts | blocked | Not yet run on a shipping mod artifact. |
+| People | blocked | Not yet run on a shipping mod artifact. |
+| Bag and tooltips | blocked | Not yet run on a shipping mod artifact. |
+| Quick stack | blocked | Not yet run on a shipping mod artifact. |
+| Craft | blocked | Not yet run on a shipping mod artifact. |
+| Aim | blocked | Not yet run on a shipping mod artifact. |
+| Chest | blocked | Not yet run on a shipping mod artifact. |
+| Shop | blocked | Not yet run on a shipping mod artifact. |
+| Shipping | blocked | Not yet run on a shipping mod artifact. |
+| Geodes | blocked | Not yet run on a shipping mod artifact. |
+| Community Center | blocked | Not yet run on a shipping mod artifact. |
+| Museum | blocked | Not yet run on a shipping mod artifact. |
+| Forge | blocked | Not yet run on a shipping mod artifact. |
+| Sewing/tailoring | blocked | Not yet run on a shipping mod artifact. |
+| Dialogue and events | blocked | Not yet run on a shipping mod artifact. |
+| Title and saves | blocked | Not yet run on a shipping mod artifact. |
+| End of day | blocked | Not yet run on a shipping mod artifact. |
+| Tabs/settings | blocked | Not yet run on a shipping mod artifact. |
+| Lifecycle and hardware | blocked | Not yet run on a shipping mod artifact. |
+| Release hygiene | blocked | Not yet run on a shipping mod artifact. |
 
 ## Local checks, not device acceptance
 
