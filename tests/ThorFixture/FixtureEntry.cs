@@ -75,6 +75,7 @@ public sealed partial class FixtureEntry : Mod
                 "fridge" => PrepareFridge(command),
                 "craft-quest" => PrepareCraftQuest(),
                 "ui-stall" => StallUi(),
+                "collect" => CollectForDiagnosis(),
                 "timing-start" => StartTiming(),
                 "timing-stop" => StopTiming(),
                 "latency-snapshot" => QueueLatencySnapshot(),
@@ -267,6 +268,17 @@ public sealed partial class FixtureEntry : Mod
     {
         new Android.OS.Handler(Android.OS.Looper.MainLooper).Post(() => Thread.Sleep(1200));
         return new { requestedMilliseconds = 1200, target = "Android UI thread" };
+    }
+    static object CollectForDiagnosis()
+    {
+        // Diagnostic only: distinguish live retention from uncollected Android peers.
+        GC.Collect();
+        GC.WaitForPendingFinalizers();
+        GC.Collect();
+        Java.Lang.JavaSystem.Gc();
+        Java.Lang.JavaSystem.RunFinalization();
+        Java.Lang.JavaSystem.Gc();
+        return new { requested = "Managed and Java collection", managedBytes = GC.GetTotalMemory(false) };
     }
     object PrepareEvent(JsonElement command)
     {

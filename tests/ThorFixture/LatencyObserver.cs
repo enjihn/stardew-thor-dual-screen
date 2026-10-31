@@ -72,7 +72,7 @@ public sealed partial class FixtureEntry
                 latencyExpected = expected;
                 latencyTree = latencyView.ViewTreeObserver;
                 latencyView.Touch += ObserveLatencyTouch;
-                latencyTree.Draw += ObserveLatencyDraw;
+                latencyTree.PreDraw += ObserveLatencyPreDraw;
                 LatencyResult(new { status = "armed" });
             }
             catch (Exception ex) { DetachLatency(); LatencyResult(new { status = "error", error = ex.Message }); }
@@ -87,8 +87,9 @@ public sealed partial class FixtureEntry
             LatencyResult(new { status = "input", inputEventMs = latencyInput });
         }
     }
-    void ObserveLatencyDraw(object sender, EventArgs e)
+    void ObserveLatencyPreDraw(object sender, ViewTreeObserver.PreDrawEventArgs e)
     {
+        e.Handled = true;
         if (latencyInput == 0 || latencyCommit != null || !Signature(latencyView).SequenceEqual(latencyExpected)) return;
         long input = latencyInput;
         float refresh = latencyView.Display.RefreshRate;
@@ -99,19 +100,18 @@ public sealed partial class FixtureEntry
             LatencyResult(new { status = "committed", inputEventMs = input, commitMs = committed,
                 eventToCommitMs = committed - input, refreshRate = refresh,
                 withOneRefreshMs = committed - input + 1000d / refresh,
-                method = "Native lower touch Up to matching bitmap frame commit, plus one refresh estimate; not optical latency" });
+                method = "Native lower touch Up to first matching bitmap frame commit, registered in PreDraw, plus one refresh estimate; not optical latency" });
         });
         latencyTree.RegisterFrameCommitCallback(latencyCommit);
-        // Registration during Draw may apply to the following traversal. Request that frame;
-        // this deliberately overestimates the first matching frame's latency.
-        latencyView.PostInvalidateOnAnimation();
+        // Android13 captures commit callbacks at performDraw entry, after PreDraw.
+        // Register here to measure the first matching frame without a synthetic redraw.
     }
     void DetachLatency()
     {
         if (latencyView != null) latencyView.Touch -= ObserveLatencyTouch;
         if (latencyTree?.IsAlive == true)
         {
-            latencyTree.Draw -= ObserveLatencyDraw;
+            latencyTree.PreDraw -= ObserveLatencyPreDraw;
             if (latencyCommit != null) latencyTree.UnregisterFrameCommitCallback(latencyCommit);
         }
         latencyCommit?.Dispose(); latencyCommit = null;
