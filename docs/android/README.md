@@ -7,7 +7,7 @@ No game assemblies or assets are distributed.
 
 The Release candidate is installed in the one-mod ThorRelease group.
 Integration, fixture-free save/reload and matched performance passed. Physical
-controls and final soak review remain open. See [current Release acceptance](release-acceptance.md).
+controls remain open; the 30-minute mixed soak passed. See [current Release acceptance](release-acceptance.md).
 See [acceptance](acceptance.md), [compatibility](compatibility.json) and the
 [resumable checkpoint](execution-state.md) for the current verdict.
 

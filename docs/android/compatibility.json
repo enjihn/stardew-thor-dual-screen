@@ -1,5 +1,5 @@
 {
-  "status": "Release candidate installed in ThorRelease; physical controls and final soak review pending",
+  "status": "Release installed in ThorRelease; all autonomous gates passed; real physical hardware check blocked awaiting human action",
   "upstream": {
     "repository": "hung-eggie-do-covergo/stardew-thor-dual-screen",
     "version": "0.5.2",
@@ -59,7 +59,7 @@
     "sourceCommit": "22cf243112b710381db6db8b89dc01882958a67f",
     "version": "0.5.2-android.1",
     "zipSha256": "250ccf42543906951ef68cc33305e25991c4815844c8a4f7d060595b34cd322a",
-    "purpose": "Production-only candidate with native save/cold reload verified; physical controls pending",
+    "purpose": "Production-only artifact; fixture-free save/reload and30minute soak passed; physical controls pending",
     "selectedGroup": "ThorRelease",
     "fixtureVersion": null,
     "accepted": false

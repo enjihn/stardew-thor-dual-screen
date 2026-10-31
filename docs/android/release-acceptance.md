@@ -1,7 +1,8 @@
 # Android Release device acceptance
 
-Status: installed candidate, physical controls and final soak review pending.
-No completion claim is made until those mandatory checks pass.
+Status: installed candidate; physical controls are blocked awaiting one human
+action check. All other required execution work is complete. No completion
+claim is made until the physical hardware row passes.
 
 ## Artifact and runtime
 
@@ -56,9 +57,9 @@ production actions used actual Android input on the physical device.
 | Tabs/settings | pass | Select/hide/reorder/persist, resize and touch mapping; defaults restored. |
 | Lifecycle | pass | Exact candidate ten pause/resume and five vendor lower-cover/restore cycles across title, game, inventory, Aim and chest; fresh input and focus restored. |
 | Missing companion | pass | Native game launched on logical 4, leaving no eligible companion display; load/movement/menu/exit work, no Presentation created. Normal top launch restored. |
-| Hardware controls | pending | Real buttons, sticks and both touch panels require one grouped physical action check. Injected keys do not qualify. |
+| Hardware controls | blocked | Real buttons, sticks and both touch panels require one grouped physical action check. Injected keys do not qualify. |
 | Performance/response | pass with measured limits | Matched presentation p95 ratio 1.000321; response p95 144.333ms. Tail delays and method limits below. |
-| Thirty-minute mixed soak | pending | Bounded UID-wide capture spans movement, panels, Aim, transactions, pause, save, exit and six cold starts. Final duration/log review pending. |
+| Thirty-minute mixed soak | pass | 1,803.533 seconds after first game launch; 402,284 bytes of UID-wide logs across restarts. Movement, panels, Aim, transactions, pause, save, exit and six cold starts; no production exception/crash/ANR. |
 | Preservation | pass | Final three Play APK hashes and three original save-file hashes match the initial manifests; original package/version/installer unchanged. |
 | Release hygiene | pass | Two clean byte-identical five-entry ZIPs; no game/framework DLLs, saves, APKs or fixture. Exact build ID and one-mod group observed in cold launches 05 and 06. |
 
@@ -125,3 +126,22 @@ Private evidence basenames: `release-final-members-verified.png`,
 Raw logs, save backups, reference assemblies and device identifiers stay local
 under ignored `artifacts/private/` or `.local/`. Sanitized summaries and source
 are publishable. Installation and rollback: [INSTALL.md](../../android/INSTALL.md).
+
+## Completed soak
+
+The exact Release artifact ran a mixed session from 2026-10-31 03:49:30.418849
+UTC to 04:19:33.951919 UTC, 1,803.533 seconds. Capture was bounded and scoped to
+the host UID, including restarted game processes. No unhandled exception,
+production error, crash or ANR was found. All ten retained host/game exits
+within the interval were explicit force stops used for the five cold restarts.
+Two fixture warnings refused an occupied chest tile and a malformed item seed
+request before mutation; corrected setup succeeded. They are not hidden or
+counted as production failures. Normal runtime assembly-probing warnings did
+not prevent loading the native game/assets or the verified journeys.
+
+End resource counts: 15 views, two roots, six contexts, one Activity, 26 local
+binders, PSS 957,644 KiB. PSS varies with assets and garbage collection; the
+bounded lifecycle resource observations do not claim constant memory use.
+Evidence: `release-22cf-soak/summary.json`, log segment and exit-info-final.txt,
+plus `release-soak-complete-focus.json`. This is the required mixed-session
+soak, not a guarantee of indefinite reliability.

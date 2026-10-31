@@ -1,5 +1,5 @@
 {
-  "status": "Awaiting physical hardware and final soak review",
+  "status": "Physical hardware check blocked awaiting human action",
   "buildId": "22cf243112b710381db6db8b89dc01882958a67f",
   "zipSha256": "250ccf42543906951ef68cc33305e25991c4815844c8a4f7d060595b34cd322a",
   "normalTopColdLaunches": 5,
@@ -231,5 +231,41 @@
     "display0.density": "Physical density: 369",
     "display4.size": "Physical size: 1080x1240",
     "display4.density": "Physical density: 369"
+  },
+  "soak": {
+    "result": "pass",
+    "firstGameUtc": "2026-10-31T03:49:30.418849+00:00",
+    "endedUtc": "2026-10-31T04:19:33.951919+00:00",
+    "mixedSessionSeconds": 1803.53307,
+    "capturedBytes": 402284,
+    "logScope": "host UID across game process restarts; main,system,crash; no log clearing",
+    "stop": "explicit stop after required duration; logger generic reason field remains duration",
+    "unhandledExceptionsErrorsFatalEvents": 0,
+    "smapiWarnings": 2,
+    "recordedHostExitsInWindow": 10,
+    "exitReasons": "requested force stops for cold launches only; no crash or ANR",
+    "endResourceCounts": {
+      "TOTAL PSS": 957644,
+      "TOTAL RSS": 1095656,
+      "Views": 15,
+      "ViewRootImpl": 2,
+      "AppContexts": 6,
+      "Activities": 1,
+      "Local Binders": 26,
+      "Death Recipients": 1
+    },
+    "actions": [
+      "movement",
+      "panels",
+      "Aim",
+      "sale/purchase",
+      "ten pauses",
+      "five lower cover/restore cycles",
+      "native sleep/save",
+      "safe title exit",
+      "six cold starts",
+      "fixture-free item move/save/reload"
+    ],
+    "limitations": "30-minute session, not long-term reliability certification"
   }
 }
