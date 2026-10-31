@@ -181,3 +181,11 @@ attribution and installation notes, and removes unused probe source. Exact
 rc.1 identity, clean build, reproducibility and acceptance are next. Fixture0.15
 adds observation/setup for supported alternate shop currency only and remains
 excluded from the release archive. No final release is accepted.
+
+Clean rc.1 rebuild initially changed only DLL identity/debug hashes despite
+unchanged code. The Android project now omits its unused generated Resource
+class and PDB metadata. The SDK designer-assembly feature remains enabled, as
+required by the actual host/game references. Two clean verification builds now
+produce identical ZIP bytes; the DLL contains no local Windows path. Earlier
+rc.1 attempts were staged but never imported or selected. Build the committed
+correction before device acceptance.

@@ -49,7 +49,10 @@ by tools/build_android.py. The helper accepts explicit paths for each tool.
 Output is artifacts/private/builds/BUILD_ID/ThorDualScreen-Android.zip, plus
 build.json and SHA256.txt. The archive has one ThorDualScreen root containing
 only DualScreen.dll, manifest.json, LICENSE, ATTRIBUTION.md and INSTALL.md.
-Its timestamps are normalized. Rebuild with identical inputs and build ID,
+Its timestamps are normalized. AndroidGenerateResourceDesigner is disabled because
+the mod declares no Android resources; the SDK designer-assembly feature stays
+enabled for the host references. DebugType=none excludes machine-specific PDB
+metadata from the shipping DLL. Rebuild with identical inputs and build ID,
 compare SHA256, and inspect the archive before staging. Fixture binaries,
 runtime DLLs, APKs, saves, private paths and desktop runtime metadata are excluded.
 

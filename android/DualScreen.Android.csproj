@@ -8,6 +8,10 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>disable</Nullable>
     <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
+    <!-- This loaded library uses game assets and framework Views, with no Android resources. -->
+    <AndroidGenerateResourceDesigner>false</AndroidGenerateResourceDesigner>
+    <!-- Keep local source/PDB paths out of the distributable DLL. -->
+    <DebugType>none</DebugType>
     <DefineConstants>$(DefineConstants);THOR_ANDROID</DefineConstants>
     <ThorBuildId Condition="'$(ThorBuildId)' == ''">unversioned</ThorBuildId>
   </PropertyGroup>
