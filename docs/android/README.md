@@ -5,9 +5,10 @@ publisher JunimoGate 0.3.1 and SMAPI 4.5.2-junimogate.41 on AYN Thor Android 13.
 The mod reuses the upstream UI and the running game's artwork and fonts.
 No game assemblies or assets are distributed.
 
-The Release candidate is installed in the one-mod ThorRelease group.
-Integration, fixture-free save/reload and matched performance passed. Physical
-controls remain open; the 30-minute mixed soak passed. See [current Release acceptance](release-acceptance.md).
+The accepted Release is installed in the one-mod ThorRelease group.
+Integration, fixture-free save/reload, matched performance, the 30-minute mixed
+soak and user-confirmed physical controls passed. See [Release acceptance](release-acceptance.md)
+for the complete result and measured limitations.
 See [acceptance](acceptance.md), [compatibility](compatibility.json) and the
 [resumable checkpoint](execution-state.md) for the current verdict.
 

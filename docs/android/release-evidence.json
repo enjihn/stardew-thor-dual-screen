@@ -1,5 +1,5 @@
 {
-  "status": "Physical hardware check blocked awaiting human action",
+  "status": "Accepted Release; all eight gates passed with documented limitations",
   "buildId": "22cf243112b710381db6db8b89dc01882958a67f",
   "zipSha256": "250ccf42543906951ef68cc33305e25991c4815844c8a4f7d060595b34cd322a",
   "normalTopColdLaunches": 5,
@@ -267,5 +267,22 @@
       "fixture-free item move/save/reload"
     ],
     "limitations": "30-minute session, not long-term reliability certification"
+  },
+  "physicalHardware": {
+    "recordedUtc": "2026-10-31T11:23:10.924861+00:00",
+    "result": "pass",
+    "evidenceType": "Human physical acceptance in response to the exact grouped test",
+    "requestedActions": [
+      "Close native inventory with B",
+      "Walk with left stick before and after lower-screen tab touch",
+      "Open inventory with Start",
+      "D-pad and shoulder navigation, A/B",
+      "Move both sticks",
+      "Top-screen X touch and another lower tab"
+    ],
+    "userResponse": "looks good",
+    "scope": "The user confirmed the grouped check; individual physical event traces were not captured",
+    "artifactSha256": "250ccf42543906951ef68cc33305e25991c4815844c8a4f7d060595b34cd322a",
+    "instrumentationResult": "Earlier bounded ten-minute observer expired with zero events; human-confirmed acceptance, not traced hardware events"
   }
 }

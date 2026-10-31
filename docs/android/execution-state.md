@@ -1,21 +1,21 @@
 # Android execution checkpoint
 
-Execution active. All autonomous work is complete; physical buttons/sticks and both touch panels are blocked awaiting one grouped human check. Do not mark the goal complete before that result.
+Execution complete for the recorded artifact and runtime. The user confirmed the grouped physical controls and touch-panel check with "looks good" on October 31, 2026. All eight gates pass, with documented timing and native-platform limitations. No further implementation or mandatory test remains.
 
 - Fork/branch: `enjihn/stardew-thor-dual-screen`, `android/thor-mobile`.
 - Shipping source/build ID: `22cf243112b710381db6db8b89dc01882958a67f`.
 - Release version `0.5.2-android.1`, ZIP SHA256 `250ccf42543906951ef68cc33305e25991c4815844c8a4f7d060595b34cd322a`. Two clean byte-identical five-entry builds. Do not rebuild or change this artifact for documentation updates.
 - Installed and selected group: `ThorRelease`, exactly one mod, no fixture. Cold05/06 logs confirm exact build ID and one loaded mod.
 - Runtime: unchanged JunimoGate0.3.1/code11, SMAPI4.5.2-junimogate.41, official Play1.6.15.3/code245, Thor Android13/API33. No host patch.
-- Current disposable farm: Spring16, 584g, one seed in bag slot1. Fixture-free lower drag, native sleep/save, exit/title, cold06 reload and both screens passed. Five normal top cold starts plus one zero-eligible-companion launch passed.
+- Verified saved disposable farm: Spring16, 584g, one seed in bag slot1. Subsequent read-only hardware follow-up shows outdoor gameplay and Bag with the same money/item; the user's running game was left undisturbed. Fixture-free lower drag, native sleep/save, exit/title, cold06 reload and both screens passed. Five normal top cold starts plus one zero-eligible-companion launch passed.
 - Exact candidate: ten pause/resume and five supported vendor lower-cover/restore cycles passed. Cover is not physical removal. Views15/roots2/Activities1 and binders28 settling27 remained bounded. Missing-companion native load/movement/menu/exit passed, normal top launch restored.
 - Performance: primary presentation mean59.8296FPS, p95 25.352969ms versus disabled25.344844ms, ratio1.000321. Brief58.17FPS window and worse tail jitter disclosed. Ordinary response p95 144.333ms, max203.333ms across all24 retained samples, event-to-first-frame plus refresh estimate.
 - Standard0, fan setting1 (native Smart), refresh120Hz, cover0, focus settings and native densities/sizes restored. Earlier prose describing Smart as4 was a transcription error; both matched route records read1.
 - Final three Play APK hashes and all three original save hashes match initial manifests. No real save imported or changed.
 - Soak passed: 1,803.533 seconds from first game launch, 402,284 bytes UID-wide logs across restarts. No production exception/crash/ANR. All ten recorded host/game exits were requested cold-start force stops. Two guarded fixture setup warnings are documented. Final views15/roots2/contexts6/Activities1/binders26; PSS957644KiB.
-- Physical input capabilities are readable with normal `getevent -lp`: controller event9, touch event5/6. Request one grouped real buttons/sticks/both-touch-panel test only after all other work. Injected input does not satisfy this row.
+- Physical hardware: user confirmed the exact grouped B/Start/A/B, D-pad/shoulders, both sticks and both touch panels, including movement after lower touch. Accepted as human-reported testing. The earlier bounded observer ended with zero events, so no physical trace is claimed. Same production game process, top focus and both screens verified afterward.
 - Source review: one whole-branch review plus targeted substantial-fix followups passed. Production source unchanged since22cf; later commits only fixture diagnostics/docs. Eleven coordination and ten helper tests passed, fixture21 built and used for latency observation, absent from final profile.
-- Current authoritative status and evidence: `release-acceptance.md`. Keep raw logs/identifiers/APKs/saves private. Remaining: physical hardware response, then update verdict/checkpoint/evidence and push that final result. Deliverable ZIP and local evidence bundle are prepared. Keep the installed production artifact unchanged.
+- Current authoritative status and evidence: `release-acceptance.md`. Keep raw logs/identifiers/APKs/saves private. No open mandatory gate remains. Deliverable ZIP, exact SHA256, current acceptance/evidence, installation/rollback and source checkpoint are preserved. The accepted artifact remains installed and selected; later documentation commits do not change its build ID. Revalidate compatibility after any future game/host/firmware change.
 
 The sections below retain earlier integration evidence and failures. Their old next-action text is historical; use the current checkpoint above to resume.
 

@@ -1,8 +1,8 @@
 # Android Release device acceptance
 
-Status: installed candidate; physical controls are blocked awaiting one human
-action check. All other required execution work is complete. No completion
-claim is made until the physical hardware row passes.
+Status: accepted Release installation. All eight execution gates are satisfied
+for the recorded artifact and runtime, with the measured limitations below.
+Physical hardware acceptance includes the user's grouped hands-on confirmation.
 
 ## Artifact and runtime
 
@@ -57,7 +57,7 @@ production actions used actual Android input on the physical device.
 | Tabs/settings | pass | Select/hide/reorder/persist, resize and touch mapping; defaults restored. |
 | Lifecycle | pass | Exact candidate ten pause/resume and five vendor lower-cover/restore cycles across title, game, inventory, Aim and chest; fresh input and focus restored. |
 | Missing companion | pass | Native game launched on logical 4, leaving no eligible companion display; load/movement/menu/exit work, no Presentation created. Normal top launch restored. |
-| Hardware controls | blocked | Real buttons, sticks and both touch panels require one grouped physical action check. Injected keys do not qualify. |
+| Hardware controls | pass, human-confirmed | User replied "looks good" to the grouped real B/Start/A/B, D-pad/shoulder, both-stick and both-touch-panel test, including movement after lower touch. Subsequent captures show intact gameplay and companion; top GameActivity retains focus. |
 | Performance/response | pass with measured limits | Matched presentation p95 ratio 1.000321; response p95 144.333ms. Tail delays and method limits below. |
 | Thirty-minute mixed soak | pass | 1,803.533 seconds after first game launch; 402,284 bytes of UID-wide logs across restarts. Movement, panels, Aim, transactions, pause, save, exit and six cold starts; no production exception/crash/ANR. |
 | Preservation | pass | Final three Play APK hashes and three original save-file hashes match the initial manifests; original package/version/installer unchanged. |
@@ -145,3 +145,39 @@ bounded lifecycle resource observations do not claim constant memory use.
 Evidence: `release-22cf-soak/summary.json`, log segment and exit-info-final.txt,
 plus `release-soak-complete-focus.json`. This is the required mixed-session
 soak, not a guarantee of indefinite reliability.
+
+## Final physical hardware confirmation
+
+On October 31, 2026, the user answered "looks good" to the requested grouped
+hands-on test: B closes inventory; left-stick movement before and after lower
+tab touch; Start opens inventory; D-pad/shoulder navigation and A/B; both sticks;
+top X and another lower tab touch. This is human-reported acceptance of that
+specific test, not a claim of individually instrumented button/axis traces.
+The earlier bounded ten-minute observer ended with no captured input events.
+No synthetic ADB key is counted as physical hardware evidence.
+
+After the reply, read-only captures showed the same game process running the
+production-only session, outdoor gameplay on top and Bag on the companion,
+Spring 16, 584g and the seed in slot 1. Top GameActivity retained its window
+focus. Resource counts remained 15 views, two roots, six contexts and one
+Activity. The running game was not restarted or interrupted for this check.
+Evidence: `release-hardware-confirmation.json`,
+`release-hardware-confirmed-top.png`, `release-hardware-confirmed-bottom.png`
+and `release-hardware-confirmed-focus.json`.
+
+## Execution gates
+
+| Gate | Result | Evidence |
+|---|---|---|
+| 1: Source and environment | pass | Isolated fork branch, pinned upstream/runtime, local toolchain, source and build records. |
+| 2: Unmodified mobile baseline | pass | Official Play mobile game under publisher host; disposable native save/cold load; verified original-save preservation. |
+| 3: Released host probe | pass | Framework Presentation, original assets, input, lifecycle and final human hardware confirmation; no host patch. |
+| 4: Coordination and lifecycle | pass | Eleven focused tests, interrupted/stale input, UI-stall baseline, missing display, resize and bounded pause/toggle resources. |
+| 5: Visual and data panels | pass | Mode matrix with native artwork/state, corrected Aim rain passes, intact final two-screen captures. |
+| 6: Native consequential actions | pass | Conservation, native callbacks/progression, capacity/cancel failures, saved/cold-loaded results and fixture-free final journey. |
+| 7: Physical acceptance | pass | Hardware confirmation, candidate lifecycle counts, matched primary presentation and response measurements, 30-minute mixed soak. |
+| 8: Packaging and delivery | pass | Independent source review and fixes, two reproducible clean builds, one-mod final group, original hashes, installation/rollback notes and fork branch delivery. |
+
+The native-capability exclusions and timing limits above remain part of the
+acceptance result. No original save, proprietary game binary or host patch is
+part of the distributable mod.
