@@ -4,6 +4,19 @@ using System.Collections.Generic;
 
 namespace DualScreen;
 
+/// <summary>A quantity picker belongs to the menu and exact item selected, never just its slot.</summary>
+internal readonly record struct ActionSelection(object? Menu, object? Item)
+{
+    public bool TryQuantity(object? menu, object? item, int requested, int available, out int quantity)
+    {
+        quantity = 0;
+        if (Item == null || !ReferenceEquals(Menu, menu) || !ReferenceEquals(Item, item)
+            || requested <= 0 || available <= 0) return false;
+        quantity = Math.Min(requested, available);
+        return true;
+    }
+}
+
 internal enum TouchAction { Down, Move, Up, Cancel }
 internal readonly record struct CompanionScope(long Generation, object? Menu, int Layout);
 internal readonly record struct CompanionTouch(CompanionScope Scope, TouchAction Action, int X, int Y);

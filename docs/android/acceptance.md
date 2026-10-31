@@ -11,9 +11,9 @@ USB authorization is resolved. The original Play app and saves are preserved. Ne
 | 1: Source and environment | pass | Personal fork ancestry and pinned upstream checked; local Android Release library and GameInspector compiled; private paths ignored. |
 | 2: Device and unmodified host | partial | Play 1.6.15.3 under released JunimoGate 0.3.1; disposable save cold-reloaded; displays mapped; originals backed up. Save-export defect open. |
 | 3: Release host probe | partial | Release DLL loads, real assets render, lower taps and injected top key route pass; one pause/resume and vendor toggle pass. Physical controls remain pending. |
-| 4: Lifecycle/input/frame ownership | blocked | Requires real release-host probe. |
-| 5: Visual/data modes | blocked | Requires actual mobile metadata and working display path. |
-| 6: Consequential actions | blocked | Requires disposable hosted farm and native mobile behavior. |
+| 4: Lifecycle/input/frame ownership | partial | Ten pure coordination/selection tests pass; interrupted input, resize, resume and vendor cover tested on integration builds. Stress cases remain. |
+| 5: Visual/data modes | partial | Shared panels render; mobile runtime bindings/assets validated. Full visual matrix remains. |
+| 6: Consequential actions | partial | Native shop, chest, geode, craft, dialogue and bundle integration cases passed on development revisions. Persistence and remaining cases are pending. |
 | 7: Physical acceptance/performance | blocked | Requires exact Release candidate on authorized Thor. |
 | 8: Reviewed installed delivery | blocked | No working mobile Release artifact or device evidence yet. |
 
@@ -45,14 +45,8 @@ USB authorization is resolved. The original Play app and saves are preserved. Ne
 | Lifecycle and hardware | blocked | Not yet run on a shipping mod artifact. |
 | Release hygiene | blocked | Not yet run on a shipping mod artifact. |
 
-## Local checks, not device acceptance
+## Integration evidence, not final candidate acceptance
 
-- Six Python helper boundary tests: pass. Initial failing run occurred before helper implementation.
-- Scratch `net9.0-android35.0` Release library using framework Presentation and ImageView: build pass, zero warnings/errors.
-- Pinned JunimoGate GameInspector Release build: pass, zero warnings/errors.
-- JunimoGate v0.3.1 APK: publisher SHA256 matches downloaded bytes.
-- Selected host references: managed identities inspected; SMAPI 4.5.2.0, MonoGame.Framework 1.0.0.0, JunimoGate.GameHost 1.0.0.0.
-- Actual inventory invocation: fail, `device unauthorized`; no successful device properties obtained.
-- Original Play app and saves: no authorized device access or modifications performed.
+See execution-state.md for current artifact identities and private evidence names. Mobile4 shop sale, purchase, stock limit, canceled quantity, insufficient currency and full inventory checks passed through actual lower-screen input. Mobile5 fixed the native held-item read after a reproducible fixture snapshot crash. Chest transfer and geode failures were fixed and verified on mobile6. Dialogue and bundle fixes were verified on mobile7; museum release selection is next. A native profession choice passed on the disposable farm. Ten pure coordination/selection tests pass.
 
-No cold launches, pause/resume cycles, display recreation, hardware input checks, transactions, save/reload journey, performance comparison, or soak have been run.
+The matrix above remains unaccepted until tested on the exact shipping candidate. Earlier USB-blocked statements are superseded: authorization is resolved, original saves are independently backed up, and the released host runs the official mobile game. Final lifecycle counts, hardware controls, performance comparison, soak, save/reload action journey and release hygiene remain pending.

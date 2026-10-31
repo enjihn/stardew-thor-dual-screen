@@ -323,7 +323,16 @@ public class ModEntry : Mod
     }
     void Launched(object sender, GameLaunchedEventArgs e)
     {
-        try { MobileGameAdapter.ValidateRuntime(); host = new MobileHost(MobileHost.ResolveGameActivity(), Monitor, state, frames); }
+        try
+        {
+            var unsupported = MobileGameAdapter.ValidateRuntime();
+            if (unsupported.Count != 0)
+            {
+                Monitor.Log("Mobile companion disabled: " + string.Join("; ", unsupported), LogLevel.Error);
+                return;
+            }
+            host = new MobileHost(MobileHost.ResolveGameActivity(), Monitor, state, frames);
+        }
         catch (Exception ex) { Monitor.Log($"Mobile companion initialization failed: {ex}", LogLevel.Error); }
     }
     void InvalidateInput()

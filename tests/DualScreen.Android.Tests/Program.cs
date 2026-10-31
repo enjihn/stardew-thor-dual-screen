@@ -2,6 +2,23 @@ using DualScreen;
 
 var tests = new (string Name, Action Body)[]
 {
+    ("Quantity selection rejects replacement item and menu", () =>
+    {
+        var menu = new object(); var item = new object();
+        var selection = new ActionSelection(menu, item);
+        Check(!selection.TryQuantity(menu, new object(), 2, 5, out _), "replacement item accepted");
+        Check(!selection.TryQuantity(new object(), item, 2, 5, out _), "replacement menu accepted");
+        Check(!new ActionSelection(null, null).TryQuantity(null, null, 1, 1, out _), "empty selection accepted");
+    }),
+    ("Quantity selection rejects canceled amount and clamps current stack", () =>
+    {
+        var item = new object(); var selection = new ActionSelection(null, item);
+        foreach (int count in new[] { 0, -1, int.MinValue })
+            Check(!selection.TryQuantity(null, item, count, 8, out _), "nonpositive quantity accepted");
+        Check(!selection.TryQuantity(null, item, 2, 0, out _), "empty stack accepted");
+        Check(selection.TryQuantity(null, item, int.MaxValue, 3, out int quantity) && quantity == 3, "current quantity not clamped");
+        Check(selection.TryQuantity(null, item, 2, 3, out quantity) && quantity == 2, "valid quantity changed");
+    }),
     ("Queued touch cannot cross menu or layout replacement", () =>
     {
         var state = new CompanionState();

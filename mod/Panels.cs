@@ -189,6 +189,7 @@ public class Panels
 
 #if THOR_ANDROID
     int inputRevision;
+    ActionSelection dragSelection, sellSelection, storeSelection;
     internal int InputLayoutKey => HashCode.Combine(inputRevision, Showing, tab, InfoOpen, numpadMax > 0,
         storePage, shopBagRow, personGifts);
     internal void CancelGesture()
@@ -252,6 +253,9 @@ public class Panels
                     : OpenInventory == null ? BagSlotAt(x, y - ContentShift)
                     : Storage != null ? StoreBagSlotAt(x, y - ContentShift) : -1;
                 if (dragFrom >= 0 && Game1.player.Items[dragFrom] == null) dragFrom = -1;
+#if THOR_ANDROID
+                dragSelection = new(Game1.activeClickableMenu, dragFrom < 0 ? null : Game1.player.Items[dragFrom]);
+#endif
                 dragAt = new Point(x, y);
                 dragging = false;
                 break;
@@ -372,11 +376,20 @@ public class Panels
         clouds ??= Game1.content.Load<Texture2D>("Minigames\\Clouds");
         int w = ModEntry.W, h = ModEntry.H;
         bool night = Context.IsWorldReady && Game1.timeOfDay >= 1800;
-        if (night) b.Draw(Game1.mouseCursors, new Rectangle(0, 0, w, h), new Rectangle(639, 858, 1, 184), Color.White);
+        if (night)
+#if THOR_ANDROID
+            b.Draw(Game1.mobileSpriteSheet, new Rectangle(0, 0, w, h + 300), new Rectangle(228, 0, 4, 184), Color.White);
+#else
+            b.Draw(Game1.mouseCursors, new Rectangle(0, 0, w, h), new Rectangle(639, 858, 1, 184), Color.White);
+#endif
         else
         {
             b.Draw(Game1.staminaRect, new Rectangle(0, 0, w, h), new Color(64, 136, 248));
+#if THOR_ANDROID
+            b.Draw(Game1.mobileSpriteSheet, new Rectangle(0, -600, w, 600 + h - 240), new Rectangle(236, 0, 4, 264), Color.White);
+#else
             b.Draw(Game1.mouseCursors, new Rectangle(0, -600, w, 600 + h - 240), new Rectangle(703, 1912, 1, 264), Color.White);
+#endif
             b.Draw(clouds, new Vector2(-100, h - 500), new Rectangle(0, 0, 512, 337), Color.White * 0.6f, 0, Vector2.Zero, 2f, SpriteEffects.None, 0);
         }
         var hills = night ? new Color(30, 62, 50) : Color.White;
@@ -1013,6 +1026,8 @@ public class Panels
     static Item HeldItem(JunimoNoteMenu m) => MobileGameAdapter.HeldItem(m);
     static void SetHeldItem(JunimoNoteMenu m, Item item) => MobileGameAdapter.SetHeldItem(m, item);
     static Item SourceItem(ItemGrabMenu m) => MobileGameAdapter.SourceItem(m);
+    static Item InventoryHeldItem(MenuWithInventory m) => MobileGameAdapter.InventoryHeldItem(m);
+    static void SetInventoryHeldItem(MenuWithInventory m, Item item) => MobileGameAdapter.SetInventoryHeldItem(m, item);
     LoadGameMenu saveList;
     int firstSave;
     static int SavePageSize(LoadGameMenu m) => 4;
@@ -1028,6 +1043,8 @@ public class Panels
     static Item HeldItem(JunimoNoteMenu m) => m.heldItem;
     static void SetHeldItem(JunimoNoteMenu m, Item item) => m.heldItem = item;
     static Item SourceItem(ItemGrabMenu m) => m?.sourceItem;
+    static Item InventoryHeldItem(MenuWithInventory m) => m.heldItem;
+    static void SetInventoryHeldItem(MenuWithInventory m, Item item) => m.heldItem = item;
     static int SavePageSize(LoadGameMenu m) => LoadGameMenu.itemsPerPage;
     static int FirstSave(LoadGameMenu m) => m.currentItemIndex;
     static void SetFirstSave(LoadGameMenu m, int value) => m.currentItemIndex = value;
@@ -1040,6 +1057,13 @@ public class Panels
 
     void DrawBundle(SpriteBatch b, JunimoNoteMenu note)
     {
+#if THOR_ANDROID
+        if (note.scrambledText)
+        {
+            Text(b, "You can't read this note yet.", new Vector2(22, 64), Faint);
+            return;
+        }
+#endif
         if (!SpecificBundlePage(note))
         {
             // Room overview: the room's bundles as big cards, done ones dimmed with a check.
@@ -1099,11 +1123,20 @@ public class Panels
     void TapBundle(JunimoNoteMenu note, int x, int y)
     {
         if (!JunimoNoteMenu.canClick) return;
+#if THOR_ANDROID
+        if (note.scrambledText) return;
+#endif
         if (!SpecificBundlePage(note))
         {
             for (int i = 0; i < Math.Min(note.bundles.Count, 10); i++)
                 if (BundleCard(i).Contains(x, y) && !note.bundles[i].complete)
+                {
                     note.receiveLeftClick(note.bundles[i].bounds.Center.X, note.bundles[i].bounds.Center.Y);
+#if THOR_ANDROID
+                    note.releaseLeftClick(note.bundles[i].bounds.Center.X, note.bundles[i].bounds.Center.Y);
+#endif
+                    return;
+                }
             return;
         }
         if (BundleBack.Contains(x, y) && note.backButton != null && HeldItem(note) == null)
@@ -1119,10 +1152,22 @@ public class Panels
         ClickSlot(note, note.inventory, bag);
         if (HeldItem(note) == null) return;
         var slot = note.ingredientSlots.FirstOrDefault(c => c.item == null && CurrentBundle(note).canAcceptThisItem(HeldItem(note), c));
-        if (slot != null) note.receiveLeftClick(slot.bounds.Center.X, slot.bounds.Center.Y);
+        if (slot != null)
+#if THOR_ANDROID
+            note.releaseLeftClick(slot.bounds.Center.X, slot.bounds.Center.Y);
+#else
+            note.receiveLeftClick(slot.bounds.Center.X, slot.bounds.Center.Y);
+#endif
         else Status("This bundle doesn't need that");
+#if THOR_ANDROID
+        // Android selects a reference still owned by the bag. Native release consumes only
+        // the accepted amount. Adding the remainder back would duplicate that same item.
+        note.inventory.ClearSelection();
+        SetHeldItem(note, null);
+#else
         // Whatever wasn't needed goes back into the bag.
         if (HeldItem(note) != null && Game1.player.addItemToInventoryBool(HeldItem(note))) SetHeldItem(note, null);
+#endif
     }
 
     // ---------- End of day: what you shipped, tomorrow, level up ----------
@@ -1237,6 +1282,11 @@ public class Panels
         }
         int pick = ProfessionButton(0).Contains(x, y) ? 0 : ProfessionButton(1).Contains(x, y) ? 1 : -1;
         if (pick < 0) return;
+#if THOR_ANDROID
+        if (!ReferenceEquals(Game1.activeClickableMenu, menu)) return;
+        var button = pick == 0 ? menu.leftProfession : menu.rightProfession;
+        if (button != null) menu.receiveLeftClick(button.bounds.Center.X, button.bounds.Center.Y);
+#else
         int profession = helper.Reflection.GetField<List<int>>(menu, "professionsToChoose").GetValue()[pick];
         Game1.player.professions.Add(profession);
         menu.getImmediateProfessionPerk(profession);
@@ -1244,6 +1294,7 @@ public class Panels
         menu.informationUp = false;
         menu.isProfessionChooser = false;
         menu.RemoveLevelFromLevelList();
+#endif
     }
 
     // ---------- Bag ----------
@@ -1395,6 +1446,17 @@ public class Panels
         }
         // Click the matching slot in the game's own chest menu, so its rules decide what moves.
         int s = Enumerable.Range(0, StorePage).FirstOrDefault(n => StoreRect(n).Contains(x, y), -1);
+#if THOR_ANDROID
+        if (menu is ItemGrabMenu native)
+        {
+            int index = s >= 0 ? storePage * StorePage + s
+                : Enumerable.Range(0, Game1.player.MaxItems).FirstOrDefault(n => StoreBagRect(n).Contains(x, y), -1);
+            var list = s >= 0 ? store.actualInventory : Game1.player.Items;
+            if (index >= 0 && index < list.Count && list[index] is Item item
+                && MobileGameAdapter.MoveStorage(native, s >= 0, index, item, item.Stack) == 0) Status("No room or item unavailable");
+            return;
+        }
+#endif
         if (s >= 0) { ClickSlot(menu, store, storePage * StorePage + s); return; }
         int b = Enumerable.Range(0, Game1.player.MaxItems).FirstOrDefault(n => StoreBagRect(n).Contains(x, y), -1);
         if (b >= 0) ClickSlot(menu, OpenInventory, b);
@@ -1403,6 +1465,14 @@ public class Panels
     /// <summary>Moves part of a stack between chest and bag; anything that doesn't fit stays put.</summary>
     void MoveAmount(ItemGrabMenu grab, InventoryMenu store, Item picked)
     {
+#if THOR_ANDROID
+        var selectedList = storeFromChest ? store.actualInventory : Game1.player.Items;
+        if (storeIndex < 0 || storeIndex >= selectedList.Count || !ReferenceEquals(selectedList[storeIndex], picked)
+            || !storeSelection.TryQuantity(Game1.activeClickableMenu, picked, sellAmount, picked.Stack, out int count)) return;
+        int moved = MobileGameAdapter.MoveStorage(grab, storeFromChest, storeIndex, picked, count);
+        if (moved == 0) Status(storeFromChest ? "Bag is full or item unavailable" : "Storage is full or item unavailable");
+        storeIndex = -1;
+#else
         int count = Math.Clamp(sellAmount, 1, picked.Stack);
         var part = picked.getOne();
         part.Stack = count;
@@ -1421,6 +1491,7 @@ public class Panels
         }
         else sellAmount = Math.Min(sellAmount, picked.Stack);
         Game1.playSound("Ship");
+#endif
     }
 
     static void ClickSlot(IClickableMenu menu, InventoryMenu grid, int index)
@@ -1479,7 +1550,16 @@ public class Panels
         // Item card: what you're holding.
         Card(b, BagCard.X, BagCard.Y, BagCard.Width, BagCard.Height);
         var cur = Game1.player.CurrentItem;
-        if (cur == null) { Text(b, "Tap to hold. Drag to move, or onto the trash that appears.", new Vector2(22, 368), Faint); return; }
+        if (cur == null)
+        {
+#if THOR_ANDROID
+            float hintY = 368;
+            Wrapped(b, "Tap to hold. Drag to move, or onto the trash that appears.", 22, ref hintY, 576, Faint, 3);
+#else
+            Text(b, "Tap to hold. Drag to move, or onto the trash that appears.", new Vector2(22, 368), Faint);
+#endif
+            return;
+        }
         DrawMoreHint(b, BagCard);
         SlotFrame(b, 22, 368, 64);
         Item(b, cur, 22, 368, 64);
@@ -1609,7 +1689,10 @@ public class Panels
     void DropItem(int from, int x, int y)
     {
         var items = Game1.player.Items;
-        if (from < 0 || items[from] is not Item moving) return;
+        if (from < 0 || from >= items.Count || items[from] is not Item moving) return;
+#if THOR_ANDROID
+        if (!dragSelection.TryQuantity(Game1.activeClickableMenu, moving, moving.Stack, moving.Stack, out _)) return;
+#endif
         // In chest-style menus a drag only trashes; moving between slots goes through the menu's taps.
         if (Storage != null && !TrashRect.Contains(x, y)) return;
 
@@ -1827,11 +1910,19 @@ public class Panels
     /// <summary>Same steps as the game's crafting page, but the result goes straight into the bag.</summary>
     void Craft(CraftingRecipe r)
     {
+#if THOR_ANDROID
+        if (Game1.activeClickableMenu != null || Game1.eventUp || !Game1.player.craftingRecipes.ContainsKey(r.name)) return;
+#endif
         if (!r.doesFarmerHaveIngredientsInInventory()) { Status("Missing ingredients"); return; }
         var item = r.createItem();
         if (!Game1.player.couldInventoryAcceptThisItem(item)) { Status("Bag is full"); return; }
         r.consumeIngredients(null);
-        Game1.player.addItemToInventoryBool(item);
+        if (!Game1.player.addItemToInventoryBool(item))
+        {
+            // A native callback can change capacity after the preflight. Preserve the crafted output.
+            Game1.createItemDebris(item, Game1.player.getStandingPosition(), -1, Game1.currentLocation);
+            Status("Crafted item dropped beside you");
+        }
         Game1.player.NotifyQuests(q => q.OnRecipeCrafted(r, item));
         if (Game1.player.craftingRecipes.ContainsKey(r.name)) Game1.player.craftingRecipes[r.name] += r.numberProducedPerCraft;
         Game1.stats.checkForCraftingAchievements();
@@ -1939,10 +2030,17 @@ public class Panels
         for (int i = 0; i < Math.Min(d.responses.Length, 6); i++)
         {
             if (!ChoiceRect(d, i).Contains(x, y)) continue;
+#if THOR_ANDROID
+            bool finishedTyping = d.characterIndexInDialogue >= d.getCurrentString().Length - 1;
+            d.receiveLeftClick(0, 0);
+            if (finishedTyping) d.selectedResponse = i;
+            d.releaseLeftClick(0, 0);
+#else
             // Same as clicking the answer on top: first click finishes the typing, the next one answers.
             if (d.characterIndexInDialogue < d.getCurrentString().Length - 1) { d.receiveLeftClick(0, 0); return; }
             d.selectedResponse = i;
             d.receiveLeftClick(0, 0);
+#endif
             return;
         }
     }
@@ -2071,13 +2169,21 @@ public class Panels
     }
 
     int SellUnitPrice(ShopMenu shop, Item item) =>
+#if THOR_ANDROID
+        (int)((item is SObject ? item.sellToStorePrice() : item.salePrice() / 2) * helper.Reflection.GetField<float>(shop, "sellPercentage").GetValue());
+#else
         (int)(item.sellToStorePrice() * helper.Reflection.GetField<float>(shop, "sellPercentage").GetValue());
+#endif
 
     /// <summary>Sells part of a stack, following the shop's own sell steps (minus the coin animation).</summary>
     void Sell(ShopMenu shop, int index, int count)
     {
         var items = Game1.player.Items;
-        if (items[index] is not Item item || !(shop.inventory.highlightMethod?.Invoke(item) ?? true)) return;
+        if (index < 0 || index >= items.Count || items[index] is not Item item || !(shop.inventory.highlightMethod?.Invoke(item) ?? true)) return;
+#if THOR_ANDROID
+        if (!sellSelection.TryQuantity(Game1.activeClickableMenu, item, count, item.Stack, out count)) return;
+        if (!MobileGameAdapter.Sell(shop, index, item, count)) { Status("Select the item again"); return; }
+#else
         count = Math.Clamp(count, 1, item.Stack);
         var sold = item.getOne();
         sold.Stack = count;
@@ -2105,6 +2211,7 @@ public class Panels
             Game1.playSound("sell");
             Game1.playSound("purchase");
         }
+#endif
         if (items[index] == null) sellPick = -1;
         else sellAmount = Math.Min(sellAmount, items[index].Stack);
     }
@@ -2120,6 +2227,9 @@ public class Panels
             if (!ShopBagRect(c).Contains(x, y) || i >= Game1.player.Items.Count || Game1.player.Items[i] is not Item it) continue;
             if (!(shop.inventory.highlightMethod?.Invoke(it) ?? true)) { Status($"{it.DisplayName} can't be sold here"); return; }
             sellPick = i; sellAmount = it.Stack; shopPick = null;
+#if THOR_ANDROID
+            sellSelection = new(shop, it);
+#endif
             return;
         }
         if (sellPick >= 0 && Game1.player.Items[sellPick] is Item selling && PickRegion(ShopPickTop).Contains(x, y))
@@ -2139,11 +2249,23 @@ public class Panels
     /// <summary>Buys through the shop's own purchase code, clamped like its shift/ctrl-click bulk buy.</summary>
     void Buy(ShopMenu shop, ISalable item, int count)
     {
+#if THOR_ANDROID
+        if (!ReferenceEquals(Game1.activeClickableMenu, shop) || !shop.forSale.Contains(item)
+            || !shop.itemPriceAndStock.ContainsKey(item) || count <= 0 || shop.readOnly) return;
+        if (shop.heldItem != null) { Status("Finish the held purchase first"); return; }
+#endif
         var stock = shop.itemPriceAndStock[item];
         int money = ShopMenu.getPlayerCurrencyAmount(Game1.player, shop.currency);
+#if THOR_ANDROID
+        if (stock.Stock <= 0 || (stock.Price > 0 && money < stock.Price)) { Status("Not enough currency or stock"); return; }
+#endif
         count = Math.Min(count, Math.Max(1, money / Math.Max(1, stock.Price)));
         count = Math.Min(Math.Min(count, Math.Max(1, stock.Stock)), item.maximumStackSize() is > 0 and var max ? max : count);
+#if THOR_ANDROID
+        bool soldOut = MobileGameAdapter.Purchase(shop, item, shop.heldItem, count);
+#else
         bool soldOut = helper.Reflection.GetMethod(shop, "tryToPurchaseItem").Invoke<bool>(item, shop.heldItem, count, 0, 0);
+#endif
         if (soldOut)
         {
             shop.itemPriceAndStock.Remove(item);
@@ -2205,7 +2327,7 @@ public class Panels
 
     static string MenuHint(MenuWithInventory m) => m switch
     {
-        MuseumMenu => "Tap an item to donate it, then choose its spot on the top screen. Greyed-out items can't be donated.",
+        MuseumMenu => "Tap a bright item, then choose its spot on the top screen.",
         ForgeMenu or TailoringMenu => "Tap an item to put it in, then finish on the top screen.",
         _ => "Tap an item to use it with the menu on the top screen.",
     };
@@ -2223,14 +2345,23 @@ public class Panels
         if (i < 0 || items[i] is not Item it) return;
         if (!(menu.inventory.highlightMethod?.Invoke(it) ?? true)) { Status($"{it.DisplayName} can't be shipped"); return; }
         sellPick = i; sellAmount = it.Stack;
+#if THOR_ANDROID
+        sellSelection = new(menu, it);
+#endif
     }
 
     /// <summary>Ships part or all of a stack through the farm's own shipItem (bin, last-shipped, animation).</summary>
     void Ship(int index, int count)
     {
         var items = Game1.player.Items;
-        if (items[index] is not Item item) return;
+        if (index < 0 || index >= items.Count || items[index] is not Item item) return;
+#if THOR_ANDROID
+        if (Game1.activeClickableMenu is not ItemGrabMenu { shippingBin: true } menu
+            || !(menu.inventory.highlightMethod?.Invoke(item) ?? true)
+            || !sellSelection.TryQuantity(menu, item, count, item.Stack, out count)) return;
+#else
         count = Math.Clamp(count, 1, item.Stack);
+#endif
         var part = item;
         if (count < item.Stack)
         {
@@ -2251,17 +2382,35 @@ public class Panels
         if (i < 0) return;
         if (menu is GeodeMenu geode)
         {
+#if THOR_ANDROID
+            if (geode.geodeAnimationTimer > 0 || geode.waitingForServerResponse || i >= Game1.player.Items.Count
+                || !Utility.IsGeode(Game1.player.Items[i])) return;
+            var nativeSlot = geode.inventory.inventory.FirstOrDefault(c => c.name == i.ToString());
+            if (nativeSlot == null) return;
+            geode.receiveLeftClick(nativeSlot.bounds.Center.X, nativeSlot.bounds.Center.Y);
+            geode.releaseLeftClick(nativeSlot.bounds.Center.X, nativeSlot.bounds.Center.Y);
+            geode.receiveLeftClick(geode.geodeSpot.bounds.Center.X, geode.geodeSpot.bounds.Center.Y);
+            geode.releaseLeftClick(geode.geodeSpot.bounds.Center.X, geode.geodeSpot.bounds.Center.Y);
+#else
             // One geode per tap: right-click picks up a single one, then drop it on the anvil.
-            if (geode.geodeAnimationTimer > 0 || geode.heldItem != null) return;
+            if (geode.geodeAnimationTimer > 0 || InventoryHeldItem(geode) != null) return;
             var slot = geode.inventory.inventory.FirstOrDefault(c => int.TryParse(c.name, out var n) && n == i);
             if (slot == null) return;
             geode.receiveRightClick(slot.bounds.Center.X, slot.bounds.Center.Y);
-            if (geode.heldItem != null) geode.receiveLeftClick(geode.geodeSpot.bounds.Center.X, geode.geodeSpot.bounds.Center.Y);
+            if (InventoryHeldItem(geode) != null) geode.receiveLeftClick(geode.geodeSpot.bounds.Center.X, geode.geodeSpot.bounds.Center.Y);
             // Refused (bag full, under 25g): put it back rather than leave it in hand.
-            if (geode.heldItem != null && geode.geodeAnimationTimer <= 0 && Game1.player.addItemToInventoryBool(geode.heldItem)) geode.heldItem = null;
+            if (InventoryHeldItem(geode) is Item rejected && geode.geodeAnimationTimer <= 0 && Game1.player.addItemToInventoryBool(rejected)) SetInventoryHeldItem(geode, null);
+#endif
             return;
         }
         ClickSlot(menu, menu.inventory, i);
+#if THOR_ANDROID
+        if (menu is MuseumMenu && ReferenceEquals(Game1.activeClickableMenu, menu))
+        {
+            var slot = menu.inventory.inventory.FirstOrDefault(c => c.name == i.ToString());
+            if (slot != null) menu.releaseLeftClick(slot.bounds.Center.X, slot.bounds.Center.Y);
+        }
+#endif
     }
 
     // ---------- Title screen ----------
@@ -2307,7 +2456,7 @@ public class Panels
         // Night: fades in over everything as Load opens, out again on Back.
         if (night <= 0f) return;
 #if THOR_ANDROID
-        b.Draw(Game1.mobileSpriteSheet, new Rectangle(0, 0, w, h), new Rectangle(228, 0, 4, 184), Color.White * night);
+        b.Draw(Game1.mobileSpriteSheet, new Rectangle(0, 0, w, h + 300), new Rectangle(228, 0, 4, 184), Color.White * night);
 #else
         b.Draw(Game1.mouseCursors, new Rectangle(0, 0, w, h), new Rectangle(702, 1912, 1, 264), Color.White * night);
 #endif
@@ -2372,12 +2521,18 @@ public class Panels
         if (s >= 0 && i < store.actualInventory.Count && store.actualInventory[i] is Item fromChest)
         {
             storeFromChest = true; storeIndex = i; sellAmount = Math.Max(1, fromChest.Stack / 2);
+#if THOR_ANDROID
+            storeSelection = new(Game1.activeClickableMenu, fromChest);
+#endif
             return true;
         }
         int b = Enumerable.Range(0, Game1.player.MaxItems).FirstOrDefault(n => StoreBagRect(n).Contains(x, y), -1);
         if (b >= 0 && Game1.player.Items[b] is Item fromBag)
         {
             storeFromChest = false; storeIndex = b; sellAmount = Math.Max(1, fromBag.Stack / 2);
+#if THOR_ANDROID
+            storeSelection = new(Game1.activeClickableMenu, fromBag);
+#endif
             return true;
         }
         return false;
@@ -2418,10 +2573,14 @@ public class Panels
                         // right at scale 1, so draw at 1 and halve the whole batch; layers need depth sorting.
                         b.End();
                         b.Begin(SpriteSortMode.FrontToBack, BlendState.AlphaBlend, SamplerState.PointClamp, null, null, null, Matrix.CreateScale(0.5f));
-                        FarmerRenderer.isDrawingForUI = true;
-                        f.FarmerRenderer.draw(b, new FarmerSprite.AnimationFrame(0, 0, false, false), 0, new Rectangle(0, 0, 16, 32),
-                            new Vector2(r.X + 16, r.Y + 14) * 2, Vector2.Zero, 0.8f, 2, Color.White, 0f, 1f, f);
-                        FarmerRenderer.isDrawingForUI = false;
+                        bool wasDrawingForUI = FarmerRenderer.isDrawingForUI;
+                        try
+                        {
+                            FarmerRenderer.isDrawingForUI = true;
+                            f.FarmerRenderer.draw(b, new FarmerSprite.AnimationFrame(0, 0, false, false), 0, new Rectangle(0, 0, 16, 32),
+                                new Vector2(r.X + 16, r.Y + 14) * 2, Vector2.Zero, 0.8f, 2, Color.White, 0f, 1f, f);
+                        }
+                        finally { FarmerRenderer.isDrawingForUI = wasDrawingForUI; }
                         b.End();
                         b.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.PointClamp);
                         Text(b, f.Name, new Vector2(r.X + 64, r.Y + 14));
@@ -2585,7 +2744,14 @@ public class Panels
             w.GraphicsDevice.Clear(Color.Black);
             Game1.mapDisplayDevice.BeginScene(w);
             w.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.PointClamp, null, null, null, AimScale);
+#if THOR_ANDROID
+            Game1.background?.draw(w);
+            loc.drawBackground(w);
+#endif
             foreach (var l in loc.backgroundLayers) l.Key.Draw(Game1.mapDisplayDevice, aimView, xTile.Dimensions.Location.Origin, false, 4, -1f);
+#if THOR_ANDROID
+            loc.drawWater(w);
+#endif
             w.End();
             w.Begin(SpriteSortMode.FrontToBack, BlendState.AlphaBlend, SamplerState.PointClamp, null, null, null, AimScale);
             loc.drawFloorDecorations(w);
@@ -2597,6 +2763,10 @@ public class Panels
             w.End();
             w.Begin(SpriteSortMode.FrontToBack, BlendState.AlphaBlend, SamplerState.PointClamp, null, null, null, AimScale);
             loc.draw(w);
+#if THOR_ANDROID
+            if (Game1.player.ActiveObject == null && Game1.player.UsingTool && Game1.player.CurrentTool != null)
+                Game1.drawTool(Game1.player);
+#endif
             for (int k = 0; k < loc.frontLayers.Count; k++)
                 loc.frontLayers[k].Key.Draw(Game1.mapDisplayDevice, aimView, xTile.Dimensions.Location.Origin, false, 4,
                     64f + (loc.frontLayers.Count > 1 ? 0.1f * k / (loc.frontLayers.Count - 1) : 0f));
@@ -2608,6 +2778,11 @@ public class Panels
                 l.Key.Draw(Game1.mapDisplayDevice, aimView, xTile.Dimensions.Location.Origin, false, 4, -1f);
                 w.End();
             }
+#if THOR_ANDROID
+            w.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.PointClamp, null, null, null, AimScale);
+            loc.drawAboveAlwaysFrontLayer(w);
+            w.End();
+#endif
             DrawAimLighting(w, loc, old);
         }
         catch (Exception ex)
@@ -2700,7 +2875,11 @@ public class Panels
         float scale = Game1.options.lightingQuality / 2f;
         if (Game1.game1.useUnscaledLighting) scale /= zoom;
         // World pixel -> top-screen pixel -> lightmap pixel.
+#if THOR_ANDROID
+        float k = 1f / scale;
+#else
         float k = zoom / scale;
+#endif
         var src = new Rectangle((int)((aimView.X - topView.X) * k), (int)((aimView.Y - topView.Y) * k),
             (int)(aimView.Width * k), (int)(aimView.Height * k));
         var blend = helper.Reflection.GetField<BlendState>(Game1.game1, "lightingBlend").GetValue();
