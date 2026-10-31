@@ -2,6 +2,22 @@ using DualScreen;
 
 var tests = new (string Name, Action Body)[]
 {
+    ("Chest reorder invalidates a touch without replacing its menu", () =>
+    {
+        var menu = new object(); var wood = new object(); var stone = new object();
+        var slots = new SlotIdentityRevision(); var state = new CompanionState();
+        var shown = state.SetContext(menu, slots.Observe(new[] { wood, stone }));
+        state.SetContext(menu, slots.Observe(new[] { wood, stone }));
+        Check(state.IsCurrent(shown), "unchanged slots invalidated");
+        state.Enqueue(new CompanionTouch(shown, TouchAction.Down, 40, 80));
+        Check(state.TryTakeTouch(out _), "valid press rejected");
+        state.SetContext(menu, slots.Observe(new[] { stone, wood }));
+        state.Enqueue(new CompanionTouch(shown, TouchAction.Up, 40, 80));
+        Check(!state.TryTakeTouch(out _), "release transferred the replacement chest item");
+        var reordered = state.SetContext(menu, slots.Observe(new[] { stone, wood }));
+        state.SetContext(menu, slots.Observe(new object[] { stone }));
+        Check(!state.IsCurrent(reordered), "removed slot retained its old scope");
+    }),
     ("Quantity selection rejects replacement item and menu", () =>
     {
         var menu = new object(); var item = new object();

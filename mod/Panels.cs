@@ -195,9 +195,11 @@ public class Panels
 
 #if THOR_ANDROID
     int inputRevision;
+    readonly SlotIdentityRevision storageRevision = new();
     ActionSelection dragSelection, sellSelection, storeSelection;
-    internal int InputLayoutKey => HashCode.Combine(inputRevision, Showing, tab, InfoOpen, numpadMax > 0,
-        storePage, shopBagRow, personGifts);
+    internal int InputLayoutKey => HashCode.Combine(
+        HashCode.Combine(inputRevision, Showing, tab, InfoOpen, numpadMax > 0, storePage, shopBagRow, personGifts),
+        storageRevision.Observe(Storage?.actualInventory ?? Enumerable.Empty<Item>()));
     internal void CancelGesture()
     {
         pressDown = longPressed = headerTouch = scrollingTabs = listTouch = scrollingList = aimPressing = dragging = false;

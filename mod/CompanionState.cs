@@ -17,6 +17,27 @@ internal readonly record struct ActionSelection(object? Menu, object? Item)
     }
 }
 
+/// <summary>Chest slot order can change while the menu and player inventory stay unchanged.</summary>
+internal sealed class SlotIdentityRevision
+{
+    readonly List<object?> previous = new();
+    int revision;
+    public int Observe(IEnumerable<object?> slots)
+    {
+        bool changed = false;
+        int index = 0;
+        foreach (var item in slots)
+        {
+            if (index == previous.Count) { previous.Add(item); changed = true; }
+            else if (!ReferenceEquals(previous[index], item)) { previous[index] = item; changed = true; }
+            index++;
+        }
+        if (index < previous.Count) { previous.RemoveRange(index, previous.Count - index); changed = true; }
+        if (changed) revision = unchecked(revision + 1);
+        return revision;
+    }
+}
+
 internal enum TouchAction { Down, Move, Up, Cancel }
 internal readonly record struct CompanionScope(long Generation, object? Menu, int Layout);
 internal readonly record struct CompanionTouch(CompanionScope Scope, TouchAction Action, int X, int Y);

@@ -189,3 +189,41 @@ required by the actual host/game references. Two clean verification builds now
 produce identical ZIP bytes; the DLL contains no local Windows path. Earlier
 rc.1 attempts were staged but never imported or selected. Build the committed
 correction before device acceptance.
+
+## Candidate and independent review
+
+Candidate rc.1 source20bc710cfefbff75b4b9c8e49c5ca52f3a67ff8c, buildID
+candidate-rc1, SHA2560b3f23803e59a6846f7399173bf7d4de1f8f68a95fa2b1553fc46a959955bbfd
+was imported and its identity observed. Five-entry allowlist and two clean
+byte-identical builds passed. Alternate-currency Buy1 charged20clubcoins
+(100to80), left500g unchanged and reduced stock7to6.
+
+The single independent whole-branch review completed and found two P2 issues.
+A279ms lower Down/top-native-Organize/lower Up reproduced stale chest selection:
+stone20 transferred instead of the originally displayed wood990. Private
+rc1-chest-reordered-stale-up.json/png. Uncommitted fix adds chest slot identity
+revision to the published scope. Its new test failed before the helper existed,
+then11/11focused tests passed and Release compiled. Device fix check pending.
+
+The reviewer also identified lower Sell rejecting native SnappyMenus after
+controller-mode entry. A separate fixture now observes and prepares that
+condition for a real lower touch. Fixture0.16 had a JSON field-name collision
+(snappyMenus/SnappyMenus), fixed in0.17; no production behavior changed for it.
+The fixture's latency observer uses native touch timestamps, bitmap signatures
+and Android frame commit callbacks, with no production handler invocation.
+Raw screenshot receipt is too slow to measure the150ms target: six lower PNG
+captures had median186.56ms host overhead. Precise frame-commit measurements
+and their display/optical limitations must be recorded separately.
+
+No other material source finding was raised. The reviewer will inspect only
+targeted fixes and final evidence as an update to this same review. Required
+lifecycle counts, matched performance, bounded memory,30minute soak, physical
+controls and fixture-free delivery remain open. Android device_state exposes
+only DEFAULT, with no supported folded/display-absent state.
+
+Controller-mode refusal reproduced on rc.1 with fixture0.17: optionEnabled,
+gamepadControls and active SnappyMenus were all true; actual lower Sell left
+500g and both marked gold parsnips unchanged. rc1-controller17-sale-attempt.json.
+The adapter now temporarily uses native pointer mode only during the sale,
+restoring previous gamepadControls in finally. Together with the chest scope
+fix this forms rc.2; device regression tests are still pending.

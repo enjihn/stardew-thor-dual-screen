@@ -84,21 +84,30 @@ internal static class MobileGameAdapter
         (bool)purchase.Invoke(menu, new object[] { item, heldItem, quantity, 0, 0 });
     public static bool Sell(ShopMenu menu, int index, Item item, int quantity)
     {
-        if (!ReferenceEquals(Game1.activeClickableMenu, menu) || menu.readOnly || Game1.options.SnappyMenus
+        if (!ReferenceEquals(Game1.activeClickableMenu, menu) || menu.readOnly
             || quantity <= 0 || quantity > item.Stack || index < 0 || index >= Game1.player.Items.Count
             || !ReferenceEquals(Game1.player.Items[index], item)) return false;
         var slot = menu.inventory.inventory.FirstOrDefault(c => c.name == index.ToString());
         if (slot == null) return false;
-        if (!menu.inventoryVisible) Click(menu, menu.inventoryButton.bounds.Center);
-        if (!menu.inventoryVisible || !ReferenceEquals(Game1.activeClickableMenu, menu)) return false;
-        // Native storage shops transfer the whole item on slot release, including their onSell callback.
-        if ((bool)storageShop.GetValue(menu) && quantity != item.Stack) return false;
-        Click(menu, slot.bounds.Center);
-        if ((bool)storageShop.GetValue(menu)) return true;
-        if (!ReferenceEquals(selling.GetValue(menu), item) || !ReferenceEquals(Game1.player.Items[index], item)) return false;
-        menu.quantityToSell = quantity;
-        Click(menu, menu.sellButton.bounds.Center);
-        return selling.GetValue(menu) == null;
+        // A Presentation touch does not update the primary game's mouse state. Use its native
+        // pointer sale path synchronously, then restore controller mode even if a callback fails.
+        var options = Game1.options;
+        bool controllerMode = options.gamepadControls;
+        try
+        {
+            options.gamepadControls = false;
+            if (!menu.inventoryVisible) Click(menu, menu.inventoryButton.bounds.Center);
+            if (!menu.inventoryVisible || !ReferenceEquals(Game1.activeClickableMenu, menu)) return false;
+            // Native storage shops transfer the whole item on slot release, including their onSell callback.
+            if ((bool)storageShop.GetValue(menu) && quantity != item.Stack) return false;
+            Click(menu, slot.bounds.Center);
+            if ((bool)storageShop.GetValue(menu)) return true;
+            if (!ReferenceEquals(selling.GetValue(menu), item) || !ReferenceEquals(Game1.player.Items[index], item)) return false;
+            menu.quantityToSell = quantity;
+            Click(menu, menu.sellButton.bounds.Center);
+            return selling.GetValue(menu) == null;
+        }
+        finally { options.gamepadControls = controllerMode; }
     }
     static void Click(IClickableMenu menu, Point point)
     {

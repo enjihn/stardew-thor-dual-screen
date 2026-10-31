@@ -9,3 +9,11 @@ The fixture polls its own external-files ThorFixture/request.json. Requests cont
 Supported operations: state, seed, warp, menu, export, timing-start and timing-stop. Seed replaces only the disposable player's inventory and optionally its money/time/trash level or Junimo reading progression. Menus are native game menus. No fixture method calls production companion code. User actions must be sent through actual Android touch. Export reads only the designated regular saved pair and creates a new archive, without overwriting saves.
 
 Timing samples are intervals between SMAPI Rendered callbacks. They are instrumentation, not hardware input or final fixture-free acceptance. All responses, timing arrays, save archives, request files and raw device evidence stay under ignored private paths.
+
+The optional latency observer runs only when armed on the guarded farm. It
+observes the actual lower ImageView touch Up and a matching bitmap signature,
+then registers an Android frame commit callback. A requested extra traversal
+makes the measurement conservative if registration occurs after the first
+matching draw. One refresh period is reported separately as a visibility
+estimate. This is device event-to-commit timing, not optical latency. Stop the
+observer before performance measurements or lifecycle tests.

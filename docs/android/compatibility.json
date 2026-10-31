@@ -48,11 +48,14 @@
     ]
   },
   "mod": {
-    "buildId": "6b39d60-probe1",
-    "version": "0.5.2-android.probe.1",
-    "zipSha256": "51f9b7d89f7c65a270f5678abe76d7380bea3dde48b7e83feaad5256547af125",
-    "purpose": "temporary Release-host probe, not shipping mod",
-    "selectedGroup": "ThorBaseline"
+    "buildId": "candidate-rc1",
+    "sourceCommit": "20bc710cfefbff75b4b9c8e49c5ca52f3a67ff8c",
+    "version": "0.5.2-android.rc.1",
+    "zipSha256": "0b3f23803e59a6846f7399173bf7d4de1f8f68a95fa2b1553fc46a959955bbfd",
+    "purpose": "Candidate under test; review found stale chest selection and controller-mode sell issues, fixes pending verification",
+    "selectedGroup": "ThorBaseline",
+    "fixtureVersion": "0.17.0",
+    "accepted": false
   },
   "tools": {
     "git": "2.51.0.windows.2",

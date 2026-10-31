@@ -14,7 +14,7 @@ using Microsoft.Xna.Framework;
 namespace ThorFixture;
 
 /// <summary>Test-state setup/observation only. No dependency on, or invocation of, production mod handlers.</summary>
-public sealed class FixtureEntry : Mod
+public sealed partial class FixtureEntry : Mod
 {
     const ulong TestId = 453080632;
     const string TestName = "ThorTest", TestSlot = "ThorTest_453080632";
@@ -77,6 +77,10 @@ public sealed class FixtureEntry : Mod
                 "ui-stall" => StallUi(),
                 "timing-start" => StartTiming(),
                 "timing-stop" => StopTiming(),
+                "latency-snapshot" => QueueLatencySnapshot(),
+                "latency-arm" => ArmLatency(command),
+                "latency-read" => ReadLatency(),
+                "latency-stop" => StopLatency(),
                 _ => throw new InvalidOperationException("Unknown fixture operation")
             };
             Write(id, new { ok = true, operation, result });
@@ -94,6 +98,7 @@ public sealed class FixtureEntry : Mod
         farmId = Game1.uniqueIDForThisGame, day = Game1.dayOfMonth, season = Game1.currentSeason,
         year = Game1.year, time = Game1.timeOfDay, money = Game1.player.Money,
         clubCoins = Game1.player.clubCoins, qiGems = Game1.player.QiGems, festivalScore = Game1.player.festivalScore,
+        controller = new { optionEnabled = Game1.options.snappyMenus, Game1.options.gamepadControls, active = Game1.options.SnappyMenus },
         luck = Game1.player.DailyLuck, tomorrow = Game1.weatherForTomorrow,
         raining = Game1.currentLocation.IsRainingHere(),
         health = Game1.player.maxHealth,
@@ -186,6 +191,11 @@ public sealed class FixtureEntry : Mod
         }
         if (command.TryGetProperty("money", out var money)) Game1.player.Money = money.GetInt32();
         if (command.TryGetProperty("clubCoins", out var coins)) Game1.player.clubCoins = coins.GetInt32();
+        if (command.TryGetProperty("controllerMode", out var controller))
+        {
+            Game1.options.snappyMenus = true;
+            Game1.options.gamepadControls = controller.GetBoolean();
+        }
         if (command.TryGetProperty("time", out var time)) Game1.timeOfDay = time.GetInt32();
         if (command.TryGetProperty("trashLevel", out var trash)) Game1.player.trashCanLevel = trash.GetInt32();
         if (command.TryGetProperty("day", out var day)) Game1.dayOfMonth = Math.Clamp(day.GetInt32(), 1, 28);
@@ -387,6 +397,7 @@ public sealed class FixtureEntry : Mod
         {
             Helper.Events.GameLoop.UpdateTicking -= Update;
             Helper.Events.Display.Rendered -= Rendered;
+            latencyUi.Post(DetachLatency);
         }
         base.Dispose(disposing);
     }
