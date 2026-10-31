@@ -1,5 +1,5 @@
 {
-  "status": "Released host runtime probe passed; production integration and required device acceptance in progress",
+  "status": "Release candidate installed in ThorRelease; physical controls and final soak review pending",
   "upstream": {
     "repository": "hung-eggie-do-covergo/stardew-thor-dual-screen",
     "version": "0.5.2",
@@ -45,16 +45,23 @@
     "companionGeometry": [
       1240,
       1080
-    ]
+    ],
+    "performanceQualification": {
+      "originalPreset": "Standard (0)",
+      "testPreset": "Standard (0), restored",
+      "fan": "Smart, system/fan_mode=1",
+      "refreshHz": 120,
+      "status": "Exact artifact primary presentation p95 ratio1.000321 passes; ordinary response p95144.333ms, max203.333ms disclosed"
+    }
   },
   "mod": {
-    "buildId": "candidate-rc1",
-    "sourceCommit": "20bc710cfefbff75b4b9c8e49c5ca52f3a67ff8c",
-    "version": "0.5.2-android.rc.1",
-    "zipSha256": "0b3f23803e59a6846f7399173bf7d4de1f8f68a95fa2b1553fc46a959955bbfd",
-    "purpose": "Candidate under test; review found stale chest selection and controller-mode sell issues, fixes pending verification",
-    "selectedGroup": "ThorBaseline",
-    "fixtureVersion": "0.17.0",
+    "buildId": "22cf243112b710381db6db8b89dc01882958a67f",
+    "sourceCommit": "22cf243112b710381db6db8b89dc01882958a67f",
+    "version": "0.5.2-android.1",
+    "zipSha256": "250ccf42543906951ef68cc33305e25991c4815844c8a4f7d060595b34cd322a",
+    "purpose": "Production-only candidate with native save/cold reload verified; physical controls pending",
+    "selectedGroup": "ThorRelease",
+    "fixtureVersion": null,
     "accepted": false
   },
   "tools": {

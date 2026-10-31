@@ -1,14 +1,23 @@
 # Android execution checkpoint
 
-Execution active. The unmodified mobile game baseline works. No mod artifact is accepted yet.
+Execution active. Hardware controls and final soak review remain mandatory.
 
-- Branch: `android/thor-mobile` on `enjihn/stardew-thor-dual-screen`.
-- Upstream: `15f05b63d3ca852f3729e20de67fc7446bfac112` (0.5.2).
-- Host: unchanged publisher JunimoGate v0.3.1, commit `029eafed917ae853d6c0a59330ee273524168296`, code 11, SMAPI `junimogate-4.5.2.41`.
-- Game: installed Google Play 1.6.15.3 / code 245 / ARM64. Android 13 API 33.
-- Gate 1 passed. Gate 2 passed its gameplay, preservation and display requirements; the checked host Save Export route has a documented defect. Gate 3 runtime boundary passed with hardware pending. Gate 4 integration partially verified. Gates 5 through 8 pending.
-- Current mod artifact/build ID: `7a7afe3-mobile14`, version `0.5.2-android.dev.14`, imported and enabled in `ThorBaseline`. ZIP SHA256 `94bbd3f3ee13c581e2e20b386208ff86130288638aefdc265ea3acad93c18c32`. This is an integration build, not an accepted release.
-- Next action: install the clean rc.1 candidate and fixture0.15, verify alternate shop currency, then run exact-candidate lifecycle/performance, the mixed 30-minute soak, grouped hardware acceptance and final delivery. Physical controller acceptance remains pending.
+- Fork/branch: `enjihn/stardew-thor-dual-screen`, `android/thor-mobile`.
+- Shipping source/build ID: `22cf243112b710381db6db8b89dc01882958a67f`.
+- Release version `0.5.2-android.1`, ZIP SHA256 `250ccf42543906951ef68cc33305e25991c4815844c8a4f7d060595b34cd322a`. Two clean byte-identical five-entry builds. Do not rebuild or change this artifact for documentation updates.
+- Installed and selected group: `ThorRelease`, exactly one mod, no fixture. Cold05/06 logs confirm exact build ID and one loaded mod.
+- Runtime: unchanged JunimoGate0.3.1/code11, SMAPI4.5.2-junimogate.41, official Play1.6.15.3/code245, Thor Android13/API33. No host patch.
+- Current disposable farm: Spring16, 584g, one seed in bag slot1. Fixture-free lower drag, native sleep/save, exit/title, cold06 reload and both screens passed. Five normal top cold starts plus one zero-eligible-companion launch passed.
+- Exact candidate: ten pause/resume and five supported vendor lower-cover/restore cycles passed. Cover is not physical removal. Views15/roots2/Activities1 and binders28 settling27 remained bounded. Missing-companion native load/movement/menu/exit passed, normal top launch restored.
+- Performance: primary presentation mean59.8296FPS, p95 25.352969ms versus disabled25.344844ms, ratio1.000321. Brief58.17FPS window and worse tail jitter disclosed. Ordinary response p95 144.333ms, max203.333ms across all24 retained samples, event-to-first-frame plus refresh estimate.
+- Standard0, fan setting1 (native Smart), refresh120Hz, cover0, focus settings and native densities/sizes restored. Earlier prose describing Smart as4 was a transcription error; both matched route records read1.
+- Final three Play APK hashes and all three original save hashes match initial manifests. No real save imported or changed.
+- Soak capture `artifacts/private/release-22cf-soak`: first game03:49:30.418849UTC on2026-10-31. Must reach04:19:30UTC and review logs/exit-info before accepting. Logger stops by35minutes, with32MiB cap, UID-wide across restarts. Current scan found no exceptions/errors/crashes; recorded exits are requested cold-start force stops.
+- Physical input capabilities are readable with normal `getevent -lp`: controller event9, touch event5/6. Request one grouped real buttons/sticks/both-touch-panel test only after all other work. Injected input does not satisfy this row.
+- Source review: one whole-branch review plus targeted substantial-fix followups passed. Production source unchanged since22cf; later commits only fixture diagnostics/docs. Eleven coordination and ten helper tests passed, fixture21 built and used for latency observation, absent from final profile.
+- Current authoritative status and evidence: `release-acceptance.md`. Keep raw logs/identifiers/APKs/saves private. Remaining: final soak review, physical hardware response, update final verdict/checkpoint, sanitized delivery files, commit/push without force.
+
+The sections below retain earlier integration evidence and failures. Their old next-action text is historical; use the current checkpoint above to resume.
 
 ## Verified baseline
 
@@ -227,3 +236,55 @@ gamepadControls and active SnappyMenus were all true; actual lower Sell left
 The adapter now temporarily uses native pointer mode only during the sale,
 restoring previous gamepadControls in finally. Together with the chest scope
 fix this forms rc.2; device regression tests are still pending.
+
+
+## Performance correction in progress
+
+rc.2 failed the matched p95 gate (25.381 versus 17.791 ms). Native MonoGame
+GetData is synchronous GL.ReadPixels. A bounded diagnostic measured readback
+1.316 to 4.427 ms and drawing 1.165 to 1.225 ms per update. Deferring the same
+scoped target read until the next game tick improved p95 to 23.669 ms on
+mobile15, still above the 21.349 ms threshold.
+
+A second bounded diagnostic measured the managed-array to direct-buffer copy
+at 2.283 to 2.599 ms, versus only 0.131 to 0.143 ms for Bitmap's own copy.
+Mobile16 gives each of the three owned queue buffers a cached pinned Java
+ByteBuffer view. Bitmap copies synchronously before queue completion; pins
+are released only during serialized UI teardown. No new GPU readback API,
+UI redesign or update-rate reduction was introduced. The same review's
+narrow updates accepted deferred ownership and pin lifetime. Real performance
+and affected device checks are pending. Private diag1-profile.txt and
+diag2-profile.txt retain the measurements. Fixture0.19 ZIP SHA256 is
+027b1fd3b3de2da7eadf128154a3ba4ea715091572adca2a63060b937ee2ae4d.
+
+
+Mobile16 also failed the frame-time gate: p95 25.700 ms and mean 59.734 FPS.
+Do not claim the pinned-view change alone solved performance. Mobile17 tests
+nonblocking GPU completion, with at most one transfer outstanding. Actual
+startup logs show GLES3.2, compatible with this path. It restores pixel-pack
+state, defers mapping until signaled, discards obsolete scoped images and
+checks the current EGL context before touching native names. Native/context
+lifecycle review is pending alongside device results. No new candidate has
+passed performance yet; do not start the final soak prematurely.
+
+
+Mobile17 asynchronous readback failed: mean 58.646 FPS, p95 27.987 ms.
+It also exposed a context-lifetime review issue, corrected in an uninstalled
+mobile18 build, but the whole unsuccessful renderer experiment was then
+removed. Do not install or deliver dev15 through dev18. Production source
+and manifest now exactly match rc.2/db52ecf again; only docs and fixture0.19
+collection diagnosis remain uncommitted. Current diagnostic direction is a
+matched baseline/rc.2 comparison in the native Performance preset, using the
+observed Quick Settings menu. Preserve Standard=0 as rollback. No Performance
+preset pass is claimed before the paired result.
+
+
+The disabled baseline resource comparison stayed bounded (binders20 to19,
+views10, roots1). AOSP Android13 Presentation creates a separate WindowContext;
+its cleanup depends on context finalization. The minimum mobile19 fix reuses
+the existing Presentation for ordinary pause, with Ready=false and full input/
+frame invalidation while hidden. Resume shows it again. Finishing/destroyed
+Activity still disposes, and actual display removal/replacement still closes
+and recreates. Native hide/show tests and resource counts are pending. Do not
+call these operations window recreation in the final report; the supported
+vendor lower-display toggle remains available for the required toggle cases.

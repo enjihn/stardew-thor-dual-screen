@@ -1,0 +1,235 @@
+{
+  "status": "Awaiting physical hardware and final soak review",
+  "buildId": "22cf243112b710381db6db8b89dc01882958a67f",
+  "zipSha256": "250ccf42543906951ef68cc33305e25991c4815844c8a4f7d060595b34cd322a",
+  "normalTopColdLaunches": 5,
+  "zeroEligibleCompanionColdLaunches": 1,
+  "pauseResumeCycles": [
+    {
+      "evidence": "release-pause-01-title-after-focus.json",
+      "memory": {
+        "TOTAL PSS": 752019,
+        "TOTAL RSS": 888012,
+        "Views": 15,
+        "ViewRootImpl": 2,
+        "AppContexts": 7,
+        "Activities": 1,
+        "Local Binders": 28,
+        "Death Recipients": 1
+      }
+    },
+    {
+      "evidence": "release-pause-02-title-after-focus.json",
+      "memory": {
+        "TOTAL PSS": 744183,
+        "TOTAL RSS": 880176,
+        "Views": 15,
+        "ViewRootImpl": 2,
+        "AppContexts": 7,
+        "Activities": 1,
+        "Local Binders": 28,
+        "Death Recipients": 1
+      }
+    },
+    {
+      "evidence": "release-pause-03-loaded-after-focus.json",
+      "memory": {
+        "TOTAL PSS": 798074,
+        "TOTAL RSS": 936008,
+        "Views": 15,
+        "ViewRootImpl": 2,
+        "AppContexts": 6,
+        "Activities": 1,
+        "Local Binders": 27,
+        "Death Recipients": 1
+      }
+    },
+    {
+      "evidence": "release-pause-04-loaded-after-focus.json",
+      "memory": {
+        "TOTAL PSS": 795982,
+        "TOTAL RSS": 933916,
+        "Views": 15,
+        "ViewRootImpl": 2,
+        "AppContexts": 6,
+        "Activities": 1,
+        "Local Binders": 27,
+        "Death Recipients": 1
+      }
+    },
+    {
+      "evidence": "release-pause-05-inventory-after-focus.json",
+      "memory": {
+        "TOTAL PSS": 805702,
+        "TOTAL RSS": 943636,
+        "Views": 15,
+        "ViewRootImpl": 2,
+        "AppContexts": 6,
+        "Activities": 1,
+        "Local Binders": 27,
+        "Death Recipients": 1
+      }
+    },
+    {
+      "evidence": "release-pause-06-inventory-after-focus.json",
+      "memory": {
+        "TOTAL PSS": 808662,
+        "TOTAL RSS": 946596,
+        "Views": 15,
+        "ViewRootImpl": 2,
+        "AppContexts": 6,
+        "Activities": 1,
+        "Local Binders": 27,
+        "Death Recipients": 1
+      }
+    },
+    {
+      "evidence": "release-pause-07-aim-after-focus.json",
+      "memory": {
+        "TOTAL PSS": 812966,
+        "TOTAL RSS": 950796,
+        "Views": 15,
+        "ViewRootImpl": 2,
+        "AppContexts": 6,
+        "Activities": 1,
+        "Local Binders": 27,
+        "Death Recipients": 1
+      }
+    },
+    {
+      "evidence": "release-pause-08-aim-after-focus.json",
+      "memory": {
+        "TOTAL PSS": 813082,
+        "TOTAL RSS": 950912,
+        "Views": 15,
+        "ViewRootImpl": 2,
+        "AppContexts": 6,
+        "Activities": 1,
+        "Local Binders": 27,
+        "Death Recipients": 1
+      }
+    },
+    {
+      "evidence": "release-pause-09-chest-after-focus.json",
+      "memory": {
+        "TOTAL PSS": 807934,
+        "TOTAL RSS": 945764,
+        "Views": 15,
+        "ViewRootImpl": 2,
+        "AppContexts": 6,
+        "Activities": 1,
+        "Local Binders": 27,
+        "Death Recipients": 1
+      }
+    },
+    {
+      "evidence": "release-pause-10-chest-after-focus.json",
+      "memory": {
+        "TOTAL PSS": 801458,
+        "TOTAL RSS": 939288,
+        "Views": 15,
+        "ViewRootImpl": 2,
+        "AppContexts": 7,
+        "Activities": 1,
+        "Local Binders": 27,
+        "Death Recipients": 1
+      }
+    }
+  ],
+  "vendorLowerCoverRestoreCycles": 5,
+  "physicalDisplayRemovalTested": false,
+  "primaryPresentation": {
+    "method": "SurfaceFlinger FrameTracker actualPresentTime, column2; primary game SurfaceView BLAST, polled every0.8sec; unique completed timestamps after warmup",
+    "samples": 7370,
+    "durationSeconds": 123.1831358380001,
+    "meanFps": 59.82961831473743,
+    "p50Ms": 16.899687,
+    "p95Ms": 25.352969,
+    "p99Ms": 33.79797,
+    "maxMs": 42.259375,
+    "fiveSecondFps": [
+      59.96190628460517,
+      59.857390413798946,
+      59.96593374881246,
+      59.97277238532615,
+      60.07263352182597,
+      59.474695511757226,
+      60.060310995949806,
+      59.96899419494994,
+      59.96944621482349,
+      60.16696459405266,
+      59.865833817762976,
+      59.86830846016816,
+      60.17399544682371,
+      59.371049215874585,
+      58.171602589815855,
+      59.96028070312673,
+      59.86710690031528,
+      60.076206740101696,
+      59.78133112961812,
+      60.18007602576192,
+      60.0695233847149,
+      59.98168062303451,
+      58.98195845687096,
+      59.97915914953283
+    ],
+    "pollErrors": []
+  },
+  "disabledP95Ms": 25.344844,
+  "p95Ratio": 1.0003205780236801,
+  "response": {
+    "artifact": "250ccf42543906951ef68cc33305e25991c4815844c8a4f7d060595b34cd322a",
+    "samples": 24,
+    "medianMs": 91.33333280351431,
+    "p95Ms": 144.3333328035143,
+    "maxMs": 203.3333328035143,
+    "under150": 23,
+    "interpretation": "Ordinary-response target assessed at p95; all samples retained, including203.333ms outlier. This is event-to-commit plus one refresh estimate, not optical timing or a hard maximum guarantee.",
+    "observedSignatureMs": [
+      0.5947,
+      0.5692,
+      0.4683,
+      0.5581,
+      0.5442,
+      0.5703,
+      0.4582,
+      0.4963,
+      0.3928,
+      0.6023,
+      0.5102,
+      0.5251,
+      0.6364,
+      0.5573,
+      0.632,
+      0.5478
+    ]
+  },
+  "originals": {
+    "apkFiles": 3,
+    "saveFiles": 3,
+    "sha256AndSizesMatchInitialManifest": true
+  },
+  "fixtureFreeJourney": {
+    "day": 16,
+    "season": "spring",
+    "money": 584,
+    "item": "parsnip seed",
+    "stack": 1,
+    "bagSlotZeroBased": 1,
+    "coldReloadVerified": true
+  },
+  "settings": {
+    "system.performance_mode": "0",
+    "system.fan_mode": "1",
+    "system.min_refresh_rate": "120.00001",
+    "system.peak_refresh_rate": "120.00001",
+    "global.low_power": "0",
+    "system.dual_screen_display_mode": "0",
+    "system.screen_focus_lock": "1",
+    "system.enable_system_key_focus_lock": "0",
+    "display0.size": "Physical size: 1080x1920",
+    "display0.density": "Physical density: 369",
+    "display4.size": "Physical size: 1080x1240",
+    "display4.density": "Physical density: 369"
+  }
+}

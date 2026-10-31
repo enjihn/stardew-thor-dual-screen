@@ -17,6 +17,8 @@ public sealed partial class FixtureEntry
     Java.Lang.Runnable latencyCommit;
     int[] latencyExpected;
     long latencyInput;
+    int inputGen0, inputGen1, inputGen2;
+    static double lastSignatureMs;
 
     object ReadLatency() => Volatile.Read(ref latencyResult);
     void LatencyResult(object value) => Volatile.Write(ref latencyResult, value);
@@ -34,11 +36,13 @@ public sealed partial class FixtureEntry
 
     static int[] Signature(ImageView view)
     {
+        long started = System.Diagnostics.Stopwatch.GetTimestamp();
         var bitmap = ((BitmapDrawable)view.Drawable).Bitmap;
         var pixels = new List<int>();
         for (int y = 20; y < 180; y += 20)
             for (int x = 20; x < bitmap.Width - 20; x += 20)
                 pixels.Add(bitmap.GetPixel(x, y));
+        lastSignatureMs = System.Diagnostics.Stopwatch.GetElapsedTime(started).TotalMilliseconds;
         return pixels.ToArray();
     }
     object QueueLatencySnapshot()
@@ -84,6 +88,7 @@ public sealed partial class FixtureEntry
         if (e.Event.ActionMasked == MotionEventActions.Up && latencyInput == 0)
         {
             latencyInput = e.Event.EventTime;
+            inputGen0 = GC.CollectionCount(0); inputGen1 = GC.CollectionCount(1); inputGen2 = GC.CollectionCount(2);
             LatencyResult(new { status = "input", inputEventMs = latencyInput });
         }
     }
@@ -91,6 +96,8 @@ public sealed partial class FixtureEntry
     {
         e.Handled = true;
         if (latencyInput == 0 || latencyCommit != null || !Signature(latencyView).SequenceEqual(latencyExpected)) return;
+        long matched = SystemClock.UptimeMillis();
+        double signatureMs = lastSignatureMs;
         long input = latencyInput;
         float refresh = latencyView.Display.RefreshRate;
         LatencyResult(new { status = "matching-draw", inputEventMs = input });
@@ -99,6 +106,8 @@ public sealed partial class FixtureEntry
             long committed = SystemClock.UptimeMillis();
             LatencyResult(new { status = "committed", inputEventMs = input, commitMs = committed,
                 eventToCommitMs = committed - input, refreshRate = refresh,
+                inputToMatchingPreDrawMs = matched - input, signatureMs,
+                collections = new[] { GC.CollectionCount(0) - inputGen0, GC.CollectionCount(1) - inputGen1, GC.CollectionCount(2) - inputGen2 },
                 withOneRefreshMs = committed - input + 1000d / refresh,
                 method = "Native lower touch Up to first matching bitmap frame commit, registered in PreDraw, plus one refresh estimate; not optical latency" });
         });
