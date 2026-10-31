@@ -6,18 +6,23 @@
     <AssemblyName>DualScreen</AssemblyName>
     <RootNamespace>DualScreen</RootNamespace>
     <ImplicitUsings>enable</ImplicitUsings>
-    <Nullable>enable</Nullable>
+    <Nullable>disable</Nullable>
     <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
     <DefineConstants>$(DefineConstants);THOR_ANDROID</DefineConstants>
     <ThorBuildId Condition="'$(ThorBuildId)' == ''">unversioned</ThorBuildId>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="ProbeEntry.cs" />
+    <Compile Include="../mod/ModEntry.cs" Link="ModEntry.cs" />
+    <Compile Include="../mod/Panels.cs" Link="Panels.cs" />
+    <Compile Include="../mod/CropTracker.cs" Link="CropTracker.cs" />
+    <Compile Include="../mod/CompanionState.cs" Link="CompanionState.cs" />
     <Compile Include="../mod/MobileHost.cs" Link="MobileHost.cs" />
+    <Compile Include="../mod/MobileGameAdapter.cs" Link="MobileGameAdapter.cs" />
     <AssemblyMetadata Include="ThorBuildId" Value="$(ThorBuildId)" />
     <Reference Include="StardewValley"><HintPath>$(MobileReferenceDir)/StardewValley.dll</HintPath><Private>false</Private></Reference>
     <Reference Include="StardewValley.GameData"><HintPath>$(MobileReferenceDir)/StardewValley.GameData.dll</HintPath><Private>false</Private></Reference>
     <Reference Include="StardewModdingAPI"><HintPath>$(MobileReferenceDir)/StardewModdingAPI.dll</HintPath><Private>false</Private></Reference>
     <Reference Include="MonoGame.Framework"><HintPath>$(MobileReferenceDir)/MonoGame.Framework.dll</HintPath><Private>false</Private></Reference>
+    <Reference Include="xTile"><HintPath>$(MobileReferenceDir)/xTile.dll</HintPath><Private>false</Private></Reference>
   </ItemGroup>
 </Project>

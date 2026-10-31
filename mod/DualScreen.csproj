@@ -6,6 +6,7 @@
     <NoWarn>CA1416;MSB3277</NoWarn>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Remove="MobileHost.cs;MobileGameAdapter.cs;CompanionState.cs" />
     <Reference Include="../refs/*.dll" Private="false" />
   </ItemGroup>
 </Project>

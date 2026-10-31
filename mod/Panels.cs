@@ -130,7 +130,7 @@ public class Panels
                 if (Game1.activeClickableMenu is GeodeMenu g) h.Add(g.geodeAnimationTimer > 0);
                 break;
             case Tab.Bundle when Game1.activeClickableMenu is JunimoNoteMenu note:
-                h.Add(note.specificBundlePage); h.Add(note.currentPageBundle?.bundleIndex);
+                h.Add(SpecificBundlePage(note)); h.Add(CurrentBundle(note)?.bundleIndex);
                 foreach (var slot in note.ingredientSlots) h.Add(slot.item != null);
                 break;
             case Tab.Shipped when Game1.activeClickableMenu is ShippingMenu sm:
@@ -187,8 +187,24 @@ public class Panels
     Point dragAt;
     bool dragging;
 
+#if THOR_ANDROID
+    int inputRevision;
+    internal int InputLayoutKey => HashCode.Combine(inputRevision, Showing, tab, InfoOpen, numpadMax > 0,
+        storePage, shopBagRow, personGifts);
+    internal void CancelGesture()
+    {
+        pressDown = longPressed = headerTouch = scrollingTabs = listTouch = scrollingList = aimPressing = dragging = false;
+        dragFrom = -1;
+    }
+    internal void DisposeOwnedTargets() { infoTarget?.Dispose(); infoTarget = null; }
+#endif
+
     public void Touch(Android.Views.MotionEventActions action, int x, int y)
     {
+#if THOR_ANDROID
+        if (action == Android.Views.MotionEventActions.Cancel) { CancelGesture(); return; }
+        if (action == Android.Views.MotionEventActions.Up) inputRevision++;
+#endif
         switch (action)
         {
             case Android.Views.MotionEventActions.Down when HeaderShown && y < TabH:
@@ -991,6 +1007,32 @@ public class Panels
         }
     }
 
+#if THOR_ANDROID
+    static bool SpecificBundlePage(JunimoNoteMenu m) => MobileGameAdapter.SpecificBundlePage(m);
+    static StardewValley.Menus.Bundle CurrentBundle(JunimoNoteMenu m) => MobileGameAdapter.CurrentBundle(m);
+    static Item HeldItem(JunimoNoteMenu m) => MobileGameAdapter.HeldItem(m);
+    static void SetHeldItem(JunimoNoteMenu m, Item item) => MobileGameAdapter.SetHeldItem(m, item);
+    static Item SourceItem(ItemGrabMenu m) => MobileGameAdapter.SourceItem(m);
+    LoadGameMenu saveList;
+    int firstSave;
+    static int SavePageSize(LoadGameMenu m) => 4;
+    int FirstSave(LoadGameMenu m)
+    {
+        if (!ReferenceEquals(saveList, m)) { saveList = m; firstSave = 0; }
+        return firstSave = Math.Clamp(firstSave, 0, Math.Max(0, m.MenuSlots.Count - SavePageSize(m)));
+    }
+    void SetFirstSave(LoadGameMenu m, int value) { FirstSave(m); firstSave = value; }
+#else
+    static bool SpecificBundlePage(JunimoNoteMenu m) => m.specificBundlePage;
+    static StardewValley.Menus.Bundle CurrentBundle(JunimoNoteMenu m) => m.currentPageBundle;
+    static Item HeldItem(JunimoNoteMenu m) => m.heldItem;
+    static void SetHeldItem(JunimoNoteMenu m, Item item) => m.heldItem = item;
+    static Item SourceItem(ItemGrabMenu m) => m?.sourceItem;
+    static int SavePageSize(LoadGameMenu m) => LoadGameMenu.itemsPerPage;
+    static int FirstSave(LoadGameMenu m) => m.currentItemIndex;
+    static void SetFirstSave(LoadGameMenu m, int value) => m.currentItemIndex = value;
+#endif
+
     // ---------- Bundle (Community Center note on top) ----------
 
     static Rectangle BundleCard(int i) => new(8 + i % 2 * 302, 98 + i / 2 * 72, 298, 66);
@@ -998,7 +1040,7 @@ public class Panels
 
     void DrawBundle(SpriteBatch b, JunimoNoteMenu note)
     {
-        if (!note.specificBundlePage)
+        if (!SpecificBundlePage(note))
         {
             // Room overview: the room's bundles as big cards, done ones dimmed with a check.
             Text(b, "Pick a bundle", new Vector2(22, 64), Faint);
@@ -1013,7 +1055,7 @@ public class Panels
             return;
         }
 
-        var page = note.currentPageBundle;
+        var page = CurrentBundle(note);
         Card(b, 8, 58, 604, 202);
         Text(b, page.label, new Vector2(22, 64));
         int filled = note.ingredientSlots.Count(c => c.item != null);
@@ -1057,30 +1099,30 @@ public class Panels
     void TapBundle(JunimoNoteMenu note, int x, int y)
     {
         if (!JunimoNoteMenu.canClick) return;
-        if (!note.specificBundlePage)
+        if (!SpecificBundlePage(note))
         {
             for (int i = 0; i < Math.Min(note.bundles.Count, 10); i++)
                 if (BundleCard(i).Contains(x, y) && !note.bundles[i].complete)
                     note.receiveLeftClick(note.bundles[i].bounds.Center.X, note.bundles[i].bounds.Center.Y);
             return;
         }
-        if (BundleBack.Contains(x, y) && note.backButton != null && note.heldItem == null)
+        if (BundleBack.Contains(x, y) && note.backButton != null && HeldItem(note) == null)
         {
             note.receiveLeftClick(note.backButton.bounds.Center.X, note.backButton.bounds.Center.Y);
             return;
         }
         int bag = Enumerable.Range(0, Game1.player.MaxItems).FirstOrDefault(n => StoreBagRect(n).Contains(x, y), -1);
-        if (bag < 0 || note.heldItem != null) return;
+        if (bag < 0 || HeldItem(note) != null) return;
         if (Game1.player.Items[bag] is Item it && !(note.inventory.highlightMethod?.Invoke(it) ?? true)) { Status("This bundle doesn't need that"); return; }
 
         // Same two clicks as on top: pick the item up, then drop it on the first empty slot that takes it.
         ClickSlot(note, note.inventory, bag);
-        if (note.heldItem == null) return;
-        var slot = note.ingredientSlots.FirstOrDefault(c => c.item == null && note.currentPageBundle.canAcceptThisItem(note.heldItem, c));
+        if (HeldItem(note) == null) return;
+        var slot = note.ingredientSlots.FirstOrDefault(c => c.item == null && CurrentBundle(note).canAcceptThisItem(HeldItem(note), c));
         if (slot != null) note.receiveLeftClick(slot.bounds.Center.X, slot.bounds.Center.Y);
         else Status("This bundle doesn't need that");
         // Whatever wasn't needed goes back into the bag.
-        if (note.heldItem != null && Game1.player.addItemToInventoryBool(note.heldItem)) note.heldItem = null;
+        if (HeldItem(note) != null && Game1.player.addItemToInventoryBool(HeldItem(note))) SetHeldItem(note, null);
     }
 
     // ---------- End of day: what you shipped, tomorrow, level up ----------
@@ -1366,7 +1408,7 @@ public class Panels
         part.Stack = count;
         Item left;
         if (storeFromChest) left = Game1.player.addItemToInventory(part);
-        else if ((grab?.sourceItem ?? grab?.context) is StardewValley.Objects.Chest chest) left = chest.addItem(part);
+        else if ((SourceItem(grab) ?? grab?.context) is StardewValley.Objects.Chest chest) left = chest.addItem(part);
         else { Status("Can't split into this storage"); return; }
         int moved = count - (left?.Stack ?? 0);
         if (moved == 0) { Status(storeFromChest ? "Bag is full" : "Chest is full"); return; }
@@ -2241,7 +2283,11 @@ public class Panels
         var small = helper.Reflection.GetField<List<float>>(tm, "smallClouds").GetValue();
 
         b.Draw(Game1.staminaRect, new Rectangle(0, 0, w, h), new Color(64, 136, 248));
+#if THOR_ANDROID
+        b.Draw(Game1.mobileSpriteSheet, new Rectangle(0, (int)(-300 * z - vy * 0.66f), w, (int)(300 * z + h - 120 * z)), new Rectangle(236, 0, 4, 264), Color.White);
+#else
         b.Draw(Game1.mouseCursors, new Rectangle(0, (int)(-300 * z - vy * 0.66f), w, (int)(300 * z + h - 120 * z)), new Rectangle(703, 1912, 1, 264), Color.White);
+#endif
         for (int i = -10; i < w; i += 638)
             b.Draw(Game1.mouseCursors, new Vector2(i, -360 * z - vy * 0.66f), new Rectangle(0, 1453, 638, 195), Color.White * (1f - night), 0, Vector2.Zero, z, SpriteEffects.None, 0);
         foreach (float x in big)
@@ -2260,7 +2306,11 @@ public class Panels
 
         // Night: fades in over everything as Load opens, out again on Back.
         if (night <= 0f) return;
+#if THOR_ANDROID
+        b.Draw(Game1.mobileSpriteSheet, new Rectangle(0, 0, w, h), new Rectangle(228, 0, 4, 184), Color.White * night);
+#else
         b.Draw(Game1.mouseCursors, new Rectangle(0, 0, w, h), new Rectangle(702, 1912, 1, 264), Color.White * night);
+#endif
         var flip = SpriteEffects.None;
         for (int k = 0; k < h; k += 195 * 2)
         {
@@ -2358,11 +2408,11 @@ public class Panels
 
             case LoadGameMenu lm:
                 var slots = lm.MenuSlots;
-                for (int k = 0; k < LoadGameMenu.itemsPerPage && lm.currentItemIndex + k < slots.Count; k++)
+                for (int k = 0; k < SavePageSize(lm) && FirstSave(lm) + k < slots.Count; k++)
                 {
                     var r = SaveSlot(k);
                     Card(b, r.X, r.Y, r.Width, r.Height);
-                    if (slots[lm.currentItemIndex + k] is LoadGameMenu.SaveFileSlot { Farmer: Farmer f })
+                    if (slots[FirstSave(lm) + k] is LoadGameMenu.SaveFileSlot { Farmer: Farmer f })
                     {
                         // Same farmer pose as the game's load list, at half size. The renderer only places clothes
                         // right at scale 1, so draw at 1 and halve the whole batch; layers need depth sorting.
@@ -2387,8 +2437,8 @@ public class Panels
                 }
                 if (slots.Count == 0) { Card(b, 8, 16, 604, 96); Text(b, "No saves yet.", new Vector2(26, 50), Faint); }
                 DrawTitleBack(b);
-                if (lm.currentItemIndex > 0) { Card(b, SaveUp.X, SaveUp.Y, SaveUp.Width, SaveUp.Height); Icon(b, Game1.mouseCursors, ArrowUp, SaveUp.X + 11, SaveUp.Y + 26, 2); }
-                if (lm.currentItemIndex + LoadGameMenu.itemsPerPage < slots.Count) { Card(b, SaveDown.X, SaveDown.Y, SaveDown.Width, SaveDown.Height); Icon(b, Game1.mouseCursors, ArrowDown, SaveDown.X + 11, SaveDown.Y + 26, 2); }
+                if (FirstSave(lm) > 0) { Card(b, SaveUp.X, SaveUp.Y, SaveUp.Width, SaveUp.Height); Icon(b, Game1.mouseCursors, ArrowUp, SaveUp.X + 11, SaveUp.Y + 26, 2); }
+                if (FirstSave(lm) + SavePageSize(lm) < slots.Count) { Card(b, SaveDown.X, SaveDown.Y, SaveDown.Width, SaveDown.Height); Icon(b, Game1.mouseCursors, ArrowDown, SaveDown.X + 11, SaveDown.Y + 26, 2); }
                 break;
 
             default:
@@ -2428,17 +2478,30 @@ public class Panels
                         // The top-screen copy is hidden, and hidden buttons ignore clicks; show it just for this one.
                         var button = tm.buttons[i];
                         button.visible = true;
-                        tm.receiveLeftClick(button.bounds.Center.X, button.bounds.Center.Y);
-                        button.visible = false;
+                        try
+                        {
+                            tm.receiveLeftClick(button.bounds.Center.X, button.bounds.Center.Y);
+#if THOR_ANDROID
+                            tm.releaseLeftClick(button.bounds.Center.X, button.bounds.Center.Y);
+#endif
+                        }
+                        finally { button.visible = false; }
                         return;
                     }
                 break;
             case LoadGameMenu lm when !lm.IsDoingTask():
-                if (SaveUp.Contains(x, y)) { lm.currentItemIndex = Math.Max(0, lm.currentItemIndex - 1); return; }
-                if (SaveDown.Contains(x, y)) { lm.currentItemIndex = Math.Min(Math.Max(0, lm.MenuSlots.Count - LoadGameMenu.itemsPerPage), lm.currentItemIndex + 1); return; }
-                for (int k = 0; k < LoadGameMenu.itemsPerPage && k < lm.slotButtons.Count; k++)
-                    if (SaveSlot(k).Contains(x, y) && lm.currentItemIndex + k < lm.MenuSlots.Count)
-                    { tm.receiveLeftClick(lm.slotButtons[k].bounds.Center.X, lm.slotButtons[k].bounds.Center.Y); return; }
+                if (SaveUp.Contains(x, y)) { SetFirstSave(lm, Math.Max(0, FirstSave(lm) - 1)); return; }
+                if (SaveDown.Contains(x, y)) { SetFirstSave(lm, Math.Min(Math.Max(0, lm.MenuSlots.Count - SavePageSize(lm)), FirstSave(lm) + 1)); return; }
+                for (int k = 0; k < SavePageSize(lm) && k < lm.slotButtons.Count; k++)
+                    if (SaveSlot(k).Contains(x, y) && FirstSave(lm) + k < lm.MenuSlots.Count)
+                    {
+#if THOR_ANDROID
+                        MobileGameAdapter.SelectSave(lm, FirstSave(lm) + k);
+#else
+                        tm.receiveLeftClick(lm.slotButtons[k].bounds.Center.X, lm.slotButtons[k].bounds.Center.Y);
+#endif
+                        return;
+                    }
                 if (TitleBack.Contains(x, y)) ClickBack(tm);
                 break;
             case not null when TitleBack.Contains(x, y):
@@ -2459,8 +2522,9 @@ public class Panels
     void TickTitleButtons(TitleMenu tm)
     {
         if (TitleMenu.subMenu != null || !TitleReady(tm)) { if (!TitleReady(tm)) titleShown = 0; return; }
-        if (titleShown >= 4 || (titleShown > 0 && Game1.ticks - titleShownAt[titleShown - 1] < 12)) return;
-        bool gameSequencing = tm.buttonsToShow < 4;
+        int count = Math.Min(tm.buttons.Count, titleShownAt.Length);
+        if (titleShown >= count || (titleShown > 0 && Game1.ticks - titleShownAt[titleShown - 1] < 12)) return;
+        bool gameSequencing = tm.buttonsToShow < count;
         if (gameSequencing && titleShown >= tm.buttonsToShow) return;
         titleShownAt[titleShown++] = Game1.ticks;
         if (!gameSequencing) Game1.playSound("Cowboy_gunshot");

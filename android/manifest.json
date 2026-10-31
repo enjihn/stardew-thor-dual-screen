@@ -1,8 +1,8 @@
 {
-  "Name": "Thor Dual Screen Android Probe",
+  "Name": "Thor Dual Screen Android",
   "Author": "Hung; Android port contributors",
-  "Version": "0.5.2-android.probe.1",
-  "Description": "Temporary Release-host compatibility probe for the Thor Android port. Not the finished mod.",
+  "Version": "0.5.2-android.dev.2",
+  "Description": "Android integration test build of the original Thor companion panels. Acceptance in progress.",
   "UniqueID": "Hung.ThorDualScreen",
   "EntryDll": "DualScreen.dll",
   "MinimumApiVersion": "4.5.2"

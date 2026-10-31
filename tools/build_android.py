@@ -11,7 +11,7 @@ import zipfile
 
 ROOT = Path(__file__).resolve().parents[1]
 REFERENCE_NAMES = ('StardewValley.dll', 'StardewValley.GameData.dll',
-                   'StardewModdingAPI.dll', 'MonoGame.Framework.dll')
+                   'StardewModdingAPI.dll', 'MonoGame.Framework.dll', 'xTile.dll')
 
 
 def validate_refs(refs):

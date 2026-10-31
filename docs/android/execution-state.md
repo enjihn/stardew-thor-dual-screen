@@ -6,9 +6,9 @@ Execution active. The unmodified mobile game baseline works. No mod artifact is 
 - Upstream: `15f05b63d3ca852f3729e20de67fc7446bfac112` (0.5.2).
 - Host: unchanged publisher JunimoGate v0.3.1, commit `029eafed917ae853d6c0a59330ee273524168296`, code 11, SMAPI `junimogate-4.5.2.41`.
 - Game: installed Google Play 1.6.15.3 / code 245 / ARM64. Android 13 API 33.
-- Gate 1 passed. Gate 2 gameplay, preservation and display prerequisites passed; host save export defect remains open. Gates 3 through 8 pending.
-- Current mod artifact/build ID: temporary `6b39d60-probe1`, version `0.5.2-android.probe.1`, imported and enabled in `ThorBaseline`. ZIP SHA256 in compatibility.json.
-- Next action: Task 4 production coordination tests and lifecycle integration, retaining the shared panels. Probe runtime boundary passed; physical controller acceptance remains pending.
+- Gate 1 passed. Gate 2 gameplay, preservation and display prerequisites passed; host save export defect remains open. Gate 3 runtime boundary passed with hardware pending. Gate 4 integration partially verified. Gates 5 through 8 pending.
+- Current mod artifact/build ID: `75b2e87-mobile2`, version `0.5.2-android.dev.2`, imported and enabled in `ThorBaseline`. ZIP SHA256 `7a68d1a17603bd551870e0bd9dc54ad7371a6543356712b3c8696b398b18af2d`. This is an integration build, not an accepted release.
+- Next action: finish Task 4 stress coverage and Task 5 runtime adapter/visual corrections; prepare isolated Task 6 fixtures. Physical controller acceptance remains pending.
 
 ## Verified baseline
 
@@ -42,3 +42,15 @@ Release probe built with zero warnings/errors. Exact build ID observed through S
 One Home/background/resume cycle restored the lower image and touch. One vendor top-only/dual-screen toggle via the existing `dual_screen_display_mode` setting blacked the lower panel and restored it with working touch; original mode and focus settings were restored exactly. This is the vendor cover/touch toggle, not physical disconnect or lid closure. A separate lower-size override/restoration survived; original 1080x1240 physical size (rotated logical 1240x1080), density 369, no override restored. No host patch is justified for framework window/touch loading.
 
 Evidence: `probe1-startup.txt`, `probe1-touch.txt`, `probe1-resume.txt`, `probe1-vendor-cycle-logcat.txt`, matching private images and original/restored setting records. All remain private. Production reliability and final physical acceptance are still pending.
+
+## Production integration checkpoint
+
+The shared original Panels and CropTracker now compile into the mobile library. Eight production coordination tests pass: old menu/layout/session input rejection, displayed-image identity, cancellation/edge mapping, newest-frame replacement, active-buffer ownership and invalidation. One compiler warning retains the game category-aware ingredient-count API intentionally; zero build errors.
+
+Device build `75b2e87-mobile1` exposed the native Android title release callback difference. Corrected in `75b2e87-mobile2`: bottom Load opened the native save list and selected the disposable Spring 2 farm with 500g and 15 seeds intact. Today, Gifts, People, Bag, Craft, indoor Aim and Tabs rendered. These are initial visual checks, not full row acceptance.
+
+A lower-screen Down interrupted by Home/background/resume did not replay when Up arrived; the panel remained Today. A separate Down followed by a top menu change and Up was also discarded. Fresh Bag touch worked. Presentation reopened on resume. A temporary size change and vendor top-only/dual toggle restored with working touch; original size/mode verified equal. These are resize/cover operations, not physical panel disconnect. Top GameActivity retained its per-display focus.
+
+Private evidence: `mobile2-startup.txt`, `mobile2-farm.txt`, `mobile2-pause.txt`, `mobile2-display-cycle.txt`, `mobile2-display-restoration.json` and associated two-screen images. Remaining Gate 4 stress/missing-display details will be exercised with the separate disposable-farm fixture; Gate 4 is not declared complete.
+
+Runtime differences identified from actual Play assemblies: private bundle/source-item fields; instance save-list geometry with native release activation; mobile title day/night gradient assets and two available title buttons. The adapter currently validates its initial bindings. Full required-member/asset validation and Aim pass corrections remain in Task 5. No released-host window patch is needed.

@@ -17,6 +17,7 @@ using XColor = Microsoft.Xna.Framework.Color;
 
 namespace DualScreen;
 
+#if !THOR_ANDROID
 /// <summary>Hosts the bottom-screen window: draws panels offscreen with the game's own
 /// SpriteBatch, copies the pixels into an Android ImageView, and routes touches back.</summary>
 public class ModEntry : Mod
@@ -290,6 +291,173 @@ public class ModEntry : Mod
         return d;
     }
 }
+#else
+/// <summary>Mobile game-thread renderer and guarded input integration.</summary>
+public class ModEntry : Mod
+{
+    public const int W = 620, H = 540;
+    readonly CompanionState state = new();
+    readonly LatestFrameQueue frames = new(W * H * 4);
+    MobileHost host;
+    Panels panels;
+    SpriteBatch batch;
+    RenderTarget2D target;
+    CompanionScope lastScope;
+    int lastKey;
+    bool gestureActive, stopped;
+
+    public override void Entry(IModHelper helper)
+    {
+        panels = new Panels(helper, Monitor);
+        var build = System.Reflection.CustomAttributeExtensions.GetCustomAttributes<System.Reflection.AssemblyMetadataAttribute>(GetType().Assembly)
+            .Single(a => a.Key == "ThorBuildId").Value;
+        Monitor.Log($"THOR_ANDROID build={build}; game={typeof(Game1).Assembly.GetName().Version}", LogLevel.Info);
+        helper.Events.GameLoop.GameLaunched += Launched;
+        helper.Events.GameLoop.UpdateTicked += UpdateMobile;
+        helper.Events.GameLoop.SaveLoaded += SaveLoaded;
+        helper.Events.GameLoop.ReturnedToTitle += ReturnedToTitle;
+        helper.Events.GameLoop.DayStarted += DayStarted;
+        helper.Events.Display.MenuChanged += MenuChanged;
+        helper.Events.Player.InventoryChanged += InventoryChanged;
+        helper.Events.Player.Warped += Warped;
+    }
+    void Launched(object sender, GameLaunchedEventArgs e)
+    {
+        try { MobileGameAdapter.ValidateRuntime(); host = new MobileHost(MobileHost.ResolveGameActivity(), Monitor, state, frames); }
+        catch (Exception ex) { Monitor.Log($"Mobile companion initialization failed: {ex}", LogLevel.Error); }
+    }
+    void InvalidateInput()
+    {
+        state.Invalidate(); frames.Invalidate();
+        panels.CancelGesture(); gestureActive = false;
+    }
+    void SaveLoaded(object sender, SaveLoadedEventArgs e) { ResetPanels(); panels.Crops.FullCount(); }
+    void ReturnedToTitle(object sender, ReturnedToTitleEventArgs e) => ResetPanels();
+    void ResetPanels()
+    {
+        InvalidateInput(); panels.DisposeOwnedTargets();
+        panels = new Panels(Helper, Monitor);
+    }
+    void DayStarted(object sender, DayStartedEventArgs e) { InvalidateInput(); panels.Crops.FullCount(); }
+    void MenuChanged(object sender, MenuChangedEventArgs e) => InvalidateInput();
+    void Warped(object sender, WarpedEventArgs e) { if (e.IsLocalPlayer) InvalidateInput(); }
+    void InventoryChanged(object sender, InventoryChangedEventArgs e)
+    {
+        if (!e.IsLocalPlayer) return;
+        InvalidateInput();
+        panels.OnInventoryChanged(e.Removed, e.QuantityChanged);
+    }
+    CompanionScope Scope() => state.SetContext(
+        Game1.activeClickableMenu is StardewValley.Menus.TitleMenu
+            ? StardewValley.Menus.TitleMenu.subMenu ?? Game1.activeClickableMenu
+            : Game1.activeClickableMenu,
+        panels.InputLayoutKey);
+    void UpdateMobile(object sender, UpdateTickedEventArgs e)
+    {
+        if (stopped) return;
+        if (Game1.quit) { Stop(); return; }
+        if (host?.Ready != true) return;
+        try
+        {
+            var scope = Scope();
+            bool redraw = !state.IsCurrent(lastScope);
+            if (redraw) { panels.CancelGesture(); gestureActive = false; }
+            while (state.TryTakeTouch(out var touch))
+            {
+                if (touch.Action == TouchAction.Down) gestureActive = true;
+                if (!gestureActive && touch.Action != TouchAction.Cancel) continue;
+                panels.Touch(touch.Action switch
+                {
+                    TouchAction.Down => MotionEventActions.Down,
+                    TouchAction.Move => MotionEventActions.Move,
+                    TouchAction.Up => MotionEventActions.Up,
+                    _ => MotionEventActions.Cancel
+                }, touch.X, touch.Y);
+                if (touch.Action is TouchAction.Up or TouchAction.Cancel) gestureActive = false;
+                scope = Scope();
+                redraw = true;
+            }
+            panels.Tick();
+            scope = Scope();
+            int key = panels.StateKey();
+            int interval = panels.AnimationInterval;
+            if (redraw || key != lastKey || (interval > 0 && e.IsMultipleOf((uint)interval)) || e.IsMultipleOf(600))
+            {
+                if (RenderMobile(scope)) { lastKey = key; lastScope = scope; }
+            }
+        }
+        catch (Exception ex)
+        {
+            InvalidateInput();
+            Monitor.LogOnce($"Mobile companion update failed: {ex}", LogLevel.Error);
+        }
+    }
+    bool RenderMobile(CompanionScope scope)
+    {
+        var frame = frames.AcquireWriter();
+        if (frame == null) return false;
+        bool published = false;
+        try
+        {
+            var gd = Game1.graphics.GraphicsDevice;
+            batch ??= new SpriteBatch(gd);
+            target ??= new RenderTarget2D(gd, W, H);
+            var oldTargets = gd.GetRenderTargets();
+            var oldViewport = gd.Viewport;
+            var oldScissor = gd.ScissorRectangle;
+            var oldBlend = gd.BlendState;
+            var oldDepth = gd.DepthStencilState;
+            var oldRaster = gd.RasterizerState;
+            var oldSampler = gd.SamplerStates[0];
+            try
+            {
+                panels.PrepareOffscreen(gd, batch);
+                gd.SetRenderTarget(target);
+                gd.Clear(XColor.Black);
+                batch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.PointClamp);
+                try { panels.Draw(batch); }
+                finally { batch.End(); }
+            }
+            finally
+            {
+                gd.SetRenderTargets(oldTargets);
+                gd.Viewport = oldViewport;
+                gd.ScissorRectangle = oldScissor;
+                gd.BlendState = oldBlend;
+                gd.DepthStencilState = oldDepth;
+                gd.RasterizerState = oldRaster;
+                gd.SamplerStates[0] = oldSampler;
+            }
+            target.GetData(frame.Bytes);
+            host.Submit(frame, scope);
+            published = true;
+            return true;
+        }
+        finally { if (!published) frames.Abandon(frame); }
+    }
+    void Stop()
+    {
+        if (stopped) return;
+        stopped = true;
+        state.Dispose(); host?.Dispose(); frames.Dispose();
+        Helper.Events.GameLoop.GameLaunched -= Launched;
+        Helper.Events.GameLoop.UpdateTicked -= UpdateMobile;
+        Helper.Events.GameLoop.SaveLoaded -= SaveLoaded;
+        Helper.Events.GameLoop.ReturnedToTitle -= ReturnedToTitle;
+        Helper.Events.GameLoop.DayStarted -= DayStarted;
+        Helper.Events.Display.MenuChanged -= MenuChanged;
+        Helper.Events.Player.InventoryChanged -= InventoryChanged;
+        Helper.Events.Player.Warped -= Warped;
+        panels?.DisposeOwnedTargets();
+        batch?.Dispose(); target?.Dispose();
+    }
+    protected override void Dispose(bool disposing)
+    {
+        if (disposing) Stop();
+        base.Dispose(disposing);
+    }
+}
+#endif
 
 /// <summary>Saved to config.json: tab order, hidden tabs and the tab last open.</summary>
 public class ModConfig
