@@ -28,7 +28,7 @@ internal sealed class MobileHost : IDisposable
     Presentation? window;
     ImageView? view;
     CompanionScope presented, gesture;
-    bool hasImage, disposed, paused;
+    bool hasImage, disposed, paused, hidden;
     int pointer = -1, bitmapIndex;
     public bool Ready { get; private set; }
 
@@ -56,7 +56,7 @@ internal sealed class MobileHost : IDisposable
         {
             var display = SelectCompanionDisplay(activity);
             if (display == null) CloseWindow();
-            else if (window == null || window.Display?.DisplayId != display.DisplayId || !window.IsShowing)
+            else if (window == null || window.Display?.DisplayId != display.DisplayId || (!window.IsShowing && !hidden))
             {
                 CloseWindow();
                 window = new Presentation(activity, display);
@@ -68,8 +68,15 @@ internal sealed class MobileHost : IDisposable
                 view.LayoutChange += OnLayout;
                 window.SetContentView(view);
                 window.Show();
+                hidden = false;
                 Ready = true;
                 monitor.Log($"Companion opened on logical display {display.DisplayId}.", LogLevel.Info);
+            }
+            else if (!Ready)
+            {
+                window.Show();
+                hidden = false;
+                Ready = true;
             }
         }
         catch (Exception ex) { CloseWindow(); monitor.LogOnce($"Companion window unavailable: {ex}", LogLevel.Error); }
@@ -139,6 +146,7 @@ internal sealed class MobileHost : IDisposable
     void CloseWindow()
     {
         Ready = false;
+        hidden = false;
         Invalidate();
         if (view != null)
         {
@@ -154,7 +162,12 @@ internal sealed class MobileHost : IDisposable
         if (disposed) return;
         paused = true;
         ui.RemoveCallbacks(pulse);
-        CloseWindow();
+        if (activity.IsFinishing || activity.IsDestroyed) { Dispose(); return; }
+        // A pause does not remove the physical display. Reuse this Presentation's
+        // window context; repeated construction retained Binder resources on API33.
+        Ready = false;
+        Invalidate();
+        if (window != null) { window.Hide(); hidden = true; }
     });
     void OnResumed(object? sender, EventArgs e) => ui.Post(() =>
     {
