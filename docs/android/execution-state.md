@@ -8,7 +8,7 @@ Execution active. The unmodified mobile game baseline works. No mod artifact is 
 - Game: installed Google Play 1.6.15.3 / code 245 / ARM64. Android 13 API 33.
 - Gate 1 passed. Gate 2 passed its gameplay, preservation and display requirements; the checked host Save Export route has a documented defect. Gate 3 runtime boundary passed with hardware pending. Gate 4 integration partially verified. Gates 5 through 8 pending.
 - Current mod artifact/build ID: `7a7afe3-mobile14`, version `0.5.2-android.dev.14`, imported and enabled in `ThorBaseline`. ZIP SHA256 `94bbd3f3ee13c581e2e20b386208ff86130288638aefdc265ea3acad93c18c32`. This is an integration build, not an accepted release.
-- Next action: diagnose the cold-load Aim watering conflict with fixture0.11, then remaining rewards, events/settings, import/restore and exact-candidate acceptance. Physical controller acceptance remains pending.
+- Next action: install the clean rc.1 candidate and fixture0.15, verify alternate shop currency, then run exact-candidate lifecycle/performance, the mixed 30-minute soak, grouped hardware acceptance and final delivery. Physical controller acceptance remains pending.
 
 ## Verified baseline
 
@@ -128,3 +128,56 @@ Mobile14 build: 7a7afe3-mobile14, ZIP SHA256 94bbd3f3ee13c581e2e20b386208ff86130
 Mobile14 follow-up: cold-load Today displays exactly 1 ready and 2 dry crops, and all three upcoming-event lines fit. Instrumented farm state has one mature and two immature dry crops; the saved IslandWest data confirms seven forage ginger plants, now excluded. Evidence: m14-start.json and mobile14-today-cold.png. Runtime mobile14 identity observed in mobile14-startup.txt.
 
 A subsequent Aim watering attempt after cold load did not change soil and ended facing right instead of the tapped direction. Earlier mobile12/13 watering passed. This conflict remains open, not accepted. Fixture0.11 adds native CanMove, lastClick, tool-location, water, event and zoom observations plus bounded native event and fridge setup. It compiles with zero warnings/errors. ZIP SHA256 87f1b68b80777be633e7f0f2a2f87a7dd2b2b0116e304df1e6eb3168730166eb; import is in progress. Do not alter production tool logic until this state is observed.
+
+
+Mobile14 watering conflict resolved without a production change: after cold load native CurrentItem is stowed, so CurrentTool is null even though CurrentToolIndex remains0. Real Aim hotbar selection equipped the can; the next tap faced down, changed tile59,16 from dry to watered, and WaterLeft40 to39. Today changed2dry to1dry. Native harvest then changed ready1 to0 and normal parsnips9 to10. Evidence: m14-water-debug-before.json, m14-select-watercan.json, m14-water-unstowed.json, m14-harvest-after.json and mobile14-today-live.png.
+
+Mobile14 geode rejected wood without changing500g,20wood or GeodesCracked1. Museum lower reward take delivered9cauliflower seeds and consumed the Dwarvish translation reward through the native special-item callback; reopening had no rewards. Community Center low-quality refusal, five-gold-parsnip donation, Spring Crops completion and20Speed-Gro reward take passed. The reward flag cleared and Gifts no longer suggested the completed Spring Crops bundle while holding the same normal parsnip. Evidence: m14-geode-reject-*.json, m14-museum-*.json, m14-cc-*.json, mobile14-gift-bundle-before/after.png. The first quality attempt used an empty second-row slot and is not counted; the suffixed2 files use the visible correct bag row.
+
+Native sleep advanced to Spring13 and produced a verified regular-save ZIP, m14-rewards-save-export.zip, SHA25610d87739dae62232cbcf421c37c8a62f1bca9fbee3a414d5c8c7770f7ff868a4. The subsequent attempted native title exit instead showed the Pantry menu, so it is not safe-title-exit evidence. The saved disposable process was stopped for fixture update. No real save was involved. Cold reload is now in progress and must compare saved reward/inventory/progression state.
+
+Fixture0.12 adds native Dwarvish/ItemsCrafted/quest observations, an existing Scarecrow quest setup, and optional native farmhouse kitchen upgrade for fridge scope. It compiles cleanly. ZIP SHA256ca5e2c8db9dd5d13c5a903b00f4fc5d47d1e7fc22ef0fd802cabf51664bf8655 was imported and selected. Production remains mobile14, unchanged. Independent narrow source review confirmed that native checkForCraftingAchievements recomputes ItemsCrafted from recipe counts; do not add a duplicate increment. Final whole-branch review is still pending.
+
+
+Mobile14 reward cold load passed: inventory, day, donations and reward flags match; bundles match by ID (native dictionary enumeration order changed without state change). Dwarvish translation is true. Scarecrow craft then consumed50wood/1coal/20fiber, yielded1, completed quest8 and increased ItemsCrafted1to2. Native farmhouse fridge quick stack moved10parsnips into995 existing, resulting999+6 with held scarecrow and unmatched5wood retained. These new unsaved checks still need persistence.
+
+Skippable scene lower touch set native skipped=true and ended. Non-skippable lower touch left skipped=false. The initial fixture's global pause did not finish, so it was discarded by cold loading the verified Spring13 save. Source confirms both native skippable commands exist; fixture0.13 uses native precisePause for a bounded scene. Fixture0.13 SHA2568acf87a7a88d6f528153dff7ce3643ba8c2946a4f5b4b93cdcef7fb0416a629f is selected with unchanged mobile14. No production fix was made for this fixture issue.
+
+
+## Pre-candidate completion
+
+Mobile14 completed native bounded skippable/non-skippable events, the actual
+Egg Festival, fridge quick stack and Scarecrow quest/stat persistence. Native
+sleep and exit/reload retained Spring14, ItemsCrafted2, quest8 complete and
+one Scarecrow. The verified regular-save ZIP m14-craft-save-final.zip has
+SHA256 1cb0ce8cfe798ad1a011cb00877d81d3747ea34b590bafa3e2b15e0f36708349.
+The earlier export captured Spring13 before the asynchronous save finished;
+it is not Day14 evidence.
+
+Normal host Save Import restored the verified Spring13 disposable ZIP.
+The import and cold-load snapshots matched inventory and progression.
+Native New/back and five-entry Load paging passed. Four list-only test copies
+were deleted through the native Load UI after verifying their names; ThorTest
+is the only remaining active test slot. Temporary top density220 and lower
+size900x1100 were restored to physical defaults, density369 on both panels.
+Tab hiding/reordering persisted across title/load, then defaults were restored.
+
+Fixture0.14 corrected zoom setup to native PinchZoom. Actual game zoom0.9
+and1.7 preserved Aim and top rendering; original1.2972656 restored. Gifts/People
+show complete native mugshot regions and the no-room heading fits. Number pad
+sale4 changed500g to708g, marked gold parsnips12to8; Buy1 charged20g and reduced
+seed stock7to6. Native mobile touch sale exposes no buyback entry: its release
+path does not call AddBuybackItem. Desktop buyback methods existing in the
+assembly do not imply that this mobile sale route supports them.
+
+A deliberate1200ms Android UI stall recovered with working Today touch and no
+new menu/state mutation. Rendered timing contained one1232.87ms gap, then normal
+16.7ms frames. Compare the same stall with the mod disabled before attributing
+that gap to the companion. Missing-display removal is still untested because
+no supported device command has been found; vendor cover is not disappearance.
+
+Production code is unchanged from2473270. Packaging now includes the license,
+attribution and installation notes, and removes unused probe source. Exact
+rc.1 identity, clean build, reproducibility and acceptance are next. Fixture0.15
+adds observation/setup for supported alternate shop currency only and remains
+excluded from the release archive. No final release is accepted.

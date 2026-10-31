@@ -73,6 +73,7 @@ public sealed class FixtureEntry : Mod
                 "crops" => Crops(command),
                 "event" => PrepareEvent(command),
                 "fridge" => PrepareFridge(command),
+                "craft-quest" => PrepareCraftQuest(),
                 "ui-stall" => StallUi(),
                 "timing-start" => StartTiming(),
                 "timing-stop" => StopTiming(),
@@ -92,9 +93,13 @@ public sealed class FixtureEntry : Mod
     {
         farmId = Game1.uniqueIDForThisGame, day = Game1.dayOfMonth, season = Game1.currentSeason,
         year = Game1.year, time = Game1.timeOfDay, money = Game1.player.Money,
+        clubCoins = Game1.player.clubCoins, qiGems = Game1.player.QiGems, festivalScore = Game1.player.festivalScore,
         luck = Game1.player.DailyLuck, tomorrow = Game1.weatherForTomorrow,
         raining = Game1.currentLocation.IsRainingHere(),
         health = Game1.player.maxHealth,
+        canUnderstandDwarves = Game1.player.canUnderstandDwarves,
+        itemsCrafted = Game1.stats.ItemsCrafted,
+        quests = Game1.player.questLog.Select(quest => new { id = quest.id.Value, type = quest.GetType().Name, complete = quest.completed.Value }).ToArray(),
         friendship = Game1.player.friendshipData.Pairs.ToDictionary(pair => pair.Key,
             pair => new { pair.Value.Points, pair.Value.GiftsToday, pair.Value.GiftsThisWeek }),
         nearby = Game1.currentLocation.characters.Where(npc => npc.IsVillager).Select(npc => new
@@ -180,12 +185,14 @@ public sealed class FixtureEntry : Mod
             Game1.player.CurrentToolIndex = 0;
         }
         if (command.TryGetProperty("money", out var money)) Game1.player.Money = money.GetInt32();
+        if (command.TryGetProperty("clubCoins", out var coins)) Game1.player.clubCoins = coins.GetInt32();
         if (command.TryGetProperty("time", out var time)) Game1.timeOfDay = time.GetInt32();
         if (command.TryGetProperty("trashLevel", out var trash)) Game1.player.trashCanLevel = trash.GetInt32();
         if (command.TryGetProperty("day", out var day)) Game1.dayOfMonth = Math.Clamp(day.GetInt32(), 1, 28);
         if (command.TryGetProperty("luck", out var luck)) Game1.player.team.sharedDailyLuck.Value = luck.GetDouble();
         if (command.TryGetProperty("tomorrow", out var tomorrow)) Game1.weatherForTomorrow = tomorrow.GetString();
-        if (command.TryGetProperty("zoom", out var zoom)) Game1.options.desiredBaseZoomLevel = Math.Clamp(zoom.GetSingle(), 0.75f, 2f);
+        if (command.TryGetProperty("zoom", out var zoom))
+            StardewValley.Mobile.PinchZoom.Instance.ZoomLevel = Math.Clamp(zoom.GetSingle(), 0.75f, 2f);
         if (command.TryGetProperty("rain", out var rain))
         {
             Game1.isRaining = rain.GetBoolean();
@@ -257,17 +264,36 @@ public sealed class FixtureEntry : Mod
         if (Game1.currentLocation is not FarmHouse) throw new InvalidOperationException("Event fixture requires FarmHouse.");
         bool skippable = command.GetProperty("skippable").GetBoolean();
         string flag = skippable ? "skippable" : "unskippable";
-        Game1.currentLocation.startEvent(new Event($"none/follow/farmer 5 6 2/{flag}/pause 15000/end"));
+        Game1.currentLocation.startEvent(new Event($"none/follow/farmer 5 6 2/{flag}/precisePause 15000/end"));
         return Snapshot();
     }
     object PrepareFridge(JsonElement command)
     {
         RequireNoMenu();
         if (Game1.currentLocation is not FarmHouse house) throw new InvalidOperationException("Fridge fixture requires FarmHouse.");
+        if (command.TryGetProperty("upgrade", out var upgrade) && upgrade.GetBoolean() && house.upgradeLevel == 0)
+        {
+            house.moveObjectsForHouseUpgrade(1);
+            house.setMapForUpgradeLevel(1);
+        }
         var items = command.GetProperty("items").EnumerateArray().Select(CreateItem).ToArray();
         if (items.Length > house.fridge.Value.GetActualCapacity()) throw new InvalidOperationException("Fridge fixture capacity exceeded");
         house.fridge.Value.GetItemsForPlayer().Clear();
         foreach (var item in items) house.fridge.Value.GetItemsForPlayer().Add(item);
+        return Snapshot();
+    }
+    object PrepareCraftQuest()
+    {
+        RequireNoMenu();
+        string output = new CraftingRecipe("Scarecrow").createItem().QualifiedItemId;
+        var quest = DataLoader.Quests(Game1.content)
+            .Where(pair => pair.Value.StartsWith("Crafting/", StringComparison.Ordinal))
+            .Select(pair => StardewValley.Quests.Quest.getQuestFromId(pair.Key))
+            .OfType<StardewValley.Quests.CraftingQuest>()
+            .First(candidate => candidate.ItemId.Value == output);
+        if (Game1.player.questLog.Any(existing => existing.id.Value == quest.id.Value))
+            throw new InvalidOperationException("Crafting test quest already present; preserve its progression.");
+        Game1.player.addQuest(quest.id.Value);
         return Snapshot();
     }
     object Warp(JsonElement command)
@@ -343,7 +369,7 @@ public sealed class FixtureEntry : Mod
             {
                 [ItemRegistry.Create("(O)472")] = new ItemStockInformation(20, 7),
                 [ItemRegistry.Create("(O)24")] = new ItemStockInformation(35, 20)
-            }, who: "Pierre"),
+            }, currency: command.TryGetProperty("currency", out var currency) ? currency.GetInt32() : 0, who: "Pierre"),
             "level" => new LevelUpMenu(skill, level),
             _ => throw new InvalidOperationException("Unsupported native fixture menu")
         };

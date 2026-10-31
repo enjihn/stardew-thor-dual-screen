@@ -27,15 +27,15 @@ class PackagingTests(unittest.TestCase):
             with self.assertRaisesRegex(ValueError, 'Ambiguous reference'):
                 build.validate_refs(refs)
 
-    def test_probe_archive_has_only_entry_and_manifest(self):
+    def test_release_archive_has_only_owned_allowlist(self):
         with tempfile.TemporaryDirectory() as tmp:
             base = Path(tmp)
             dll = base / 'DualScreen.dll'
             dll.write_bytes(b'MZ-owned-mod')
             out = base / 'mod.zip'
-            build.package_probe(dll, {'EntryDll': 'DualScreen.dll'}, out)
+            build.package_mod(dll, {'EntryDll': 'DualScreen.dll'}, out)
             with zipfile.ZipFile(out) as z:
-                self.assertEqual(set(z.namelist()), {'ThorDualScreen/manifest.json', 'ThorDualScreen/DualScreen.dll'})
+                self.assertEqual(set(z.namelist()), {'ThorDualScreen/manifest.json', 'ThorDualScreen/DualScreen.dll', 'ThorDualScreen/LICENSE', 'ThorDualScreen/ATTRIBUTION.md', 'ThorDualScreen/INSTALL.md'})
                 self.assertIsNone(z.testzip())
 
     def test_external_entry_dll_rejected(self):
@@ -44,7 +44,7 @@ class PackagingTests(unittest.TestCase):
             dll = base / 'DualScreen.dll'
             dll.write_bytes(b'MZ-owned-mod')
             with self.assertRaisesRegex(ValueError, 'EntryDll'):
-                build.package_probe(dll, {'EntryDll': '../StardewValley.dll'}, base / 'mod.zip')
+                build.package_mod(dll, {'EntryDll': '../StardewValley.dll'}, base / 'mod.zip')
 
 
 if __name__ == '__main__':

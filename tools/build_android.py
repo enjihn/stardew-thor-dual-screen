@@ -28,18 +28,21 @@ def validate_refs(refs):
     return result
 
 
-def package_probe(dll, manifest, out):
+def package_mod(dll, manifest, out):
     if manifest.get('EntryDll') != 'DualScreen.dll' or dll.name != 'DualScreen.dll':
         raise ValueError('EntryDll must be the unique mod-owned DualScreen.dll')
     payloads = {'ThorDualScreen/manifest.json': (json.dumps(manifest, indent=2) + '\n').encode(),
-                'ThorDualScreen/DualScreen.dll': dll.read_bytes()}
+                'ThorDualScreen/DualScreen.dll': dll.read_bytes(),
+                'ThorDualScreen/LICENSE': (ROOT / 'LICENSE').read_bytes(),
+                'ThorDualScreen/ATTRIBUTION.md': (ROOT / 'android/ATTRIBUTION.md').read_bytes(),
+                'ThorDualScreen/INSTALL.md': (ROOT / 'android/INSTALL.md').read_bytes()}
     with zipfile.ZipFile(out, 'w', zipfile.ZIP_DEFLATED) as z:
         for name, data in payloads.items():
             entry = zipfile.ZipInfo(name, (2026, 1, 1, 0, 0, 0))
             entry.compress_type = zipfile.ZIP_DEFLATED
             z.writestr(entry, data)
     with zipfile.ZipFile(out) as z:
-        if set(z.namelist()) != set(payloads) or len(z.namelist()) != 2 or z.testzip():
+        if set(z.namelist()) != set(payloads) or len(z.namelist()) != len(payloads) or z.testzip():
             raise ValueError('Archive allowlist validation failed')
 
 
@@ -77,7 +80,7 @@ def main():
     out_dir = ROOT / 'artifacts/private/builds' / args.build_id
     out_dir.mkdir(parents=True, exist_ok=True)
     out = out_dir / 'ThorDualScreen-Android.zip'
-    package_probe(dll, manifest, out)
+    package_mod(dll, manifest, out)
     digest = hashlib.sha256(out.read_bytes()).hexdigest()
     record = {'buildId': args.build_id, 'configuration': args.configuration,
               'zip': str(out), 'sha256': digest, 'referenceSha256': hashes}
