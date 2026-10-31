@@ -69,6 +69,9 @@ public class Panels
 
     // "Who loves this" scans every villager, so only redo it when the held item changes.
     string lovedFor;
+#if THOR_ANDROID
+    int lovedContext;
+#endif
     List<NPC> lovedBy = new(), likedBy = new();
     List<string> bundles = new();
 
@@ -102,7 +105,10 @@ public class Panels
                 h.Add(Game1.dayOfMonth); h.Add(Game1.weatherIcon); h.Add(Game1.player.DailyLuck);
                 h.Add(Crops.Ready); h.Add(Crops.Dry);
                 break;
-            case Tab.Gifts when Game1.ticks % 30 == 0 || giftsKeyNpc != null:
+            case Tab.Gifts:
+#if THOR_ANDROID
+                h.Add(GiftContextKey());
+#endif
                 if ((giftsKeyNpc = Game1.ticks % 30 == 0 ? NearestVillager(8) : giftsKeyNpc) is NPC n)
                 {
                     h.Add(n.Name);
@@ -509,8 +515,15 @@ public class Panels
     static void Head(SpriteBatch b, NPC npc, int x, int y)
     {
         var src = npc.getMugShotSourceRect();
+#if THOR_ANDROID
+        // Use the mobile character data's full mugshot: forcing 16px height cuts off some faces.
+        float scale = 32f / Math.Max(src.Width, src.Height);
+        int width = (int)(src.Width * scale), height = (int)(src.Height * scale);
+        b.Draw(npc.Sprite.Texture, new Rectangle(x + (32 - width) / 2, y + (32 - height) / 2, width, height), src, Color.White);
+#else
         src.Height = 16;
         Icon(b, npc.Sprite.Texture, src, x, y, 2);
+#endif
     }
 
     static void Portrait(SpriteBatch b, NPC npc, int x, int y)
@@ -563,12 +576,20 @@ public class Panels
         // Row 2: what's on in the next few days.
         Card(b, 8, 142, 604, 132);
         Text(b, "Coming up", new Vector2(22, 150), Faint);
+#if THOR_ANDROID
+        float y = 172;
+#else
         float y = 176;
+#endif
         foreach (var (icon, line) in Events().Take(3))
         {
             icon(b, 22, (int)y);
             Text(b, line, new Vector2(62, y + 2));
+#if THOR_ANDROID
+            y += 30;
+#else
             y += 32;
+#endif
         }
 
         // Row 3: birthdays this week, one fixed cell each.
@@ -800,7 +821,13 @@ public class Panels
     void RefreshHeld(SObject held)
     {
         string key = held.QualifiedItemId + held.Quality;
+#if THOR_ANDROID
+        int context = GiftContextKey();
+        if (key == lovedFor && context == lovedContext) return;
+        lovedContext = context;
+#else
         if (key == lovedFor) return;
+#endif
         lovedFor = key;
         lovedBy = new(); likedBy = new();
         Utility.ForEachVillager(npc =>
@@ -816,6 +843,22 @@ public class Panels
         });
         bundles = BundlesNeeding(held);
     }
+
+#if THOR_ANDROID
+    // Meeting someone or donating must refresh advice even while the same item stays held.
+    static int GiftContextKey()
+    {
+        var hash = new HashCode();
+        hash.Add(Game1.player.friendshipData.Length);
+        if (Game1.getLocationFromName("CommunityCenter") is CommunityCenter center)
+            foreach (var pair in center.bundles.Pairs)
+            {
+                hash.Add(pair.Key);
+                foreach (bool donated in pair.Value) hash.Add(donated);
+            }
+        return hash.ToHashCode();
+    }
+#endif
 
     static List<string> BundlesNeeding(SObject o)
     {
@@ -1245,7 +1288,13 @@ public class Panels
     }
 
     static Rectangle ProfessionIcon(int p) => new(p % 6 * 16, 624 + p / 6 * 16, 16, 16);
-    static Rectangle ProfessionButton(int k) => new(20 + k * 300, 330, 280, 180);
+    static Rectangle ProfessionButton(int k) => new(20 + k * 300,
+#if THOR_ANDROID
+        385,
+#else
+        330,
+#endif
+        280, 180);
 
     void DrawLevelUp(SpriteBatch b, LevelUpMenu menu)
     {
@@ -1351,6 +1400,10 @@ public class Panels
             3 => "Treasure - tap to take",
             _ => "Chest - tap to take, hold for an amount",
         };
+#if THOR_ANDROID
+        if (pages > 1) chestLabel = "Chest - tap or hold an item";
+        else if (grabMenu?.source == 4) chestLabel = "Bag full - trash a bag item, then take";
+#endif
         Text(b, chestLabel, new Vector2(22, 64), Faint);
         if (pages > 1)
         {
@@ -1733,7 +1786,12 @@ public class Panels
             if (items[i] is not Item item || i == Game1.player.CurrentToolIndex || item is Tool) continue;
             foreach (var c in chests)
             {
+#if THOR_ANDROID
+                if (c.GetMutex().IsLocked() && !c.GetMutex().IsLockHeld()) continue;
+                if (!c.GetItemsForPlayer().Any(other => other != null && other.canStackWith(item))) continue;
+#else
                 if (!c.Items.Any(other => other != null && other.canStackWith(item))) continue;
+#endif
                 int before = item.Stack;
                 var left = c.addItem(item);
                 moved += before - (left?.Stack ?? 0);
@@ -2784,6 +2842,16 @@ public class Panels
             w.End();
 #endif
             DrawAimLighting(w, loc, old);
+#if THOR_ANDROID
+            // Mobile DrawWorld applies a separate rain tint after its lightmap.
+            if (loc.IsOutdoors && loc.IsRainingHere())
+            {
+                w.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.PointClamp);
+                Color tint = Game1.IsGreenRainingHere() ? new Color(0, 120, 150) * 0.22f : Color.Blue * 0.2f;
+                w.Draw(Game1.staminaRect, new Rectangle(0, 0, ModEntry.W, ModEntry.H), tint);
+                w.End();
+            }
+#endif
         }
         catch (Exception ex)
         {

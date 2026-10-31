@@ -33,7 +33,8 @@ public class CropTracker
     static bool IsReady(HoeDirt d) => d?.crop != null && !d.crop.dead.Value && d.readyForHarvest();
 
     static bool IsDry(GameLocation loc, HoeDirt d) =>
-        d?.crop != null && !d.crop.dead.Value && !d.readyForHarvest() && d.needsWatering() && !d.isWatered()
+        d?.crop != null && !d.crop.dead.Value && !d.crop.forageCrop.Value
+        && !d.readyForHarvest() && d.needsWatering() && !d.isWatered()
         && !(loc.IsOutdoors && loc.IsRainingHere());
 
     /// <summary>Day start (or first use): walk every crop tile once.</summary>

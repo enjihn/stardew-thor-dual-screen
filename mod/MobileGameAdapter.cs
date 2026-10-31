@@ -119,13 +119,19 @@ internal static class MobileGameAdapter
             ?? to.inventory.FirstOrDefault(c => int.TryParse(c.name, out int slot) && slot < to.actualInventory.Count
                 && to.actualInventory[slot] is Item other && other.canStackWith(item) && other.Stack < other.maximumStackSize());
         if (sourceSlot == null || targetSlot == null) return 0;
+        var target = to.actualInventory[int.Parse(targetSlot.name)];
+        int room = target == null ? item.maximumStackSize() : target.maximumStackSize() - target.Stack;
+        quantity = Math.Min(quantity, Math.Max(0, room));
+        if (quantity == 0) return 0;
         var heldItem = InventoryHeldItem(menu);
         if (heldItem != null && !ReferenceEquals(heldItem, item)) return 0;
         from.ClearSelection(); to.ClearSelection(); SetInventoryHeldItem(menu, null);
         Click(menu, sourceSlot.bounds.Center);
         if (!ReferenceEquals(Game1.activeClickableMenu, menu) || !ReferenceEquals(InventoryHeldItem(menu), item)) return 0;
         int before = item.Stack;
-        from.currentlyHeldStack = quantity == before ? -1 : quantity;
+        // Always use the native split path with an amount that fits this slot. Its whole-stack
+        // remainder callback can re-add the same bag reference to itself and erase the remainder.
+        from.currentlyHeldStack = quantity;
         Click(menu, targetSlot.bounds.Center);
         int remaining = index < from.actualInventory.Count && ReferenceEquals(from.actualInventory[index], item) ? item.Stack : 0;
         return Math.Max(0, before - remaining);

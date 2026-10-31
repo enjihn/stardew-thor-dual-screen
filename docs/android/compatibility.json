@@ -1,5 +1,5 @@
 {
-  "status": "unmodified mobile game baseline verified; Release-host probe pending",
+  "status": "Released host runtime probe passed; production integration and required device acceptance in progress",
   "upstream": {
     "repository": "hung-eggie-do-covergo/stardew-thor-dual-screen",
     "version": "0.5.2",

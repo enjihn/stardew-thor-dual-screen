@@ -1,52 +1,42 @@
 # Android acceptance status
 
-The unmodified mobile game baseline is verified. There is no accepted candidate or final mod artifact.
+Execution remains active. JunimoGate 0.3.1 runs the official Play 1.6.15.3 game on the connected AYN Thor. The original app and saves are separate and preserved. Production integration builds are installed, but final hardware, lifecycle, performance, soak and delivery gates remain open.
 
-USB authorization is resolved. The original Play app and saves are preserved. New disposable hosted farm saved and cold-reloaded at Spring 2, 500g, 15 seeds. Save Export produced an empty file; diagnostic export succeeded. See execution-state.md.
+Evidence paths below are relative to ignored `artifacts/private/`. Fixture observations are explicitly instrumented. Actions were actual Android lower-display touches; fixture code only prepared or observed native game state. Earlier passing cases carry forward when the relevant implementation is unchanged. Re-run affected cases after a fix and the final fixture-free smoke journey.
 
-## Gates
-
-| Gate | Status | Evidence or blocker |
+| Gate | Current state | Remaining requirement |
 |---|---|---|
-| 1: Source and environment | pass | Personal fork ancestry and pinned upstream checked; local Android Release library and GameInspector compiled; private paths ignored. |
-| 2: Device and unmodified host | partial | Play 1.6.15.3 under released JunimoGate 0.3.1; disposable save cold-reloaded; displays mapped; originals backed up. Save-export defect open. |
-| 3: Release host probe | partial | Release DLL loads, real assets render, lower taps and injected top key route pass; one pause/resume and vendor toggle pass. Physical controls remain pending. |
-| 4: Lifecycle/input/frame ownership | partial | Ten pure coordination/selection tests pass; interrupted input, resize, resume and vendor cover tested on integration builds. Stress cases remain. |
-| 5: Visual/data modes | partial | Shared panels render; mobile runtime bindings/assets validated. Full visual matrix remains. |
-| 6: Consequential actions | partial | Native shop, chest, geode, craft, dialogue and bundle integration cases passed on development revisions. Persistence and remaining cases are pending. |
-| 7: Physical acceptance/performance | blocked | Requires exact Release candidate on authorized Thor. |
-| 8: Reviewed installed delivery | blocked | No working mobile Release artifact or device evidence yet. |
+| 1: Source/environment | pass | Fork and branch isolated; pinned source and local Release toolchain verified. |
+| 2: Unmodified mobile baseline | pass | Native gameplay/save/cold load/displays passed. Host Save Export is a recorded failed route, not a usable backup. Disposable import/restore still needs its direct check. |
+| 3: Release-host probe | partial | Runtime, assets, framework Presentation and lower input passed. Real controller and touch hardware evidence pending. No host patch used. |
+| 4: Coordination/lifecycle | partial | Ten focused tests, interrupted input, resize and resume passed. UI-stall and missing-display stress remain. |
+| 5: Visual/data modes | partial | Most modes observed; remaining Today fix, settings, title pagination and events listed below. |
+| 6: Native actions | partial | Broad conservation and persistent journey passed. Bundle/reward persistence and remaining conditional cases listed below. |
+| 7: Exact-candidate acceptance | pending | Lifecycle counts, hardware input, matched performance, latency, bounded memory and 30-minute soak. |
+| 8: Delivery | pending | Independent final review, clean reproducible package, fixture-free group, final smoke, originals check, commit/push and outputs. |
 
-## Mandatory device matrix
-
-| Area | Status | Observed result |
+| Area | Verified integration result and evidence | Still open |
 |---|---|---|
-| Installation and identity | blocked | Not yet run on a shipping mod artifact. |
-| Display and input | blocked | Not yet run on a shipping mod artifact. |
-| Today | blocked | Not yet run on a shipping mod artifact. |
-| Gifts | blocked | Not yet run on a shipping mod artifact. |
-| People | blocked | Not yet run on a shipping mod artifact. |
-| Bag and tooltips | blocked | Not yet run on a shipping mod artifact. |
-| Quick stack | blocked | Not yet run on a shipping mod artifact. |
-| Craft | blocked | Not yet run on a shipping mod artifact. |
-| Aim | blocked | Not yet run on a shipping mod artifact. |
-| Chest | blocked | Not yet run on a shipping mod artifact. |
-| Shop | blocked | Not yet run on a shipping mod artifact. |
-| Shipping | blocked | Not yet run on a shipping mod artifact. |
-| Geodes | blocked | Not yet run on a shipping mod artifact. |
-| Community Center | blocked | Not yet run on a shipping mod artifact. |
-| Museum | blocked | Not yet run on a shipping mod artifact. |
-| Forge | blocked | Not yet run on a shipping mod artifact. |
-| Sewing/tailoring | blocked | Not yet run on a shipping mod artifact. |
-| Dialogue and events | blocked | Not yet run on a shipping mod artifact. |
-| Title and saves | blocked | Not yet run on a shipping mod artifact. |
-| End of day | blocked | Not yet run on a shipping mod artifact. |
-| Tabs/settings | blocked | Not yet run on a shipping mod artifact. |
-| Lifecycle and hardware | blocked | Not yet run on a shipping mod artifact. |
-| Release hygiene | blocked | Not yet run on a shipping mod artifact. |
+| Identity/display | Official Play 1.6.15.3/code245; publisher JunimoGate0.3.1/code11; SMAPI4.5.2-junimogate.41. Build IDs observed in logs. Top/lower logical and physical IDs mapped independently. | Exact final artifact identity and real controller/touch hardware. |
+| Today | Spring12 native luck0.079, Festival tomorrow, Cart today, Egg Festival tomorrow, Haley/Pam birthdays match. Watering decremented dry count. `m13-nextday.json`, `mobile13-today-*.png`. | Mobile14 cold-load shows the correct1ready/2dry and all3event lines fit. Live watering follow-up remains open. |
+| Gifts/People | Correct held-item advice, native gift consumption and Pam friendship1000 to1100, daily/weekly counts1. Meeting Pam with unchanged held item now refreshes advice. Location grouping, map, birthdays, scrolling and known-NPC filtering observed. `m9-pam-gift.json`, `mobile9-people*.png`, `mobile10-gift-new-met.png`. | Bundle-progress advice refresh and final complete mugshot check. |
+| Bag | Marked gold stack merge5+7=12; canceled drag preserved it; trash12 credited374g with iridium can; axe refused trash. Native tooltip legible. Full-bag pending-item menu collected3 gold parsnips only after space was freed. `m9-bag-*.json`, `m10-noroom-*.json`. | Shortened no-room heading visual check. |
+| Quick stack | Normal chest and Junimo shared inventory:20 wood distributed9+11, retained axe/unmatched marked item. Full containers preserve remainders. `m9-junimo-quickstack.json`, `m9-full-*.json`. | Native farmhouse fridge; foreign lock is guarded but multiplayer contention not exercised. |
+| Craft | Torch consumes1wood+2sap and yields1torch; multi-output Wild Seeds consumes four forage types twice and yields20seeds; insufficient/full inventory attempts unchanged. Native recipe count and saved/cold-loaded Torch verified. `m9-multicraft*.json`, `m8-journey-cold-reload.json`. | Relevant quest/stat callback observation beyond existing source binding. |
+| Aim | Rain tint failure reproduced; native separate mobile overlay added and paired views match. Farm/night/mine/house views checked. Valid chest/seed/chair placement consumed exact amount; occupied/out-of-range seed placement unchanged. Watering affects adjacent tile only. Chair marker preserved; rotation1 to2; occupied placement retained second chair. `mobile13-rain-*.png`, `mobile13-mine-*.png`, `m12-seed-*.json`, `m13-chair-*.json`. | Cold-load watering conflict on mobile14; zoom variation and final primary-renderer smoke. |
+| Chest | Take/store/chosen quantities/fill/organize/large chest page2/rapid taps preserve totals, quality and markers. Full-destination loss reproduced and fixed by native capacity-bounded split. `m9-full-*.json`, `m9-fullbag-*.json`; Big Chest label geometry checked on mobile10. | Final smoke. |
+| Shop | Partial quality sale3:500g to656g, stack12 to9; cancel unchanged. Buy5:656g to556g, stock7 to2; buy25 clamps2, money516g/stock exhausted. Poor/full refusal unchanged. Mobile4 evidence. | Explicit number-pad and native buyback/currency capability details. |
+| Shipping | Chosen3gold parsnips plus3cauliflower, tool refusal, native last-item retrieval and re-shipping passed. Next day631g+681g=1312g exactly once; cold load matched. `m8-journey-nextday.json`, `m8-journey-cold-reload.json`. | Final fixture-free journey. |
+| Geodes | One geode and25g consumed,5coal yielded, GeodesCracked incremented once. Poor24g/full bag unchanged. Result persisted. Mobile6 and mobile8 journey evidence. | Explicit non-geode rejection. |
+| Community Center | Locked text hidden; unlocked Spring Crops consumed four correct items and set reward; Quality Crops consumed exactly5 marked gold parsnips; rejected/repeat input unchanged. Mobile7 evidence. | Low-quality refusal, reward collection and saved/cold-loaded progress. |
+| Museum | Accepted placement, rejected/duplicate/cancel preservation and five distinct donations96..100 passed. Donations survived cold load. `m8-journey-cold-reload.json`. | Native reward collection. |
+| Forge | Emerald forge consumes1emerald+10shards and adds EmeraldEnchantment1; cancel returns inputs; invalidwood refused. Unforge removes modifier and refunds5shards; weapon marker remains. `m9-forge-*.json`, `m9-unforge*.json`. Ruby-forged weapon persisted in mobile8 journey. | Final smoke. |
+| Tailoring | Native recipe consumes1cloth+1parsnip and yields shirt1159. Cancel returns inputs. Full output bag consumes nothing. Ruby dye consumes1ruby, preserves marked pants and changes native color. `m10-tailor-full-*.json`, `m10-dye-*.json`. Shirt persisted in mobile8 journey. | Final smoke. |
+| Dialogue/events | Both Yes/No lower choices invoke expected native afterQuestion and close menu. Stale input across menu replacement discarded. | Skippable/non-skippable events and festival tabs. |
+| Title/saves | Native Load selects disposable ThorTest; return to title and repeated cold-load work. Unmodified mobile title exposes New/Load; desktop co-op option absent. | New/back, paginated list, host disposable import/restore and final safe exit. |
+| End of day | Correct one-time shipping total and next day survived cold load. All30 native profession choices passed, including Fighter+15/Defender+25health, exact membership and cleared pending level; normal Continue passed. `m9-prof-*.json`, `m9-level-first-*.json`, `mobile10-level-layout.png`. | Final candidate smoke. |
+| Tabs/settings | Basic selection/scroll works and previous layout resize checks passed. | Hide/reorder/persist and active-panel reachability. |
+| Lifecycle/performance | Coordination tests10/10; earlier pause/recreation/resize/cover checks passed. Vendor cover is not a display disconnect. | Required5cold/10pause/5recreation counts, UI-stall, real hardware, latency, matched frame timing, memory and30minute soak. |
+| Release hygiene | Proprietary references, APKs, saves, fixture artifacts and raw evidence ignored. Production graph uses explicit shared source list. | Remove unused probe source, final allowlist/license/install notes, reproducible clean build, fixture-free group, original hashes and rollback. |
 
-## Integration evidence, not final candidate acceptance
-
-See execution-state.md for current artifact identities and private evidence names. Mobile4 shop sale, purchase, stock limit, canceled quantity, insufficient currency and full inventory checks passed through actual lower-screen input. Mobile5 fixed the native held-item read after a reproducible fixture snapshot crash. Chest transfer and geode failures were fixed and verified on mobile6. Dialogue and bundle fixes were verified on mobile7; museum release selection is next. A native profession choice passed on the disposable farm. Ten pure coordination/selection tests pass.
-
-The matrix above remains unaccepted until tested on the exact shipping candidate. Earlier USB-blocked statements are superseded: authorization is resolved, original saves are independently backed up, and the released host runs the official mobile game. Final lifecycle counts, hardware controls, performance comparison, soak, save/reload action journey and release hygiene remain pending.
+No entire mandatory row is accepted merely because a screenshot exists. Transaction evidence includes native before/after state. The final report must retain any failed, blocked or untested case rather than downgrade the plan's done condition.

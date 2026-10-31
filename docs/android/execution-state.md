@@ -6,9 +6,9 @@ Execution active. The unmodified mobile game baseline works. No mod artifact is 
 - Upstream: `15f05b63d3ca852f3729e20de67fc7446bfac112` (0.5.2).
 - Host: unchanged publisher JunimoGate v0.3.1, commit `029eafed917ae853d6c0a59330ee273524168296`, code 11, SMAPI `junimogate-4.5.2.41`.
 - Game: installed Google Play 1.6.15.3 / code 245 / ARM64. Android 13 API 33.
-- Gate 1 passed. Gate 2 gameplay, preservation and display prerequisites passed; host save export defect remains open. Gate 3 runtime boundary passed with hardware pending. Gate 4 integration partially verified. Gates 5 through 8 pending.
-- Current mod artifact/build ID: `5ed81c6-mobile8`, version `0.5.2-android.dev.8`, imported and enabled in `ThorBaseline`. ZIP SHA256 `d13651a5750c4db71ee4bf86f64003c705588341bbee67818be4faa3a6735c68`. This is an integration build, not an accepted release.
-- Next action: finish Task 4 stress coverage and Task 5 runtime adapter/visual corrections; prepare isolated Task 6 fixtures. Physical controller acceptance remains pending.
+- Gate 1 passed. Gate 2 passed its gameplay, preservation and display requirements; the checked host Save Export route has a documented defect. Gate 3 runtime boundary passed with hardware pending. Gate 4 integration partially verified. Gates 5 through 8 pending.
+- Current mod artifact/build ID: `7a7afe3-mobile14`, version `0.5.2-android.dev.14`, imported and enabled in `ThorBaseline`. ZIP SHA256 `94bbd3f3ee13c581e2e20b386208ff86130288638aefdc265ea3acad93c18c32`. This is an integration build, not an accepted release.
+- Next action: diagnose the cold-load Aim watering conflict with fixture0.11, then remaining rewards, events/settings, import/restore and exact-candidate acceptance. Physical controller acceptance remains pending.
 
 ## Verified baseline
 
@@ -27,7 +27,7 @@ Save Export opens Android document creation but produces a zero-byte ZIP. Source
 
 Logs > More > Export all > Export > Downloads succeeded. Pulled diagnostic ZIP passed CRC/content checks (6004 bytes, SHA256 `425e88d87cbc175db4338ae422bd33f1042048bfb7615a786bb2787d5feac1d9`). Private evidence: `artifacts/private/host-baseline-diagnostics.zip`.
 
-Continue the independent release-host probe before considering any host patch. Save export must be resolved or explicitly blocked before final delivery.
+The release-host probe passed without a host patch. Task 2 requires checking export/import; Gate 2 does not require repairing launcher export. The earlier self-imposed requirement to fix this host defect is withdrawn. Keep the publisher host unchanged, disclose its failed export route, verify a disposable backup restore, and never count the empty ZIP as a backup. Original-save migration remains untested.
 
 ## Resume details
 
@@ -68,7 +68,7 @@ Mobile8 and separate fixture 0.6.0 are selected in ThorBaseline; both identities
 - A regular disposable-save pair was exported by the guarded fixture before item seeding. ZIP 104672 bytes, SHA256 695c652db79536adff5efd1d6bc9ae74bf1e44c6a831f418a5a01f84ae10d51e, CRC/XML validated. This supplies the test baseline backup but does not fix launcher Save Export. Restore has not been tested.
 - Mobile3 bag drag moved a 12-item quality-2 marked stack from slot 5 to slot 12 with exact total and metadata conservation.
 
-Resume: finish mobile6/fixture0.4 build and selection, verify native chest full/partial transfers and geodes, then remaining action matrix, save/reload, visual/lifecycle/performance/hardware/soak gates and final review. No mandatory gate is waived. Latest pushed source checkpoint remains 5ed81c6 until these changes are committed.
+Resume: finish mobile6/fixture0.4 build and selection, verify native chest full/partial transfers and geodes, then remaining action matrix, save/reload, visual/lifecycle/performance/hardware/soak gates and final review. No mandatory gate is waived. Latest pushed source checkpoint is 7a7afe3.
 
 ## Mobile6 to mobile8 integration
 
@@ -84,3 +84,47 @@ Resume: finish mobile6/fixture0.4 build and selection, verify native chest full/
 Pending: mobile8 museum/shipping checks, remaining action and visual cases, a saved/cold-reloaded action journey, production stress/performance/lifecycle/hardware/soak acceptance, fixture-free final group, one independent whole-branch review, and final artifact delivery. No mandatory gate is waived.
 
 Mobile8 device follow-up: museum lower selection and native placement passed, including duplicate/rejected-item preservation and cancellation. Five unique donations were recorded. Shipping partial/full quantities, tool rejection and native last-item retrieval passed. A pending persistence journey has 631g, three shipped gold parsnips plus three cauliflower, one crafted Torch, one cracked geode, one tailored shirt and a Galaxy Sword with RubyEnchantment level 1 and preserved marker. It has not been saved yet. Current next action is native profession choice and overnight save/cold reload, then remaining cases.
+
+Mobile8 persistence passed: one lower Continue advanced to Spring 3 with 1312g (631g plus 681g shipping). After title exit and full process restart, fixture snapshots matched day, money, every item/count/quality/marker/enchantment, professions, crafting recipe counts, GeodesCracked and all five museum donations. Regular-save export passed ZIP CRC and XML checks; SHA256 cb75b8b7a77ed879e9ad6a7b36b0ffcfeb95405b76f602936a84eff5b83119f1. Private evidence m8-journey-nextday.json, m8-journey-cold-reload.json and mobile8-journey-save-validation.json. This is instrumented integration evidence on dev8, not final-candidate acceptance.
+
+Fixture0.7 is being imported for the remaining required container, visual/progression and bounded UI-stall test conditions. It remains separate from the production ZIP. The device has no supported display-disable command in cmd display help; do not count vendor cover toggles as physical display disappearance.
+
+## Mobile9 container and native-action follow-up
+
+Mobile9 plus separate fixture 0.7 are imported and selected; both startup identities were observed. Mobile9 fixes a real mobile8 failure: storing 20 wood into a full chest with nine remaining stack spaces erased the 11-item remainder through a native whole-item callback. The adapter now uses the native split path bounded to the chosen destination slot. Device checks passed for nine moved and eleven retained, the mirrored nearly-full-bag transfer, full-destination rejection, marked-quality partial quantities, fill stacks, organize, repeated input and second-page Big Chest take. Junimo quick stack now reads the native player/global inventory and passed conservation across normal and Junimo chests. Private evidence: m9-full-*, m9-fullbag-*, m9-split-stored.json, m9-fill-organize.json, m9-rapid-storage.json, m9-big-page2-take.json, m9-junimo-quickstack.json.
+
+Forge invalid material, cancel, EmeraldEnchantment creation and native unforge passed. A marked Galaxy Sword retained its marker, forging consumed one emerald and ten shards, and unforge removed the modifier and returned five shards. Tailoring selected ingredients through the lower panel and used native top ingredient slots: cancellation returned both ingredients; completion consumed one cloth and parsnip and made one shirt. Two Spring Seeds crafts consumed two of each native forage ingredient, yielded twenty seeds and recorded twenty recipe outputs; a third insufficient-input attempt changed nothing. Evidence: m9-forge-*, m9-unforge*.json, m9-tailor-placed*.json, m9-tailor-output.json, m9-tailor-return.json, m9-multicraft*.json.
+
+Current source also shortens the paged chest heading and moves profession cards below the level title after observed overlapping text. These visual edits and a native foreign-mutex guard for quick stack are not yet built/device-checked. All thirty native profession choices are being checked with the isolated fixture. Current device state is unsaved test state; retain the verified Spring 3 regular-save backup and discard this setup before final acceptance.
+
+Next: finish profession choices, remaining visual/data/action conditions, build the affected fixes, then Task 7 exact-candidate lifecycle/performance/physical-controls/30-minute soak and Task 8 independent review and fixture-free delivery. No hardware result is inferred from injected ADB input. No final release is accepted.
+
+## Mobile10 follow-up and current diagnostic build
+
+All thirty native profession choices passed on mobile9, including Fighter/Defender health increases, exact profession membership, menu closure and pending-level removal. A normal level Continue also passed. Profession list order is native and is not required to be insertion order. Mobile10 verified the corrected profession-card geometry and a choice at its new position. The shortened Big Chest heading and counter no longer overlap.
+
+Mobile9 Gifts advice failed to refresh after meeting Pam while retaining the same parsnip. Mobile10 includes friendship membership and bundle progress in that cache dependency; the same real lower-panel sequence now displays Pam under Loves without changing the item. Actual native gifting consumed one gold parsnip and changed Pam from 1000 to 1100 points with daily/weekly gift counts 1; the lower marker updated. People map, location grouping, birthday marker, Gifts subview and scrolling were observed with native character data. Some mobile mugshots were cut off by the upstream fixed 16-pixel crop; the next build uses the complete native mugshot rectangle fitted to the existing icon area.
+
+Bag merge and canceled drag preserved a marked quality stack. Trashing twelve gold parsnips with the iridium trash can credited 374g; the axe refused trash. The full parsnip tooltip rendered readably. Native no-room menu refused a waiting stack until lower drag trashed a bag stack, then lower take collected all three gold parsnips. Its long heading clipped and is shortened in the next build. Tailoring with a full bag consumed nothing, and dyeing consumed one ruby, preserved the pants marker and changed native clothing color. Private evidence: m9-prof-*.json, m9-bag-*.json, m9-pam-gift.json, mobile9-people*.png, m10-gift-*.json, mobile10-level-layout.png, m10-noroom-*.json, m10-tailor-full-*.json, m10-dye-*.json.
+
+Aim valid chest placement consumed one chest; tapping the occupied target consumed no second chest. Outdoor and night views exposed a tint mismatch against the primary view, so Aim is not accepted. Current source contains a temporary one-shot THOR_NIGHT_DIAGNOSTIC in RenderMobile to report nonopaque pixel count and actual lighting/viewport settings. Remove this diagnostic after the cause is identified. It is not a finished feature. Mobile11 (SHA256 9f3ee0ce7b132a4fcb9c5a5389acbf80640a49600c7d5673a1d15bc911921108) and fixture0.9 (SHA256 39feaf99d14380f1781b2cf4ebc60b9d05026368a84c6aad652cd164ec75ba6e) were built and staged; import/selection is in progress. The fixture adds only nearby object/furniture/soil observations for Aim assertions.
+
+Mobile10 production and fixture0.8 Release builds passed, ten coordination/selection tests and ten Python tests passed. Mobile11 and fixture0.9 also compile. Current unsaved tests were discarded by native title exit; the saved farm remains Spring 3, 1312g with the verified persistent journey. Latest pushed commit remains 7a7afe3; newer source changes are uncommitted.
+
+
+## Mobile13 rendering and data checks
+
+The rain mismatch was reproduced on mobile12. Marking the Android bitmap opaque did not fix it and was reverted. Native mobile DrawWorld applies a separate blue rain overlay after DrawLightmapOnScreen. Mobile13 adds that same pass, including the native green-rain variant. Paired screenshots now match the top view's rain/night tint. Mine 1 and farmhouse rendering also passed visual inspection. The temporary night diagnostic was removed; MobileHost is unchanged from the prior verified architecture.
+
+Aim watering changed only the adjacent soil tile. Seed placement consumed one seed at a valid adjacent tile, and neither an occupied tile nor a tile outside placement range consumed another. Indoor chair placement preserved its marker and selected rotation; tapping the placed chair changed rotation 1 to 2 without duplicating it. Another chair refused the occupied tile and remained in inventory. Evidence: m12-water-after.json, m12-seed-*.json, m13-chair-*.json, mobile13-rain-*.png, mobile13-mine-*.png and mobile13-furniture-*.png. Mobile13 ZIP SHA256: 78f9f74164265c7808565b4e03daab59c2cd399fda02eec0e9a0981ee7c5f538. Fixture0.10 SHA256: 4dafcb2894f4fb9569d4437a0e1cf0fc8389173f0542b8cf16e196e7671e4788.
+
+The disposable farm advanced to Spring 4 during a long night diagnostic. The Spring 3 journey ZIP remains intact and is the persistence reference. A deliberate fixture setup then slept normally from Spring 11 to Spring 12 for Today coverage. The saved Spring 12 pair is independently exported and CRC/XML checked in m13-today-export.zip. No original Play save was used.
+
+Today correctly showed native luck 0.079, tomorrow's Festival, today's Traveling Cart, tomorrow's Egg Festival, and Haley/Pam birthdays. Its third event line overlapped the card border. More materially, it counted seven native IslandWest wild ginger plants as dry, in addition to two actual unwatered farm crops. The native needsWatering fallback returns true for ginger even though it is harvested with a hoe and does not need cultivation. Mobile14 excludes forage crops from dry counts and narrows only the Android event-line spacing. The observed watering action decremented the existing count by one. Verify the corrected total and geometry after cold loading mobile14 before accepting this fix.
+
+Mobile14 build: 7a7afe3-mobile14, ZIP SHA256 94bbd3f3ee13c581e2e20b386208ff86130288638aefdc265ea3acad93c18c32. Release compilation passed with the existing category-count warning. Import into ThorBaseline is in progress; fixture0.10 remains selected separately. Latest pushed commit is still 7a7afe3. No final candidate or hardware acceptance is claimed.
+
+
+Mobile14 follow-up: cold-load Today displays exactly 1 ready and 2 dry crops, and all three upcoming-event lines fit. Instrumented farm state has one mature and two immature dry crops; the saved IslandWest data confirms seven forage ginger plants, now excluded. Evidence: m14-start.json and mobile14-today-cold.png. Runtime mobile14 identity observed in mobile14-startup.txt.
+
+A subsequent Aim watering attempt after cold load did not change soil and ended facing right instead of the tapped direction. Earlier mobile12/13 watering passed. This conflict remains open, not accepted. Fixture0.11 adds native CanMove, lastClick, tool-location, water, event and zoom observations plus bounded native event and fridge setup. It compiles with zero warnings/errors. ZIP SHA256 87f1b68b80777be633e7f0f2a2f87a7dd2b2b0116e304df1e6eb3168730166eb; import is in progress. Do not alter production tool logic until this state is observed.

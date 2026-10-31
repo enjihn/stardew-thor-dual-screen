@@ -1,7 +1,7 @@
 {
   "Name": "Thor Dual Screen Android",
   "Author": "Hung; Android port contributors",
-  "Version": "0.5.2-android.dev.8",
+  "Version": "0.5.2-android.dev.14",
   "Description": "Android integration test build of the original Thor companion panels. Acceptance in progress.",
   "UniqueID": "Hung.ThorDualScreen",
   "EntryDll": "DualScreen.dll",
