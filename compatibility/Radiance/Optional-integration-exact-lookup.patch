@@ -1,0 +1,108 @@
+--- a/src/Integrations/ScaleUpArt.cs
++++ b/src/Integrations/ScaleUpArt.cs
+@@ -52,7 +52,7 @@
+         internal static void Find(IMonitor monitor)
+         {
+             _monitor = monitor;
+-            Type? patches = AccessTools.TypeByName("ScaleUpUnofficial.HarmonyPatches");
++            Type? patches = Radiance.ThorCompat.ExactTypeLookup.Find("ScaleUpUnofficial.HarmonyPatches");
+             if (patches == null)
+                 return;
+             _drawGuard = AccessTools.Field(patches, "_spriteAlreadyDrawn");
+--- a/src/Entry/ShadowSuppression.cs
++++ b/src/Entry/ShadowSuppression.cs
+@@ -447,7 +447,7 @@
+                 catch (Exception) { continue; }
+                 foreach (var type in types)
+                 {
+-                    if (type == null || !typeof(NPC).IsAssignableFrom(type))
++                    if (type == null || !Radiance.ThorCompat.ExactTypeLookup.IsAssignableFrom(typeof(NPC), type))
+                         continue;
+                     if (gameAssembly && !GameCharactersWithTheirOwnBlob.Contains(type))
+                         continue;
+@@ -542,7 +542,7 @@
+         internal static void LeanDynamicShaderCanopies(Harmony harmony, IMonitor monitor)
+         {
+             System.Reflection.MethodInfo? drawInline = AccessTools.Method(
+-                AccessTools.TypeByName("DynamicShader.Core.Rendering.CanopyLight.TreeCanopyLightDrawer"), "DrawInline");
++                Radiance.ThorCompat.ExactTypeLookup.Find("DynamicShader.Core.Rendering.CanopyLight.TreeCanopyLightDrawer"), "DrawInline");
+             if (drawInline == null)
+                 return;
+             try
+--- a/src/Water/LocationDrawHook.cs
++++ b/src/Water/LocationDrawHook.cs
+@@ -281,7 +281,7 @@
+                 catch (ReflectionTypeLoadException ex) { types = ex.Types.Where(t => t != null).ToArray()!; }
+                 catch (Exception) { continue; }
+                 foreach (Type type in types)
+-                    if (type != null && typeof(GameLocation).IsAssignableFrom(type))
++                    if (type != null && Radiance.ThorCompat.ExactTypeLookup.IsAssignableFrom(typeof(GameLocation), type))
+                         yield return type;
+             }
+         }
+--- a/src/Entry/HarmonyPatcher.cs
++++ b/src/Entry/HarmonyPatcher.cs
+@@ -908,7 +908,7 @@
+                 catch (Exception) { continue; }
+                 foreach (Type type in types)
+                 {
+-                    if (type == null || !typeof(NPC).IsAssignableFrom(type))
++                    if (type == null || !Radiance.ThorCompat.ExactTypeLookup.IsAssignableFrom(typeof(NPC), type))
+                         continue;
+                     System.Reflection.MethodInfo? update;
+                     try
+--- a/manifest.json
++++ b/manifest.json
+@@ -1,7 +1,7 @@
+ {
+   "Name": "SDV-Radiance",
+   "Author": "phuicmt",
+-  "Version": "2.4.8",
++  "Version": "2.4.8-android.2",
+   "Description": "Shadows, water, light and weather for Stardew Valley: sun and lamp shadows, water and window reflections, rain and snow, wind in the trees, bloom and more. Every effect can be turned off on its own. Press F6 to change settings.",
+   "UniqueID": "phuicmt.SDVRadiance",
+   "EntryDll": "SDV-Radiance.dll",
+--- /dev/null
++++ b/src/Integrations/ExactTypeLookup.cs
+@@ -0,0 +1,41 @@
++using System;
++using System.Collections.Generic;
++using System.IO;
++using System.Reflection;
++
++namespace Radiance.ThorCompat;
++
++public static class ExactTypeLookup
++{
++    public static bool IsAssignableFrom(Type target, Type candidate)
++    {
++        try { return target.IsAssignableFrom(candidate); }
++        catch (Exception error) when (error is FileNotFoundException or FileLoadException
++            or TypeLoadException or ReflectionTypeLoadException)
++        {
++            // Android can expose a type whose base assembly is resolved only here.
++            return false;
++        }
++    }
++
++    public static Type? Find(string name) => FindInAssemblies(name, AppDomain.CurrentDomain.GetAssemblies());
++
++    public static Type? FindInAssemblies(string name, IEnumerable<Assembly> assemblies)
++    {
++        foreach (var assembly in assemblies)
++        {
++            try
++            {
++                var found = assembly.GetType(name, throwOnError: false);
++                if (found != null) return found;
++            }
++            catch (Exception error) when (error is FileNotFoundException or FileLoadException
++                or TypeLoadException or ReflectionTypeLoadException)
++            {
++                // An unrelated assembly with unavailable dependencies must not stop
++                // discovery of an optional integration in another loaded assembly.
++            }
++        }
++        return null;
++    }
++}

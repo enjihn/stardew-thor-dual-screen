@@ -1,0 +1,111 @@
+{
+  "status": "candidate-not-accepted",
+  "game": "1.6.15.3 (245)",
+  "host": "0.3.1-thor.2 (12)",
+  "smapi": "4.5.2-junimogate.41",
+  "harmony": "2.4.2-junimogate.64",
+  "components": [
+    {
+      "file": "accepted-group-rollback.zip",
+      "sha256": "58d5e95c72c13e746b810088710f9af2f9da398ca1c68e6f192fd197c1091ce4",
+      "bytes": 92947,
+      "uniqueId": "Hung.ThorDualScreen",
+      "version": "0.5.2-android.3",
+      "contentId": "34e2661152feff4faaa83276b2decc497376145c109acf0ea493da493a71c0c5"
+    },
+    {
+      "file": "ContentPatcher-2.9.1.zip",
+      "sha256": "22962ecbeda204d207f66f4dded727a2ce67134f7decdd249c1024bbc4576817",
+      "bytes": 389967,
+      "uniqueId": "Pathoschild.ContentPatcher",
+      "version": "2.9.1",
+      "contentId": "3283130ea1836f0476ebc49b9c9d9a56d748c3a3c4e86cc61b81819b2d91e2ad",
+      "sourceUrl": "https://www.curseforge.com/stardewvalley/mods/content-patcher/files/7759981",
+      "downloadUrl": "https://edge.forgecdn.net/files/7759/981/Content%20Patcher%202.9.1%202.9.1.zip"
+    },
+    {
+      "file": "GenericModConfigMenu-1.16.0.zip",
+      "sha256": "9de4e26f1453adde4d7cdb0913e5af4cb2d36c1aff4d92447a659dd9adc01ef8",
+      "bytes": 108656,
+      "uniqueId": "spacechase0.GenericModConfigMenu",
+      "version": "1.16.0",
+      "contentId": "20e152995068b7f67b196ec1d58dcaff320743ca51a98a84dcbe26b5b19f47c7",
+      "sourceUrl": "https://www.curseforge.com/stardewvalley/mods/generic-mod-config-menu/files/7122408",
+      "downloadUrl": "https://edge.forgecdn.net/files/7122/408/Generic%20Mod%20Config%20Menu%201.16.0%201.16.0.zip"
+    },
+    {
+      "file": "Seasonal Cute Characters 5450 6.1.4 2026-10-25T17-35Z sewzgC37U.zip",
+      "sha256": "352aa44fa7a3adf7bf0b6d05c2ede9d4d5c5512b5c445c8282c0c879355e2b8b",
+      "bytes": 33371765,
+      "uniqueId": "Poltergeister.SeasonalCuteCharacters",
+      "version": "6.1.4",
+      "contentId": "e56cc1513ef0fd40c57ed032ee7e41721426dbb18c39b53ad685861e2ffc4475",
+      "sourceUrl": "https://www.nexusmods.com/stardewvalley/mods/5450"
+    },
+    {
+      "file": "FashionSense-7.5.0-android.1.zip",
+      "sha256": "09f5ab859d8dff44d99eede1c3f6a9c76f6cde40ac461cf6808103676348642e",
+      "bytes": 260609,
+      "uniqueId": "PeacefulEnd.FashionSense",
+      "version": "7.5.0-android.1",
+      "contentId": "531fc7251fbfbf5b5003205a76216541d602684848668a815ce93fb5b1a1f660",
+      "compatibilityNotes": "compatibility/FashionSense/README.md"
+    },
+    {
+      "file": "SDV-Radiance-2.4.8-android.2-licensed.zip",
+      "sha256": "15680f5f7e90c69a090099e965e02b9b892293e50ec6c66d996bcf33eb163b31",
+      "bytes": 3752719,
+      "uniqueId": "phuicmt.SDVRadiance",
+      "version": "2.4.8-android.2",
+      "contentId": "a3d4a8939f0c3791a755c2f66f9a79a9515ad69358d4db4b7364a4512bd1a870",
+      "compatibilityNotes": "compatibility/Radiance/README.md"
+    }
+  ],
+  "inventoryScope": "Candidate packages only. Diagnostic test-group enablement and settings vary; this inventory does not declare a selected or accepted combined release.",
+  "contentIdMethod": "Same as prepare_group.py: SHA256 of sorted relative mod-root files; each record is big-endian >Iq name-byte-length/data-length, then UTF-8 name bytes and file bytes.",
+  "acceptedRollback": {
+    "group": "ThorItemSwitchRelease",
+    "scope": "Thor only; retained separately from diagnostic test group",
+    "uniqueId": "Hung.ThorDualScreen",
+    "version": "0.5.2-android.3",
+    "buildId": "item-switch-android3-03",
+    "groupExportFile": "accepted-group-rollback.zip",
+    "groupExportSha256": "58d5e95c72c13e746b810088710f9af2f9da398ca1c68e6f192fd197c1091ce4"
+  },
+  "performanceStatus": "Combined Quality, Balanced, Low and toggled-OFF day p95 failed the original baseline bound. Correctly unloaded Radiance and Fashion Sense runs also showed about 25.36 ms p95. Baseline recheck is in progress; no cause is attributed and no combined acceptance is claimed.",
+  "originalReleaseProvenance": [
+    {
+      "file": "Fashion Sense 7.5.0-9969-7-5-0-1773351944.zip",
+      "sha256": "a12fe600e338a5ebabcccfd5a3f585dbd0346fa4357f4e4e5aaa6a23a5e8e6d0",
+      "bytes": 318146,
+      "uniqueId": "PeacefulEnd.FashionSense",
+      "version": "7.5.0",
+      "contentId": "e58a0ee6255379f1bc0df046130fa6af4ead210e4a06b1670c4a46391cbd2c52",
+      "sourceUrl": "https://www.nexusmods.com/stardewvalley/mods/9969"
+    },
+    {
+      "file": "SDV-Radiance 2.4.8 49397 2.4.8 2026-11-12T02-46Z Pct026Fi5.zip",
+      "sha256": "7e1e29c2ddc64ca0e13e6243dcac1b22fb62b6be2c2e342f29bc846e3420e3d0",
+      "bytes": 3992826,
+      "uniqueId": "phuicmt.SDVRadiance",
+      "version": "2.4.8",
+      "contentId": "d2fd0c4356ae2be4191915bea5bb40ca0b6f7a679ae7b223346a2787a1f6a3f1",
+      "sourceUrl": "https://www.nexusmods.com/stardewvalley/mods/49397"
+    }
+  ],
+  "dependencyRequirementNotes": [
+    {
+      "uniqueId": "Pathoschild.ContentPatcher",
+      "version": "2.9.1",
+      "manifestMinimumApiVersion": "4.1.10",
+      "authorFilePageMinimumApiVersion": "4.4.0",
+      "note": "The host exceeds both requirements; preserve the source discrepancy."
+    },
+    {
+      "uniqueId": "spacechase0.GenericModConfigMenu",
+      "version": "1.16.0",
+      "manifestMinimumApiVersion": "4.1",
+      "manifestMinimumGameVersion": "1.6.14"
+    }
+  ]
+}

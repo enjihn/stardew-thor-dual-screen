@@ -1,0 +1,28 @@
+diff --git a/FashionSense/Framework/Patches/Menus/CharacterCustomizationPatch.cs b/FashionSense/Framework/Patches/Menus/CharacterCustomizationPatch.cs
+--- a/FashionSense/Framework/Patches/Menus/CharacterCustomizationPatch.cs
++++ b/FashionSense/Framework/Patches/Menus/CharacterCustomizationPatch.cs
+@@ -23,6 +23,12 @@ namespace FashionSense.Framework.Patches.Menus
+ 
+         internal void Apply(Harmony harmony)
+         {
++            // Android uses MobileCustomizer instead of the desktop character creation UI.
++            // Skip only the optional desktop starting-mirror checkbox hooks.
++            if (AccessTools.TypeByName("StardewValley.Menus.MobileCustomizer") is not null)
++            {
++                return;
++            }
+             harmony.Patch(AccessTools.Method(_menu, "ResetComponents", null), postfix: new HarmonyMethod(GetType(), nameof(ResetComponentsPostfix)));
+             harmony.Patch(AccessTools.Method(_menu, "selectionClick", new[] { typeof(string), typeof(int) }), postfix: new HarmonyMethod(GetType(), nameof(SelectionClickPostfix)));
+ 
+diff --git a/FashionSense/manifest.json b/FashionSense/manifest.json
+--- a/FashionSense/manifest.json
++++ b/FashionSense/manifest.json
+@@ -2,6 +2,6 @@
+   "Name": "Fashion Sense",
+   "Author": "PeacefulEnd",
+-  "Version": "REPLACE_ME_WITH_VERSION",
++  "Version": "7.5.0-android.1",
+   "Description": "Framework which adds hair animation and more into Stardew Valley.",
+   "UniqueID": "PeacefulEnd.FashionSense",
+   "EntryDll": "FashionSense.dll",
+
