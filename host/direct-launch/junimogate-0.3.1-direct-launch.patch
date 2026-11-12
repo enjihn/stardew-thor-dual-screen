@@ -1,0 +1,256 @@
+diff --git a/src/JunimoGate.App/DirectLaunchActivity.cs b/src/JunimoGate.App/DirectLaunchActivity.cs
+new file mode 100644
+index 0000000..665bf86
+--- /dev/null
++++ b/src/JunimoGate.App/DirectLaunchActivity.cs
+@@ -0,0 +1,124 @@
++using Android.App;
++using Android.Content;
++using Android.Content.PM;
++using Android.Graphics;
++using Android.OS;
++using Android.Views;
++using Android.Widget;
++using JunimoGate.GameHost;
++using Log = JunimoGate.Android.JunimoGateLog;
++using OperationCanceledException = System.OperationCanceledException;
++
++namespace JunimoGate.App;
++
++/// <summary>A direct game entry using the same preparation and launch registry as the manager.</summary>
++[Activity(
++    Name = "org.junimogate.app.DirectLaunchActivity",
++    Label = "Stardew Dual Screen",
++    Icon = "@drawable/thor_launcher_icon",
++    Theme = "@style/Theme.Thor.DirectLaunch",
++    MainLauncher = true,
++    Exported = true,
++    LaunchMode = LaunchMode.SingleTop,
++    ScreenOrientation = ScreenOrientation.SensorLandscape)]
++[MetaData("android.app.shortcuts", Resource = "@xml/thor_shortcuts")]
++public sealed class DirectLaunchActivity : Activity
++{
++    private CancellationTokenSource? lifetime;
++    private LauncherCoordinator? coordinator;
++    private TextView? status;
++    private Button? manage;
++    private bool dispatched;
++    private bool destroyed;
++
++    protected override void OnCreate(Bundle? savedInstanceState)
++    {
++        base.OnCreate(savedInstanceState);
++        Log.Initialize(this, "launcher", GameHostRuntimeIdentity.BuildId);
++        if (GameSessionRegistry.TryRouteActiveGame(this))
++        {
++            Log.Info("JunimoGate.DirectLaunch", "resumed-active-game");
++            Finish();
++            return;
++        }
++
++        var layout = new LinearLayout(this) { Orientation = Orientation.Vertical };
++        layout.SetGravity(GravityFlags.Center);
++        layout.SetPadding(48, 48, 48, 48);
++        var title = new TextView(this) { Text = "Stardew Valley", TextSize = 30, Gravity = GravityFlags.Center };
++        title.SetTextColor(Color.White);
++        layout.AddView(title);
++        status = new TextView(this) { Text = "Starting dual screen...", TextSize = 16, Gravity = GravityFlags.Center };
++        status.SetTextColor(Color.White);
++        status.SetPadding(0, 24, 0, 24);
++        layout.AddView(status);
++        manage = new Button(this) { Text = "Open mod manager", Visibility = ViewStates.Gone };
++        manage.Click += (_, _) => { StartActivity(new Intent(this, typeof(MainActivity))); Finish(); };
++        layout.AddView(manage);
++        SetContentView(layout);
++
++        lifetime = new CancellationTokenSource();
++        coordinator = new LauncherCoordinator(ApplicationContext ?? this);
++        _ = PrepareAndLaunchAsync(lifetime.Token);
++    }
++
++    protected override void OnNewIntent(Intent? intent)
++    {
++        base.OnNewIntent(intent);
++        // A repeated icon press shares the in-flight operation or resumes the live game.
++        if (!destroyed && GameSessionRegistry.TryRouteActiveGame(this)) Finish();
++    }
++
++    private async Task PrepareAndLaunchAsync(CancellationToken cancellationToken)
++    {
++        try
++        {
++            var launcher = coordinator!;
++            var handle = await launcher.InitializeAsync(cancellationToken);
++            handle ??= await launcher.TryCreateLaunchAsync(cancellationToken);
++            // A changed active snapshot/profile can finish refreshing without issuing a handle.
++            if (handle is null && launcher.CurrentState.Status == LauncherStatus.Ready)
++                handle = await launcher.TryCreateLaunchAsync(cancellationToken);
++            if (destroyed || cancellationToken.IsCancellationRequested) return;
++            if (handle is null)
++            {
++                ShowFailure(LauncherTextFormatter.Format(this, launcher.CurrentState));
++                return;
++            }
++            if (dispatched) return;
++            var intent = new Intent(this, typeof(SmapiGameActivity));
++            intent.PutExtra(SmapiGameActivity.LaunchKeyExtra, handle.Key);
++            var options = ActivityOptions.MakeBasic();
++            options.SetLaunchDisplayId(global::Android.Views.Display.DefaultDisplay);
++            Log.Info("JunimoGate.DirectLaunch", "dispatch-game-without-manager");
++            StartActivity(intent, options.ToBundle());
++            dispatched = true;
++            Finish();
++        }
++        catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested) { }
++        catch (Exception exception) when (exception is ActivityNotFoundException or InvalidOperationException or IOException)
++        {
++            Log.Error("JunimoGate.DirectLaunch", "direct-launch-failed", exception);
++            if (!destroyed) ShowFailure("The game could not start. Open the mod manager to check its status.");
++        }
++    }
++
++    private void ShowFailure(string message)
++    {
++        if (status is not null) status.Text = message;
++        if (manage is not null) manage.Visibility = ViewStates.Visible;
++    }
++
++    protected override void OnDestroy()
++    {
++        destroyed = true;
++        lifetime?.Cancel();
++        lifetime?.Dispose();
++        lifetime = null;
++        coordinator?.Dispose();
++        coordinator = null;
++        status = null;
++        manage = null;
++        base.OnDestroy();
++    }
++}
+diff --git a/src/JunimoGate.App/JunimoGate.App.csproj b/src/JunimoGate.App/JunimoGate.App.csproj
+index be0e5db..470fb8f 100644
+--- a/src/JunimoGate.App/JunimoGate.App.csproj
++++ b/src/JunimoGate.App/JunimoGate.App.csproj
+@@ -3,10 +3,10 @@
+     <TargetFramework>net9.0-android35.0</TargetFramework>
+     <SupportedOSPlatformVersion>26.0</SupportedOSPlatformVersion>
+     <OutputType>Exe</OutputType>
+-    <ApplicationId>org.junimogate.app</ApplicationId>
+-    <ApplicationTitle>JunimoGate</ApplicationTitle>
++    <ApplicationId>org.junimogate.thor</ApplicationId>
++    <ApplicationTitle>Stardew Dual Screen</ApplicationTitle>
+     <ApplicationVersion>11</ApplicationVersion>
+-    <ApplicationDisplayVersion>0.3.1</ApplicationDisplayVersion>
++    <ApplicationDisplayVersion>0.3.1-thor.1</ApplicationDisplayVersion>
+     <RuntimeIdentifier>android-arm64</RuntimeIdentifier>
+     <AndroidPackageFormat>apk</AndroidPackageFormat>
+     <EmbedAssembliesIntoApk>true</EmbedAssembliesIntoApk>
+diff --git a/src/JunimoGate.App/MainActivity.cs b/src/JunimoGate.App/MainActivity.cs
+index db18577..db8b5d5 100644
+--- a/src/JunimoGate.App/MainActivity.cs
++++ b/src/JunimoGate.App/MainActivity.cs
+@@ -25,7 +25,7 @@ namespace JunimoGate.App;
+     Name = "org.junimogate.app.MainActivity",
+     Label = "@string/app_name",
+     Theme = "@style/Theme.JunimoGate",
+-    MainLauncher = true,
++    MainLauncher = false,
+     Exported = true,
+     LaunchMode = LaunchMode.SingleTop)]
+ public sealed class MainActivity : AppCompatActivity, ILauncherUiHost
+diff --git a/src/JunimoGate.App/ManageModsShortcutActivity.cs b/src/JunimoGate.App/ManageModsShortcutActivity.cs
+new file mode 100644
+index 0000000..172fe1c
+--- /dev/null
++++ b/src/JunimoGate.App/ManageModsShortcutActivity.cs
+@@ -0,0 +1,27 @@
++using Android.App;
++using Android.Content;
++using Android.OS;
++
++namespace JunimoGate.App;
++
++// Android static shortcuts carry CLEAR_TASK. Keep that flag in a disposable
++// task with no affinity, then route to the manager without forwarding it.
++[Activity(
++    Name = "org.junimogate.app.ManageModsShortcutActivity",
++    Label = "Manage mods",
++    Theme = "@android:style/Theme.NoDisplay",
++    Exported = true,
++    TaskAffinity = "",
++    NoHistory = true,
++    ExcludeFromRecents = true)]
++public sealed class ManageModsShortcutActivity : Activity
++{
++    protected override void OnCreate(Bundle? savedInstanceState)
++    {
++        base.OnCreate(savedInstanceState);
++        var manager = new Intent(this, typeof(MainActivity));
++        manager.AddFlags(ActivityFlags.NewTask);
++        StartActivity(manager);
++        Finish();
++    }
++}
+diff --git a/src/JunimoGate.App/Properties/AndroidManifest.xml b/src/JunimoGate.App/Properties/AndroidManifest.xml
+index f98faea..f3632b2 100644
+--- a/src/JunimoGate.App/Properties/AndroidManifest.xml
++++ b/src/JunimoGate.App/Properties/AndroidManifest.xml
+@@ -19,10 +19,10 @@
+     android:allowBackup="false"
+     android:enableOnBackInvokedCallback="true"
+     android:extractNativeLibs="false"
+-    android:icon="@mipmap/ic_launcher"
+-    android:label="JunimoGate"
++    android:icon="@drawable/thor_launcher_icon"
++    android:label="Stardew Dual Screen"
+     android:localeConfig="@xml/locales_config"
+-    android:roundIcon="@mipmap/ic_launcher_round">
++    android:roundIcon="@drawable/thor_launcher_icon">
+     <provider
+       android:name="androidx.core.content.FileProvider"
+       android:authorities="${applicationId}.fileprovider"
+diff --git a/src/JunimoGate.App/Resources/drawable/thor_launcher_icon.xml b/src/JunimoGate.App/Resources/drawable/thor_launcher_icon.xml
+new file mode 100644
+index 0000000..d997e5e
+--- /dev/null
++++ b/src/JunimoGate.App/Resources/drawable/thor_launcher_icon.xml
+@@ -0,0 +1,8 @@
++<vector xmlns:android="http://schemas.android.com/apk/res/android" android:width="108dp" android:height="108dp" android:viewportWidth="108" android:viewportHeight="108">
++    <path android:fillColor="#173B36" android:pathData="M0,0h108v108h-108z" />
++    <path android:fillColor="#D9B872" android:pathData="M20,18h68v34h-68zM20,58h68v32h-68z" />
++    <path android:fillColor="#67B8C4" android:pathData="M25,23h58v24h-58z" />
++    <path android:fillColor="#84AF63" android:pathData="M25,63h58v22h-58z" />
++    <path android:fillColor="#F9E4A3" android:pathData="M54,25l3,6 7,1 -5,5 1,7 -6,-3 -6,3 1,-7 -5,-5 7,-1z" />
++    <path android:fillColor="#173B36" android:pathData="M32,69h12v10h-12zM49,69h12v10h-12zM66,69h10v10h-10z" />
++</vector>
+diff --git a/src/JunimoGate.App/Resources/values/thor_direct_launch.xml b/src/JunimoGate.App/Resources/values/thor_direct_launch.xml
+new file mode 100644
+index 0000000..a5b2695
+--- /dev/null
++++ b/src/JunimoGate.App/Resources/values/thor_direct_launch.xml
+@@ -0,0 +1,10 @@
++<resources>
++    <string name="thor_manage_shortcut">Manage mods</string>
++    <style name="Theme.Thor.DirectLaunch" parent="android:style/Theme.Material.NoActionBar">
++        <item name="android:windowBackground">#173B36</item>
++        <item name="android:colorBackground">#173B36</item>
++        <item name="android:windowFullscreen">true</item>
++        <item name="android:navigationBarColor">#173B36</item>
++        <item name="android:windowActionModeOverlay">true</item>
++    </style>
++</resources>
+diff --git a/src/JunimoGate.App/Resources/xml/thor_shortcuts.xml b/src/JunimoGate.App/Resources/xml/thor_shortcuts.xml
+new file mode 100644
+index 0000000..d476416
+--- /dev/null
++++ b/src/JunimoGate.App/Resources/xml/thor_shortcuts.xml
+@@ -0,0 +1,8 @@
++<shortcuts xmlns:android="http://schemas.android.com/apk/res/android">
++    <shortcut android:shortcutId="manage" android:enabled="true"
++        android:shortcutShortLabel="@string/thor_manage_shortcut">
++        <intent android:action="android.intent.action.VIEW"
++            android:targetPackage="org.junimogate.thor"
++            android:targetClass="org.junimogate.app.ManageModsShortcutActivity" />
++    </shortcut>
++</shortcuts>
