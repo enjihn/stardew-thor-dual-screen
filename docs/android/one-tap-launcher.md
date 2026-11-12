@@ -1,6 +1,6 @@
 # Native direct launcher checkpoint
 
-Verified on the connected AYN Thor on 2026-11-12. Tap the green dual-screen/star **Stardew Dual Screen** home tile. It enters the game through its normal loading screens without visiting the mod manager. An existing session resumes. It does not automatically load a farm.
+Verified on the connected AYN Thor on 2026-11-12. Tap the Stardew chicken **Stardew Dual Screen** home tile. It enters the game through its normal loading screens without visiting the mod manager. An existing session resumes. It does not automatically load a farm.
 
 The rejected accessibility helper is disabled at the Android package level and its service is off. Its source is archived privately. The native launcher uses no accessibility automation.
 
@@ -9,14 +9,14 @@ The rejected accessibility helper is disabled at the Android package level and i
 | Component | Version |
 |---|---|
 | Official Play game | com.chucklefish.stardewvalley, 1.6.15.3, code 245, ARM64 |
-| Personal host | org.junimogate.thor, 0.3.1-thor.1, code 11, Release |
+| Personal host | org.junimogate.thor, 0.3.1-thor.2, code 12, Release |
 | Host source base | JunimoGate v0.3.1, 029eafed917ae853d6c0a59330ee273524168296 |
 | SMAPI | 4.5.2-junimogate.41, submodule 9471959851a75dfa1f2648016b78fc171a5a1999 |
 | Mod | 0.5.2-android.1, build 22cf243112b710381db6db8b89dc01882958a67f |
 | Device / launcher | AYN Thor, Android 13 / API 33, Cocoon 3.11 |
 | Selected group | ThorRelease, one enabled production mod |
 
-APK SHA256: `cd0efef7131c7fab12e0862196815db1adfd64ced6e87cad63fa22bbf74f249a`
+APK SHA256: `532adbabe1c4926f0b25221786c7f295f331d2c5025f45d54654504ea45512e4`
 
 Unchanged mod ZIP SHA256: `250ccf42543906951ef68cc33305e25991c4815844c8a4f7d060595b34cd322a`
 
@@ -47,3 +47,13 @@ Source branch: `android/one-tap-launcher` in `enjihn/stardew-thor-dual-screen`. 
 Private evidence remains in ignored `artifacts/private/direct-launch/`: cold-launch logs, import hashes, farm/inventory captures, warm resume, manager safety and Co-op menu captures. Build/package reports are in the sibling host's ignored `artifacts/android/`. Final binaries are local delivery artifacts, not committed binaries.
 
 All launcher gates above passed. Source contains no game binaries, saves, signing secrets or raw device logs. Only a disposable verified copy exists in the new host. Real saves remain in their original installation and are not synchronized automatically.
+
+## Stardew branding update
+
+Version 0.3.1-thor.2 / code 12 was installed as a same-key update on 2026-11-12. It uses the exact Play 1.6.15.3 adaptive chicken icon for the Android launcher and splash. The direct preparation screen and game loading overlay use that same icon with Stardew Valley text. The game intro, runtime and production mod are unchanged.
+
+Release build succeeded with zero errors and the existing nullable ActivityOptions warning. All 29 package checks passed. Independent review found no blocking issue. The revised source patch applies to the pinned base. Public source contains only extraction code and a custom fallback; the user's icon PNGs are private inputs. The personal branded APK must remain local because it includes those PNGs. Package exclusion checks still exclude game assemblies and Content.
+
+Physical-device captures confirmed the chicken Android splash and Stardew-branded loading overlay, followed by the dual-screen title with New, Load and Co-op. Cocoon initially cached the old icon; restarting only Cocoon refreshed the tile without clearing its data. A single press of the selected chicken tile cold-launched DirectLaunchActivity at 14:46:45.461 device time, dispatched the game at 14:46:46.326, and reported mod readiness at 14:46:48.555. No manager visit was required. These are startup events, not time to a playable farm.
+
+App data was retained by the update. No save files were imported or edited in this cosmetic follow-up. Private branding evidence is in ignored artifacts/private/branding/. The previous personal APK remains available locally for rollback reference; both original installations remain installed. All branding acceptance gates passed.

@@ -4,7 +4,7 @@ Verified on AYN Thor on 2026-11-12. See the [device acceptance and checkpoint](.
 
 This personal JunimoGate variant calls the existing LauncherCoordinator and GameSessionRegistry and starts SmapiGameActivity through a normal prepared launch handle. Normal loading and the original intro remain. There is no manager navigation or accessibility automation. Game assets and production mod are unchanged.
 
-Package: `org.junimogate.thor`, version `0.3.1-thor.1`, code 11. It is separate from publisher `org.junimogate.app` and the Play game. Base: JunimoGate `029eafed917ae853d6c0a59330ee273524168296` (v0.3.1); SMAPI `9471959851a75dfa1f2648016b78fc171a5a1999`.
+Package: `org.junimogate.thor`, version `0.3.1-thor.2`, code 12. It is separate from publisher `org.junimogate.app` and the Play game. Base: JunimoGate `029eafed917ae853d6c0a59330ee273524168296` (v0.3.1); SMAPI `9471959851a75dfa1f2648016b78fc171a5a1999`.
 
 ## Use
 
@@ -34,6 +34,9 @@ Follow the pinned repository's AGENTS.md and docs/build-environment.md. Use LF l
 
 ```sh
 source build/android-env.sh
+# Optional personal branding from an owned Play base APK:
+python3 build/extract-thor-icon.py /absolute/path/to/owned-play-base.apk
+export JUNIMOGATE_THOR_BRANDING_DIR="$PWD/local-game/thor-branding"
 export JUNIMOGATE_GAME_REFERENCE_DIR=/absolute/path/to/owned-android-game-references
 bash build/build-harmony-android.sh
 bash build/build-monogame-android.sh
@@ -51,6 +54,8 @@ Sign the ARM64 APK with build-tools apksigner and your personal key. Accepted ce
 
 ## Install and saves
 
+For an existing personal host, install the same-key signed update with `adb install -r`. Version 0.3.1-thor.2 changes the icon and startup branding while preserving app data and the selected mod group. The app remains named Stardew Dual Screen so it can be distinguished from the official Play app.
+
 Install beside the originals. Open Manage mods once, acknowledge the notice, import the production ThorDualScreen ZIP, enable it in a group and select that group. First direct launch prepares the installed Play game. The tested configuration is ThorRelease with exactly one production mod.
 
 Import verified save copies through the manager's save-import UI. The accepted import was a ZIP containing one disposable farm folder and four files. Android rejected direct ADB writes, so the host performed import. Original saves were never moved or overwritten. Installations do not synchronize saves. The landscape import sheet can put its buttons below the viewport; keyboard Tab navigation reaches Import.
@@ -65,4 +70,4 @@ The game's documented [mobile multiplayer feature](https://www.stardewvalley.net
 
 ## License and source
 
-The patch is GPL-3.0-only with JunimoGate's MonoGame linking exception. LICENSE and LICENSE-EXCEPTION accompany it. The host retains its notices and license assets. [Pinned upstream source](https://github.com/leontismaro/JunimoGate/tree/029eafed917ae853d6c0a59330ee273524168296), recursive dependencies and this patch provide its source. See upstream THIRD-PARTY-NOTICES.md for component licenses/source obligations. The mod's license is separate. No commercial game assets are part of this source patch or host APK.
+The patch is GPL-3.0-only with JunimoGate's MonoGame linking exception. LICENSE and LICENSE-EXCEPTION accompany it. The host retains its notices and license assets. [Pinned upstream source](https://github.com/leontismaro/JunimoGate/tree/029eafed917ae853d6c0a59330ee273524168296), recursive dependencies and this patch provide its source. See upstream THIRD-PARTY-NOTICES.md for component licenses/source obligations. The mod's license is separate. No commercial artwork or game payload is part of this source patch. The personal branded APK contains only the launcher icon PNGs copied locally from the owned Play installation; do not publish that APK or its extracted artwork. Game assemblies and Content remain excluded. Without the private branding environment variable, source builds use the custom Thor icon.

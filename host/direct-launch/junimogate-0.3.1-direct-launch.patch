@@ -1,9 +1,50 @@
+diff --git a/build/extract-thor-icon.py b/build/extract-thor-icon.py
+new file mode 100644
+index 0000000..e42938b
+--- /dev/null
++++ b/build/extract-thor-icon.py
+@@ -0,0 +1,35 @@
++"""Copy the owned Play app's icon into ignored, private build inputs.
++
++No artwork is provided by this script. The resulting APK is for personal use;
++do not publish it or the extracted PNGs. Source builds without these inputs
++retain the original custom Thor icon.
++"""
++import argparse
++from pathlib import Path
++import zipfile
++
++parser = argparse.ArgumentParser(description=__doc__)
++parser.add_argument("play_apk", type=Path)
++args = parser.parse_args()
++root = Path(__file__).resolve().parent.parent
++destination = root / "local-game" / "thor-branding" / "res"
++names = ("ic_launcher", "ic_launcher_background", "ic_launcher_foreground")
++with zipfile.ZipFile(args.play_apk) as apk:
++    # Read all required inputs first so an incompatible APK fails before writing.
++    icons = {
++        (density, name): apk.read(f"res/mipmap-{density}-v4/{name}.png")
++        for density in ("mdpi", "hdpi", "xhdpi", "xxhdpi", "xxxhdpi")
++        for name in names
++    }
++for (density, name), data in icons.items():
++    folder = destination / f"mipmap-{density}"
++    folder.mkdir(parents=True, exist_ok=True)
++    (folder / (name.replace("ic_launcher", "thor_launcher_icon") + ".png")).write_bytes(data)
++adaptive = destination / "mipmap-anydpi-v26"
++adaptive.mkdir(parents=True, exist_ok=True)
++(adaptive / "thor_launcher_icon.xml").write_text(
++    '<adaptive-icon xmlns:android="http://schemas.android.com/apk/res/android">\n'
++    '    <background android:drawable="@mipmap/thor_launcher_icon_background" />\n'
++    '    <foreground android:drawable="@mipmap/thor_launcher_icon_foreground" />\n'
++    '</adaptive-icon>\n', encoding="utf-8")
++print(destination.parent)
 diff --git a/src/JunimoGate.App/DirectLaunchActivity.cs b/src/JunimoGate.App/DirectLaunchActivity.cs
 new file mode 100644
-index 0000000..665bf86
+index 0000000..f0778a1
 --- /dev/null
 +++ b/src/JunimoGate.App/DirectLaunchActivity.cs
-@@ -0,0 +1,124 @@
+@@ -0,0 +1,129 @@
 +using Android.App;
 +using Android.Content;
 +using Android.Content.PM;
@@ -21,7 +62,7 @@ index 0000000..665bf86
 +[Activity(
 +    Name = "org.junimogate.app.DirectLaunchActivity",
 +    Label = "Stardew Dual Screen",
-+    Icon = "@drawable/thor_launcher_icon",
++    Icon = "@mipmap/thor_launcher_icon",
 +    Theme = "@style/Theme.Thor.DirectLaunch",
 +    MainLauncher = true,
 +    Exported = true,
@@ -51,11 +92,16 @@ index 0000000..665bf86
 +        var layout = new LinearLayout(this) { Orientation = Orientation.Vertical };
 +        layout.SetGravity(GravityFlags.Center);
 +        layout.SetPadding(48, 48, 48, 48);
-+        var title = new TextView(this) { Text = "Stardew Valley", TextSize = 30, Gravity = GravityFlags.Center };
-+        title.SetTextColor(Color.White);
++        var icon = new ImageView(this);
++        icon.SetImageDrawable(PackageManager!.GetApplicationIcon(ApplicationInfo!));
++        var iconSize = (int)(96 * Resources!.DisplayMetrics!.Density);
++        layout.AddView(icon, new LinearLayout.LayoutParams(iconSize, iconSize));
++        var title = new TextView(this) { Text = "Stardew Valley", TextSize = 24, Gravity = GravityFlags.Center };
++        title.SetTextColor(Color.Rgb(76, 46, 20));
++        title.SetPadding(0, 24, 0, 0);
 +        layout.AddView(title);
-+        status = new TextView(this) { Text = "Starting dual screen...", TextSize = 16, Gravity = GravityFlags.Center };
-+        status.SetTextColor(Color.White);
++        status = new TextView(this) { Text = "Loading...", TextSize = 16, Gravity = GravityFlags.Center };
++        status.SetTextColor(Color.Rgb(76, 46, 20));
 +        status.SetPadding(0, 24, 0, 24);
 +        layout.AddView(status);
 +        manage = new Button(this) { Text = "Open mod manager", Visibility = ViewStates.Gone };
@@ -129,23 +175,41 @@ index 0000000..665bf86
 +    }
 +}
 diff --git a/src/JunimoGate.App/JunimoGate.App.csproj b/src/JunimoGate.App/JunimoGate.App.csproj
-index be0e5db..470fb8f 100644
+index be0e5db..0e523da 100644
 --- a/src/JunimoGate.App/JunimoGate.App.csproj
 +++ b/src/JunimoGate.App/JunimoGate.App.csproj
-@@ -3,10 +3,10 @@
+@@ -3,10 +3,11 @@
      <TargetFramework>net9.0-android35.0</TargetFramework>
      <SupportedOSPlatformVersion>26.0</SupportedOSPlatformVersion>
      <OutputType>Exe</OutputType>
 -    <ApplicationId>org.junimogate.app</ApplicationId>
 -    <ApplicationTitle>JunimoGate</ApplicationTitle>
+-    <ApplicationVersion>11</ApplicationVersion>
+-    <ApplicationDisplayVersion>0.3.1</ApplicationDisplayVersion>
 +    <ApplicationId>org.junimogate.thor</ApplicationId>
 +    <ApplicationTitle>Stardew Dual Screen</ApplicationTitle>
-     <ApplicationVersion>11</ApplicationVersion>
--    <ApplicationDisplayVersion>0.3.1</ApplicationDisplayVersion>
-+    <ApplicationDisplayVersion>0.3.1-thor.1</ApplicationDisplayVersion>
++    <ApplicationVersion>12</ApplicationVersion>
++    <ApplicationDisplayVersion>0.3.1-thor.2</ApplicationDisplayVersion>
++    <JunimoGateThorBrandingDir>$(JUNIMOGATE_THOR_BRANDING_DIR)</JunimoGateThorBrandingDir>
      <RuntimeIdentifier>android-arm64</RuntimeIdentifier>
      <AndroidPackageFormat>apk</AndroidPackageFormat>
      <EmbedAssembliesIntoApk>true</EmbedAssembliesIntoApk>
+@@ -21,6 +22,15 @@
+     <!-- Dynamically loaded game assemblies reference framework/Android APIs invisible to the trimmer. -->
+     <PublishTrimmed Condition="'$(Configuration)' == 'Release'">false</PublishTrimmed>
+   </PropertyGroup>
++  <!-- Optional private icon inputs extracted locally from the user's owned Play APK. -->
++  <ItemGroup Condition="'$(JunimoGateThorBrandingDir)' != ''">
++    <AndroidResource Remove="Resources/mipmap/thor_launcher_icon.xml" />
++    <AndroidResource Include="$(JunimoGateThorBrandingDir)/res/**/*" Link="Resources/%(RecursiveDir)%(Filename)%(Extension)" />
++  </ItemGroup>
++  <Target Name="ValidateThorBranding" BeforeTargets="PrepareForBuild" Condition="'$(JunimoGateThorBrandingDir)' != ''">
++    <Error Condition="!Exists('$(JunimoGateThorBrandingDir)/res/mipmap-anydpi-v26/thor_launcher_icon.xml')"
++           Text="The private Thor branding directory is missing its extracted adaptive icon." />
++  </Target>
+   <ItemGroup>
+     <AndroidAsset Include="../../THIRD-PARTY-NOTICES.md" Link="THIRD-PARTY-NOTICES.md" />
+     <AndroidAsset Include="../../LICENSE" Link="licenses/JunimoGate-GPL-3.0-only.txt" />
 diff --git a/src/JunimoGate.App/MainActivity.cs b/src/JunimoGate.App/MainActivity.cs
 index db18577..db8b5d5 100644
 --- a/src/JunimoGate.App/MainActivity.cs
@@ -193,7 +257,7 @@ index 0000000..172fe1c
 +    }
 +}
 diff --git a/src/JunimoGate.App/Properties/AndroidManifest.xml b/src/JunimoGate.App/Properties/AndroidManifest.xml
-index f98faea..f3632b2 100644
+index f98faea..6e80bc5 100644
 --- a/src/JunimoGate.App/Properties/AndroidManifest.xml
 +++ b/src/JunimoGate.App/Properties/AndroidManifest.xml
 @@ -19,10 +19,10 @@
@@ -202,19 +266,19 @@ index f98faea..f3632b2 100644
      android:extractNativeLibs="false"
 -    android:icon="@mipmap/ic_launcher"
 -    android:label="JunimoGate"
-+    android:icon="@drawable/thor_launcher_icon"
++    android:icon="@mipmap/thor_launcher_icon"
 +    android:label="Stardew Dual Screen"
      android:localeConfig="@xml/locales_config"
 -    android:roundIcon="@mipmap/ic_launcher_round">
-+    android:roundIcon="@drawable/thor_launcher_icon">
++    android:roundIcon="@mipmap/thor_launcher_icon">
      <provider
        android:name="androidx.core.content.FileProvider"
        android:authorities="${applicationId}.fileprovider"
-diff --git a/src/JunimoGate.App/Resources/drawable/thor_launcher_icon.xml b/src/JunimoGate.App/Resources/drawable/thor_launcher_icon.xml
+diff --git a/src/JunimoGate.App/Resources/mipmap/thor_launcher_icon.xml b/src/JunimoGate.App/Resources/mipmap/thor_launcher_icon.xml
 new file mode 100644
 index 0000000..d997e5e
 --- /dev/null
-+++ b/src/JunimoGate.App/Resources/drawable/thor_launcher_icon.xml
++++ b/src/JunimoGate.App/Resources/mipmap/thor_launcher_icon.xml
 @@ -0,0 +1,8 @@
 +<vector xmlns:android="http://schemas.android.com/apk/res/android" android:width="108dp" android:height="108dp" android:viewportWidth="108" android:viewportHeight="108">
 +    <path android:fillColor="#173B36" android:pathData="M0,0h108v108h-108z" />
@@ -224,19 +288,36 @@ index 0000000..d997e5e
 +    <path android:fillColor="#F9E4A3" android:pathData="M54,25l3,6 7,1 -5,5 1,7 -6,-3 -6,3 1,-7 -5,-5 7,-1z" />
 +    <path android:fillColor="#173B36" android:pathData="M32,69h12v10h-12zM49,69h12v10h-12zM66,69h10v10h-10z" />
 +</vector>
+diff --git a/src/JunimoGate.App/Resources/values-v31/thor_direct_launch.xml b/src/JunimoGate.App/Resources/values-v31/thor_direct_launch.xml
+new file mode 100644
+index 0000000..ee09973
+--- /dev/null
++++ b/src/JunimoGate.App/Resources/values-v31/thor_direct_launch.xml
+@@ -0,0 +1,11 @@
++<resources>
++    <style name="Theme.Thor.DirectLaunch" parent="android:style/Theme.Material.Light.NoActionBar">
++        <item name="android:windowBackground">#FFFFFF</item>
++        <item name="android:colorBackground">#FFFFFF</item>
++        <item name="android:windowFullscreen">true</item>
++        <item name="android:navigationBarColor">#FFFFFF</item>
++        <item name="android:windowActionModeOverlay">true</item>
++        <item name="android:windowSplashScreenBackground">#FFFFFF</item>
++        <item name="android:windowSplashScreenAnimatedIcon">@mipmap/thor_launcher_icon</item>
++    </style>
++</resources>
 diff --git a/src/JunimoGate.App/Resources/values/thor_direct_launch.xml b/src/JunimoGate.App/Resources/values/thor_direct_launch.xml
 new file mode 100644
-index 0000000..a5b2695
+index 0000000..26746cc
 --- /dev/null
 +++ b/src/JunimoGate.App/Resources/values/thor_direct_launch.xml
 @@ -0,0 +1,10 @@
 +<resources>
 +    <string name="thor_manage_shortcut">Manage mods</string>
 +    <style name="Theme.Thor.DirectLaunch" parent="android:style/Theme.Material.NoActionBar">
-+        <item name="android:windowBackground">#173B36</item>
-+        <item name="android:colorBackground">#173B36</item>
++        <item name="android:windowBackground">#FFFFFF</item>
++        <item name="android:colorBackground">#FFFFFF</item>
 +        <item name="android:windowFullscreen">true</item>
-+        <item name="android:navigationBarColor">#173B36</item>
++        <item name="android:navigationBarColor">#FFFFFF</item>
 +        <item name="android:windowActionModeOverlay">true</item>
 +    </style>
 +</resources>
@@ -254,3 +335,70 @@ index 0000000..d476416
 +            android:targetClass="org.junimogate.app.ManageModsShortcutActivity" />
 +    </shortcut>
 +</shortcuts>
+diff --git a/src/JunimoGate.GameHost/Resources/layout/activity_smapi_game.xml b/src/JunimoGate.GameHost/Resources/layout/activity_smapi_game.xml
+index de7d1e4..c55a74b 100644
+--- a/src/JunimoGate.GameHost/Resources/layout/activity_smapi_game.xml
++++ b/src/JunimoGate.GameHost/Resources/layout/activity_smapi_game.xml
+@@ -17,26 +17,31 @@
+         android:clickable="true"
+         android:focusable="true"
+         android:gravity="center"
+-        android:orientation="horizontal">
++        android:orientation="vertical">
+ 
+         <ImageView
++            android:id="@+id/smapi_loading_icon"
+             android:layout_width="96dp"
+             android:layout_height="96dp"
+-            android:background="@drawable/smapi_loading_image_frame"
+-            android:clipToOutline="true"
+             android:contentDescription="@null"
+             android:importantForAccessibility="no"
+-            android:padding="1dp"
+-            android:scaleType="centerCrop"
+-            android:src="@drawable/junimogate_game_loading" />
++            android:scaleType="fitCenter" />
+ 
+         <TextView
+             android:layout_width="wrap_content"
+             android:layout_height="wrap_content"
+-            android:layout_marginStart="16dp"
++            android:layout_marginTop="12dp"
++            android:text="Stardew Valley"
++            android:textColor="#4C2E14"
++            android:textSize="24sp" />
++
++        <TextView
++            android:layout_width="wrap_content"
++            android:layout_height="wrap_content"
++            android:layout_marginTop="12dp"
+             android:fontFamily="sans-serif-medium"
+             android:text="@string/smapi_game_loading"
+-            android:textColor="#202124"
+-            android:textSize="22sp" />
++            android:textColor="#4C2E14"
++            android:textSize="16sp" />
+     </LinearLayout>
+ </FrameLayout>
+diff --git a/src/JunimoGate.GameHost/SmapiGameActivity.cs b/src/JunimoGate.GameHost/SmapiGameActivity.cs
+index 564491b..63cb4fc 100644
+--- a/src/JunimoGate.GameHost/SmapiGameActivity.cs
++++ b/src/JunimoGate.GameHost/SmapiGameActivity.cs
+@@ -18,7 +18,7 @@ namespace JunimoGate.GameHost;
+ 
+ [Activity(
+     Name = ActivityName,
+-    Label = "JunimoGate SMAPI",
++    Label = "Stardew Dual Screen",
+     Exported = false,
+     Process = ":game",
+     LaunchMode = LaunchMode.SingleTop,
+@@ -64,6 +64,8 @@ public sealed class SmapiGameActivity : AndroidGameActivity
+         if (OperatingSystem.IsAndroidVersionAtLeast(33))
+             RegisterBackInvokedCallback();
+         SetContentView(Resource.Layout.activity_smapi_game);
++        FindViewById<ImageView>(Resource.Id.smapi_loading_icon)!
++            .SetImageDrawable(PackageManager!.GetApplicationIcon(ApplicationInfo!));
+         gameViewContainer = FindViewById<FrameLayout>(Resource.Id.smapi_game_view_container)
+             ?? throw new InvalidOperationException("The SMAPI game view container is unavailable.");
+         loadingOverlay = FindViewById(Resource.Id.smapi_loading_overlay)
