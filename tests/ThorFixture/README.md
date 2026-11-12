@@ -32,3 +32,10 @@ The collect operation requests managed and Java garbage collection only for
 resource-retention diagnosis. It is excluded from measured performance and
 latency runs. A resulting drop proves those objects were collectable, not that
 normal runtime memory behavior has passed acceptance.
+
+Item-switch acceptance adds item-switch-state (read-only observation) and
+switch-item. The latter calls native Toolbar.ScrollToolbarOne to check native
+selection interception, or directly assigns automaticIndex to model a change
+without manual selection. It never calls production overlay methods. These
+checks do not count as physical controller acceptance. toolbar-config accepts
+overlayEnabled to set only ShowItemSwitchOverlay on the guarded test group.

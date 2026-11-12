@@ -22,6 +22,7 @@ internal sealed class MobileHost : IDisposable
     readonly LatestFrameQueue frames;
     readonly ToolbarVisibilityPolicy toolbar;
     long presentedEpoch;
+    bool presentedBag;
     readonly FrameCommitSlot<Java.Lang.Runnable> commits = new();
     ViewTreeObserver? commitTree;
     readonly Handler ui = new(Looper.MainLooper!);
@@ -146,6 +147,7 @@ internal sealed class MobileHost : IDisposable
             view.SetImageDrawable(drawable);
             presented = frame.Scope;
             presentedEpoch = frame.PresentationEpoch;
+            presentedBag = frame.BagShowing;
             hasImage = true;
         }
         catch (Exception ex) { monitor.LogOnce($"Companion frame upload failed: {ex}", LogLevel.Error); CloseWindow(); }
@@ -157,20 +159,21 @@ internal sealed class MobileHost : IDisposable
     {
         e.Handled = true;
         if (disposed || paused || !Ready || !hasImage || view == null || commitTree == null
-            || commits.Current != null || toolbar.IsAvailable(presentedEpoch) || !OperatingSystem.IsAndroidVersionAtLeast(29) || !view.IsHardwareAccelerated) return;
+            || commits.Current != null || toolbar.IsPresented(presentedEpoch, presented.Generation) || !OperatingSystem.IsAndroidVersionAtLeast(29) || !view.IsHardwareAccelerated) return;
         var targetView = view;
         var targetDrawable = view.Drawable;
         var scope = presented;
         long epoch = presentedEpoch;
+        bool bag = presentedBag;
         Java.Lang.Runnable? callback = null;
         callback = new Java.Lang.Runnable(() =>
         {
             try
             {
-                if (!disposed && !paused && Ready && hasImage && ReferenceEquals(view, targetView)
-                    && ReferenceEquals(view.Drawable, targetDrawable) && state.IsCurrent(scope))
-                    toolbar.Present(epoch);
-                else if (!disposed && Ready && view != null) view.Invalidate();
+                bool current = !disposed && !paused && Ready && hasImage && ReferenceEquals(view, targetView)
+                    && ReferenceEquals(view.Drawable, targetDrawable) && state.IsCurrent(scope);
+                toolbar.Present(epoch, scope.Generation, bag, current);
+                if (!current && !disposed && Ready && view != null) view.Invalidate();
             }
             finally { commits.Complete(callback!); }
         });

@@ -52,3 +52,20 @@ verified disposable save ZIP. Never replace a real save with a test fixture.
 Build identity and current acceptance status are recorded in the source
 branch's docs/android/compatibility.json and docs/android/acceptance.md.
 Toolbar update source: https://github.com/enjihn/stardew-thor-dual-screen/tree/android/hide-top-toolbar
+
+## Temporary item-switch row
+
+Version0.5.2-android.3 adds a passive five-slot row at the bottom center of the
+top screen after manual bumper/trigger/wheel or Aim selection. It lasts1.5seconds
+after the last changed selection and fades during the final0.2seconds. Bag,
+menus and unavailable companions suppress it. Automatic tool changes do not
+trigger it. It does not intercept touches or move the camera.
+
+Set ShowItemSwitchOverlay=false in the selected group config.json and restart
+to disable only this row. HideToolbarWithCompanion=false restores the ordinary
+full toolbar and also suppresses the row. Retained ThorToolbarRelease with
+0.5.2-android.2 is the complete rollback baseline for this update.
+
+Source branch: android/transient-item-toolbar in the personal fork. See
+docs/android/item-switch-acceptance.md and item-switch-execution-checkpoint.md
+for this build's actual acceptance status.

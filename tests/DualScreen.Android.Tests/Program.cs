@@ -2,6 +2,86 @@ using DualScreen;
 
 var tests = new (string Name, Action Body)[]
 {
+    ("Notice requires an actual manual switch and fades at the deadline", () =>
+    {
+        var n = new ItemSwitchNotice(); var item = new object();
+        Check(n.Opacity(1, item, 4, 100, true) == 0, "spontaneous notice");
+        n.ManualSwitch(0, 1, item, 4, 100, true);
+        Check(n.Opacity(1, item, 4, 1399, true) == 1, "early fade");
+        Check(Math.Abs(n.Opacity(1, item, 4, 1500, true) - .5f) < .001f, "fade timing");
+        Check(n.Opacity(1, item, 4, 1600, true) == 0, "expired notice");
+    }),
+    ("Repeated switches extend but identical selection does not", () =>
+    {
+        var n = new ItemSwitchNotice(); var item = new object();
+        n.ManualSwitch(0, 1, item, 1, 0, true);
+        n.ManualSwitch(1, 2, item, 1, 1000, true);
+        n.ManualSwitch(2, 2, item, 1, 2400, true);
+        Check(n.Opacity(2, item, 1, 2450, true) > 0, "repeat did not extend");
+        Check(n.Opacity(2, item, 1, 2500, true) == 0, "same slot extended timer");
+    }),
+    ("Automatic changes and replaced item identity clear stale notices", () =>
+    {
+        var n = new ItemSwitchNotice(); var item = new object();
+        n.ManualSwitch(0, 1, item, 1, 0, true);
+        Check(n.Opacity(2, item, 1, 100, true) == 0, "automatic slot change retained notice");
+        Check(n.Opacity(1, item, 1, 200, true) == 0, "return to old slot revived notice");
+        n.ManualSwitch(0, 1, item, 1, 300, true);
+        Check(n.Opacity(1, new object(), 1, 400, true) == 0, "inventory replacement retained notice");
+    }),
+    ("Bag and lifecycle ineligibility consume notices without replay", () =>
+    {
+        var n = new ItemSwitchNotice(); var item = new object();
+        n.ManualSwitch(0, 1, item, 1, 0, true);
+        Check(n.Opacity(1, item, 1, 100, false) == 0, "ineligible notice visible");
+        Check(n.Opacity(1, item, 1, 200, true) == 0, "leaving Bag revived notice");
+        n.ManualSwitch(1, 2, item, 1, 300, false);
+        Check(n.Opacity(2, item, 1, 400, true) == 0, "ineligible switch queued");
+        n.ManualSwitch(1, 2, item, 1, 500, true); n.Clear();
+        Check(n.Opacity(2, item, 1, 600, true) == 0, "lifecycle clear ineffective");
+    }),
+    ("Companion recovery cannot revive a notice from a prior epoch", () =>
+    {
+        var n = new ItemSwitchNotice(); var item = new object();
+        n.ManualSwitch(0, 1, item, 1, 0, true);
+        Check(n.Opacity(1, item, 2, 100, true) == 0, "old epoch survived recovery");
+    }),
+    ("Mini row clamps consecutive slots at inventory boundaries", () =>
+    {
+        Check(ItemSwitchNotice.FirstSlot(0, 36) == 0, "first boundary");
+        Check(ItemSwitchNotice.FirstSlot(13, 36) == 11, "middle selection not centered");
+        Check(ItemSwitchNotice.FirstSlot(35, 36) == 31, "last boundary");
+        Check(ItemSwitchNotice.FirstSlot(1, 3) == 0, "small inventory boundary");
+    }),
+    ("A committed Bag frame rejected as stale makes prior nonBag knowledge unknown", () =>
+    {
+        var p = new ToolbarVisibilityPolicy(); long epoch = p.BeginWindow();
+        p.Present(epoch, 1, false);
+        // Bag reached Android, but the active panel/drawable moved on before its callback.
+        p.Present(epoch, 2, true, current: false);
+        Check(p.Presentation.BagShowing == null, "old nonBag verdict survived an unrecorded Bag commit");
+        Check(p.Presentation.Available, "overlay metadata changed existing toolbar fallback");
+        Check(!p.IsPresented(epoch, 2), "unknown panel prevented a fresh commit");
+        p.Present(epoch, 3, false);
+        Check(p.Presentation.BagShowing == false, "fresh nonBag commit did not recover");
+        p.Unavailable(); long next = p.CurrentEpoch; p.Present(next, 4, false);
+        p.Present(epoch, 5, true, current: false);
+        Check(p.Presentation.BagShowing == false, "old window erased fresh metadata");
+    }),
+    ("Presentation metadata rejects stale scope and old window commits", () =>
+    {
+        var p = new ToolbarVisibilityPolicy(); long epoch = p.BeginWindow();
+        Check(p.Presentation.BagShowing == null, "unknown panel guessed");
+        p.Present(epoch, 4, false);
+        Check(p.Presentation.Available && p.Presentation.BagShowing == false, "nonBag not published");
+        p.Present(epoch, 5, true); p.Present(epoch, 4, false);
+        Check(p.Presentation.BagShowing == true, "late nonBag overwrote Bag");
+        Check(p.IsPresented(epoch, 5) && !p.IsPresented(epoch, 6), "new panel skipped commit");
+        p.Unavailable(); p.Present(epoch, 6, false);
+        Check(!p.Presentation.Available && p.Presentation.BagShowing == null, "stale window restored panel");
+        p.Present(p.CurrentEpoch, 7, false);
+        Check(p.Presentation.BagShowing == false, "recovery panel failed");
+    }),
     ("Partial toolbar patch installation fails open and rolls back its own patches", () =>
     {
         var monitor = new StardewModdingAPI.TestMonitor();

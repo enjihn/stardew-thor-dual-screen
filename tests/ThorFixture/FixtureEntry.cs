@@ -66,6 +66,8 @@ public sealed partial class FixtureEntry : Mod
             {
                 "state" => Snapshot(),
                 "toolbar-state" => ToolbarState(),
+                "item-switch-state" => ItemSwitchState(),
+                "switch-item" => SwitchItem(command),
                 "toolbar-config" => ToolbarConfig(command),
                 "toolbar-upload-fault" => ToolbarUploadFault(),
                 "export" => ExportSave(id),

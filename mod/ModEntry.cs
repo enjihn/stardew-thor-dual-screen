@@ -300,7 +300,8 @@ public class ModEntry : Mod
     readonly LatestFrameQueue frames = new(W * H * 4);
     readonly ToolbarVisibilityPolicy toolbarPolicy = new();
     MobileToolbar toolbar;
-    bool hideToolbar;
+    bool hideToolbar, showItemSwitchOverlay;
+    MobileItemSwitchOverlay itemSwitchOverlay;
     MobileHost host;
     Panels panels;
     SpriteBatch batch;
@@ -312,7 +313,11 @@ public class ModEntry : Mod
     public override void Entry(IModHelper helper)
     {
         panels = new Panels(helper, Monitor);
-        hideToolbar = helper.ReadConfig<ModConfig>().HideToolbarWithCompanion;
+        var config = helper.ReadConfig<ModConfig>();
+        hideToolbar = config.HideToolbarWithCompanion;
+        showItemSwitchOverlay = config.ShowItemSwitchOverlay;
+        panels.ManualItemSelected += ManualItemSelected;
+        helper.Events.Display.RenderedHud += DrawItemSwitchOverlay;
         var build = System.Reflection.CustomAttributeExtensions.GetCustomAttributes<System.Reflection.AssemblyMetadataAttribute>(GetType().Assembly)
             .Single(a => a.Key == "ThorBuildId").Value;
         Monitor.Log($"THOR_ANDROID build={build}; game={typeof(Game1).Assembly.GetName().Version}", LogLevel.Info);
@@ -336,12 +341,14 @@ public class ModEntry : Mod
                 return;
             }
             toolbar = MobileToolbar.TryInstall(Monitor);
+            itemSwitchOverlay = MobileItemSwitchOverlay.TryInstall(toolbarPolicy, OverlayEligible, Monitor);
             host = new MobileHost(MobileHost.ResolveGameActivity(), Monitor, state, frames, toolbarPolicy);
         }
         catch (Exception ex) { Monitor.Log($"Mobile companion initialization failed: {ex}", LogLevel.Error); }
     }
     void InvalidateInput()
     {
+        itemSwitchOverlay?.Clear();
         state.Invalidate(); frames.Invalidate();
         panels.CancelGesture(); gestureActive = false;
     }
@@ -350,7 +357,9 @@ public class ModEntry : Mod
     void ResetPanels()
     {
         InvalidateInput(); panels.DisposeOwnedTargets();
+        panels.ManualItemSelected -= ManualItemSelected;
         panels = new Panels(Helper, Monitor);
+        panels.ManualItemSelected += ManualItemSelected;
     }
     void DayStarted(object sender, DayStartedEventArgs e) { InvalidateInput(); panels.Crops.FullCount(); }
     void MenuChanged(object sender, MenuChangedEventArgs e) => InvalidateInput();
@@ -372,6 +381,7 @@ public class ModEntry : Mod
         if (Game1.quit) { Stop(); return; }
         bool pressed = Game1.input.GetMouseState().LeftButton == Microsoft.Xna.Framework.Input.ButtonState.Pressed;
         toolbar?.SetHidden(toolbarPolicy.Step(hideToolbar, Context.IsWorldReady, pressed));
+        itemSwitchOverlay?.Tick();
         if (host?.Ready != true) return;
         try
         {
@@ -394,6 +404,7 @@ public class ModEntry : Mod
                 redraw = true;
             }
             panels.Tick();
+            itemSwitchOverlay?.Tick();
             scope = Scope();
             int key = panels.StateKey();
             int interval = panels.AnimationInterval;
@@ -409,6 +420,13 @@ public class ModEntry : Mod
             Monitor.LogOnce($"Mobile companion update failed: {ex}", LogLevel.Error);
         }
     }
+    bool OverlayEligible() => showItemSwitchOverlay && hideToolbar && toolbar?.IsHidden == true
+        && host?.Ready == true && Context.IsWorldReady && Game1.IsHudDrawn
+        && Game1.activeClickableMenu == null && !Game1.dialogueUp && !Game1.eventUp
+        && !Game1.fadeToBlack && !Game1.globalFade && !panels.IsBagShowing;
+    void ManualItemSelected(int before) => itemSwitchOverlay?.ManualSwitch(before);
+    void DrawItemSwitchOverlay(object sender, RenderedHudEventArgs e) => itemSwitchOverlay?.Draw(e.SpriteBatch);
+
     bool RenderMobile(CompanionScope scope)
     {
         var frame = frames.AcquireWriter();
@@ -446,6 +464,7 @@ public class ModEntry : Mod
                 gd.SamplerStates[0] = oldSampler;
             }
             target.GetData(frame.Bytes);
+            frame.BagShowing = panels.IsBagShowing;
             host.Submit(frame, scope);
             published = true;
             return true;
@@ -456,8 +475,11 @@ public class ModEntry : Mod
     {
         if (stopped) return;
         stopped = true;
+        itemSwitchOverlay?.Dispose();
         toolbar?.Dispose();
         state.Dispose(); host?.Dispose(); frames.Dispose();
+        panels.ManualItemSelected -= ManualItemSelected;
+        Helper.Events.Display.RenderedHud -= DrawItemSwitchOverlay;
         Helper.Events.GameLoop.GameLaunched -= Launched;
         Helper.Events.GameLoop.UpdateTicked -= UpdateMobile;
         Helper.Events.GameLoop.SaveLoaded -= SaveLoaded;
@@ -486,4 +508,5 @@ public class ModConfig
     /// <summary>Write performance numbers to the SMAPI log every 10 s (for troubleshooting stutter).</summary>
     public bool Diagnostics { get; set; } = false;
     public bool HideToolbarWithCompanion { get; set; } = true;
+    public bool ShowItemSwitchOverlay { get; set; } = true;
 }

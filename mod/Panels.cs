@@ -180,6 +180,11 @@ public class Panels
 
     Tab? Showing => Idle ? null : MenuLayout ?? tab;
 
+    public bool IsBagShowing => Showing == Tab.Bag;
+#if THOR_ANDROID
+    internal event Action<int> ManualItemSelected;
+#endif
+
     public string ShowingName => Showing?.ToString() ?? (Context.IsWorldReady ? "logo" : "title");
 
     // Header strip scroll, in pixels; swiping the header moves it.
@@ -2998,7 +3003,14 @@ public class Panels
         if (y >= AimBarY)
         {
             int c = Enumerable.Range(0, Cols).FirstOrDefault(n => AimSlot(n).Contains(x, y), -1);
-            if (c >= 0 && !Game1.player.UsingTool) Game1.player.CurrentToolIndex = c;
+            if (c >= 0 && !Game1.player.UsingTool)
+            {
+                int before = Game1.player.CurrentToolIndex;
+                Game1.player.CurrentToolIndex = c;
+#if THOR_ANDROID
+                if (before != c) ManualItemSelected?.Invoke(before);
+#endif
+            }
             return;
         }
         if (Game1.player.ActiveObject is StardewValley.Objects.Furniture hf && hf.rotations.Value > 1 && RotateRect.Contains(x, y))

@@ -15,6 +15,7 @@ internal sealed class MobileToolbar : IDisposable
     readonly IMonitor monitor;
     readonly FieldInfo instance, pressed, startX, startY, startIndex, drawIndex, ignoreRelease, hoverItem, lastHoverItem, hoverTitle, showTooltip, shoulderCount;
     bool failed;
+    public bool IsHidden => !failed && hidden;
 
     MobileToolbar(Type type, IMonitor monitor)
     {

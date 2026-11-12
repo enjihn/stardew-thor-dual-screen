@@ -44,10 +44,26 @@ internal sealed class ToolbarVisibilityPolicy
     readonly object sync = new();
     long epoch;
     bool available, hidden, previouslyPressed;
+    long presentedGeneration = -1;
+    bool? presentedBag;
+    public CompanionPresentation Presentation { get { lock (sync) return new(epoch, available, presentedGeneration, presentedBag); } }
     public long CurrentEpoch { get { lock (sync) return epoch; } }
-    public long BeginWindow() { lock (sync) { available = false; return ++epoch; } }
-    public void Unavailable() { lock (sync) { available = false; ++epoch; } }
-    public void Present(long candidate) { lock (sync) { if (candidate == epoch) available = true; } }
+    public long BeginWindow() { lock (sync) { available = false; presentedBag = null; presentedGeneration = -1; return ++epoch; } }
+    public void Unavailable() { lock (sync) { available = false; presentedBag = null; presentedGeneration = -1; ++epoch; } }
+    public void Present(long candidate, long generation = -1, bool? bagShowing = null, bool current = true)
+    {
+        lock (sync)
+        {
+            if (candidate != epoch || generation < presentedGeneration) return;
+            presentedGeneration = generation;
+            // A stale callback may still describe the last frame Android displayed.
+            // Forget the prior non-Bag verdict until a current frame commits.
+            if (!current) { presentedBag = null; return; }
+            available = true; presentedBag = bagShowing;
+        }
+    }
+    public bool IsPresented(long candidate, long generation)
+    { lock (sync) return available && presentedBag.HasValue && candidate == epoch && generation == presentedGeneration; }
     public bool IsAvailable(long candidate) { lock (sync) return candidate == epoch && available; }
     public bool Step(bool enabled, bool worldReady, bool pressed)
     {
@@ -59,6 +75,32 @@ internal sealed class ToolbarVisibilityPolicy
             return hidden;
         }
     }
+}
+
+internal readonly record struct CompanionPresentation(long Epoch, bool Available, long Generation, bool? BagShowing);
+
+/// <summary>Game-thread selection feedback. Only explicit manual selections start its timer.</summary>
+internal sealed class ItemSwitchNotice
+{
+    int selected = -1;
+    object? identity;
+    long epoch;
+    double until;
+    public void Clear() { selected = -1; identity = null; until = 0; }
+    public void ManualSwitch(int before, int after, object? item, long presentationEpoch, double now, bool eligible)
+    {
+        if (!eligible || after < 0) { Clear(); return; }
+        if (before == after) return;
+        selected = after; identity = item; epoch = presentationEpoch; until = now + 1500;
+    }
+    public float Opacity(int current, object? item, long presentationEpoch, double now, bool eligible)
+    {
+        if (!eligible || selected < 0 || current != selected || !ReferenceEquals(item, identity)
+            || epoch != presentationEpoch || now >= until)
+        { Clear(); return 0; }
+        return (float)Math.Clamp((until - now) / 200, 0, 1);
+    }
+    public static int FirstSlot(int selected, int capacity) => Math.Clamp(selected - 2, 0, Math.Max(0, capacity - 5));
 }
 
 /// <summary>UI-thread callback ownership, including callbacks already dispatched by Android.</summary>
@@ -162,6 +204,7 @@ internal sealed class LatestFrameQueue : IDisposable
         public long Generation { get; internal set; }
         public long PresentationEpoch { get; set; }
         public CompanionScope Scope { get; set; }
+        public bool BagShowing { get; set; }
         internal long Epoch;
         internal int State; // 0 free, 1 writing, 2 pending, 3 transferring
         internal Frame(int bytes) => Bytes = new byte[bytes];

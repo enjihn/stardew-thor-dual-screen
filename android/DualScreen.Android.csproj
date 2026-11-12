@@ -21,6 +21,7 @@
     <Compile Include="../mod/CropTracker.cs" Link="CropTracker.cs" />
     <Compile Include="../mod/CompanionState.cs" Link="CompanionState.cs" />
     <Compile Include="../mod/MobileToolbar.cs" Link="MobileToolbar.cs" />
+    <Compile Include="../mod/MobileItemSwitchOverlay.cs" Link="MobileItemSwitchOverlay.cs" />
     <Compile Include="../mod/MobileHost.cs" Link="MobileHost.cs" />
     <Compile Include="../mod/MobileGameAdapter.cs" Link="MobileGameAdapter.cs" />
     <AssemblyMetadata Include="ThorBuildId" Value="$(ThorBuildId)" />
