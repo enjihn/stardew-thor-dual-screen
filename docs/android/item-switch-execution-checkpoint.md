@@ -1,7 +1,9 @@
 # Item-switch overlay execution checkpoint
 
-Status: device acceptance complete on 2026-11-12. Source commit/push and local
-artifact metadata are the final delivery actions. Branch android/transient-item-toolbar
+Status: complete on 2026-11-12. Implementation commit
+79d954804e56e3051331629ec25909e9da03af00 was pushed to the personal fork;
+the remote branch matched local HEAD. Local artifacts and delivery metadata are saved.
+Branch android/transient-item-toolbar
 starts at ce6cf1933291fed38d061ca733d2ef7714c5c2f6. Specification:
 ../superpowers/plans/2026-11-12-transient-item-toolbar.md.
 
@@ -41,7 +43,6 @@ release. Tests changed only disposable test configuration/state. Final new-row
 setting is restored to true and confirmed by fixture-free rendering.
 
 Delivery files are under the workspace outputs directory, outside the repository.
-Push only source to origin/enjihn on android/transient-item-toolbar. No upstream
-merge or proprietary files. Record commit/push outcome in local delivery JSON.
-If interrupted before push, inspect git status and remote branch, then finish
-only those delivery actions. No gameplay gate needs repeating unless code changes.
+Source was pushed only to origin/enjihn on android/transient-item-toolbar. No
+upstream merge or proprietary files. The local delivery JSON records the final
+branch commit and output hashes. No implementation or acceptance work remains.
