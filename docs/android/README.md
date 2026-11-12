@@ -1,5 +1,10 @@
 # Thor Dual Screen on Android
 
+Toolbar update 0.5.2-android.2: see the [current acceptance report](toolbar-acceptance.md)
+and [execution checkpoint](toolbar-execution-checkpoint.md). It uses the existing
+personal branded 0.3.1-thor.2 host and its direct launch icon. The baseline
+records below describe the earlier accepted 0.5.2-android.1 release.
+
 This branch targets the official Play 1.6.15.3 ARM64 game through unchanged
 publisher JunimoGate 0.3.1 and SMAPI 4.5.2-junimogate.41 on AYN Thor Android 13.
 The mod reuses the upstream UI and the running game's artwork and fonts.

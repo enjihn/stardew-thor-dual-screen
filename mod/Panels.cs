@@ -1825,6 +1825,11 @@ public class Panels
             return;
         }
 
+#if THOR_ANDROID
+        // Android's toolbar addresses every inventory slot directly. Its shiftToolbar
+        // advances one selected slot, rather than rotating desktop inventory rows.
+        Game1.player.CurrentToolIndex = i;
+#else
         if (i < Cols) { Game1.player.CurrentToolIndex = i; return; }
         // Item sits in a back row: rotate the toolbar until it's on the hotbar, like the game's own row swap.
         var item = Game1.player.Items[i];
@@ -1833,6 +1838,7 @@ public class Panels
             Game1.player.shiftToolbar(true);
         int at = Game1.player.Items.IndexOf(item);
         if (at is >= 0 and < Cols) Game1.player.CurrentToolIndex = at;
+#endif
     }
 
     // ---------- Craft ----------

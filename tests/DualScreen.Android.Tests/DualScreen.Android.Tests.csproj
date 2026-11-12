@@ -4,8 +4,10 @@
     <TargetFramework>net9.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
+    <DefineConstants>$(DefineConstants);THOR_ANDROID</DefineConstants>
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="../../mod/CompanionState.cs" Link="CompanionState.cs" />
+    <Compile Include="../../mod/MobileToolbar.cs" Link="MobileToolbar.cs" />
   </ItemGroup>
 </Project>

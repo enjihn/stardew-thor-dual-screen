@@ -2,7 +2,9 @@
 
 Required runtime: official Google Play Stardew Valley 1.6.15.3 (code 245,
 ARM64), publisher JunimoGate 0.3.1 (code 11), SMAPI 4.5.2-junimogate.41,
-and AYN Thor Android 13. Other combinations are unverified. No host patch is used.
+and AYN Thor Android 13. The personal branded host 0.3.1-thor.2 uses the same
+game and mod runtime. This toolbar update requires no host changes.
+Other combinations are unverified.
 The upstream UI uses the installed game's original textures and fonts.
 
 ## Install and launch
@@ -26,6 +28,17 @@ their original completion controls are required, including forge/tailoring.
 
 ## Saves and rollback
 
+Version 0.5.2-android.2 hides the native toolbar only while the companion has
+successfully presented a frame. It restores the toolbar after a companion
+failure, pause or missing display, after the current touch is released.
+Clock, money, journal, menu buttons, health and energy retain their native rules.
+The companion Bag can select items in every inventory row.
+
+To keep the ordinary toolbar, set `HideToolbarWithCompanion` to `false` in
+this mod's `config.json` using the host's group file editor, then restart the
+hosted game. Setting it to `true` enables automatic hiding again. The previous
+accepted 0.5.2-android.1 ZIP and ThorRelease group are the rollback baseline.
+
 The Play app and its real saves remain separate. This mod adds no required
 save format. Do not clear app data or uninstall either app for rollback.
 Exit to title, disable this mod in the selected group (or select a previously
@@ -34,10 +47,8 @@ backup separately from the mod ZIP.
 
 JunimoGate 0.3.1 Save Export produced a zero-byte archive on the tested device;
 do not rely on it without checking the file. Save Import was tested with a
-verified disposable save ZIP. Its landscape dialog may need a temporarily
-smaller Android display size to expose the Import button. Restore your normal
-display size afterward. Never replace a real save with a test fixture.
+verified disposable save ZIP. Never replace a real save with a test fixture.
 
 Build identity and current acceptance status are recorded in the source
 branch's docs/android/compatibility.json and docs/android/acceptance.md.
-Source: https://github.com/enjihn/stardew-thor-dual-screen/tree/android/thor-mobile
+Toolbar update source: https://github.com/enjihn/stardew-thor-dual-screen/tree/android/hide-top-toolbar

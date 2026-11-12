@@ -65,6 +65,9 @@ public sealed partial class FixtureEntry : Mod
             object result = operation switch
             {
                 "state" => Snapshot(),
+                "toolbar-state" => ToolbarState(),
+                "toolbar-config" => ToolbarConfig(command),
+                "toolbar-upload-fault" => ToolbarUploadFault(),
                 "export" => ExportSave(id),
                 "seed" => Seed(command),
                 "warp" => Warp(command),

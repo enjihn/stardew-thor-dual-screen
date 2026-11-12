@@ -2,6 +2,69 @@ using DualScreen;
 
 var tests = new (string Name, Action Body)[]
 {
+    ("Partial toolbar patch installation fails open and rolls back its own patches", () =>
+    {
+        var monitor = new StardewModdingAPI.TestMonitor();
+        HarmonyLib.Harmony.Attempts = 0; HarmonyLib.Harmony.FailAt = 3;
+        var toolbar = MobileToolbar.TryInstall(monitor);
+        Check(toolbar == null && monitor.Warning?.Contains("Controlled patch installation failure") == true, "failure not reported");
+        Check(HarmonyLib.Harmony.Installed.Count == 0, "partial interception remains");
+        Check(HarmonyLib.Harmony.RemovedOwner == "Hung.ThorDualScreen.ToolbarVisibility", "wrong patch owner removed");
+        HarmonyLib.Harmony.Attempts = 0; HarmonyLib.Harmony.FailAt = 0;
+        using var recovered = MobileToolbar.TryInstall(monitor);
+        Check(recovered != null && HarmonyLib.Harmony.Installed.Count == 5, "clean initialization failed");
+        var native = StardewValley.Menus.Toolbar._instance;
+        native._nextToolIndex = 7; native._startIndex = 4; native._drawStartIndex = 9;
+        native._startTapPositionX = 30; StardewValley.Menus.Toolbar.toolbarPressed = true;
+        recovered!.SetHidden(true); recovered.SetHidden(false);
+        Check(native._nextToolIndex == 7 && native._startIndex == 4, "deferred selection changed");
+        Check(native._drawStartIndex == 4 && native._startTapPositionX == -1 && !StardewValley.Menus.Toolbar.toolbarPressed, "gesture not cleared");
+    }),
+    ("A failed presentation can recover with a fresh frame without reopening", () =>
+    {
+        var policy = new ToolbarVisibilityPolicy();
+        var old = policy.BeginWindow(); policy.Present(old);
+        Check(policy.Step(true, true, false), "first frame not available");
+        policy.Unavailable();
+        Check(!policy.Step(true, true, false), "failure did not restore toolbar");
+        policy.Present(old);
+        Check(!policy.Step(true, true, false), "stale completion accepted");
+        policy.Present(policy.CurrentEpoch);
+        Check(policy.Step(true, true, false), "fresh frame did not recover");
+    }),
+    ("A pending Android callback stays alive and cannot clear a replacement", () =>
+    {
+        var slot = new FrameCommitSlot<TestCallback>();
+        var old = new TestCallback(); slot.Set(old);
+        slot.Cancel(_ => false);
+        Check(old.Disposals == 0 && slot.Current == null, "pending callback disposed early");
+        var next = new TestCallback(); slot.Set(next);
+        slot.Complete(old);
+        Check(old.Disposals == 1 && ReferenceEquals(slot.Current, next), "stale callback cleared replacement");
+        slot.Cancel(_ => true);
+        Check(next.Disposals == 1 && slot.Current == null, "canceled callback not released");
+        var final = new TestCallback(); slot.Set(final); slot.Complete(final);
+        Check(final.Disposals == 1 && slot.Current == null, "completed callback retained");
+    }),
+    ("Toolbar hides only after a current companion frame and a released gesture", () =>
+    {
+        var policy = new ToolbarVisibilityPolicy();
+        var epoch = policy.BeginWindow();
+        Check(!policy.Step(true, true, false), "hidden before frame");
+        policy.Present(epoch);
+        Check(!policy.Step(true, true, true), "changed during touch");
+        Check(!policy.Step(true, true, false), "changed on first release frame");
+        Check(policy.Step(true, true, false), "not hidden after release");
+        policy.Unavailable();
+        Check(policy.Step(true, true, true), "restored during touch");
+        Check(policy.Step(true, true, false), "restored before release settled");
+        Check(!policy.Step(true, true, false), "failed to restore");
+        policy.Present(epoch);
+        Check(!policy.Step(true, true, false), "stale frame restored availability");
+        var next = policy.BeginWindow(); policy.Present(next);
+        Check(policy.Step(true, true, false), "new frame did not enable hiding");
+        Check(!policy.Step(false, true, false), "configuration did not restore toolbar");
+    }),
     ("Chest reorder invalidates a touch without replacing its menu", () =>
     {
         var menu = new object(); var wood = new object(); var stone = new object();
@@ -141,3 +204,5 @@ static void Check(bool condition, string message)
 {
     if (!condition) throw new InvalidOperationException(message);
 }
+
+sealed class TestCallback : IDisposable { public int Disposals; public void Dispose() => Disposals++; }

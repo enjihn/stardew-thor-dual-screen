@@ -1,7 +1,7 @@
 {
   "Name": "Thor Disposable Farm Fixture",
   "Author": "Android port contributors",
-  "Version": "0.21.0",
+  "Version": "0.22.0",
   "Description": "Separate test-state preparation and observation. Refuses every farm except the designated disposable farm. Excluded from release.",
   "UniqueID": "Thor.AndroidFixture",
   "EntryDll": "ThorFixture.dll",

@@ -298,6 +298,9 @@ public class ModEntry : Mod
     public const int W = 620, H = 540;
     readonly CompanionState state = new();
     readonly LatestFrameQueue frames = new(W * H * 4);
+    readonly ToolbarVisibilityPolicy toolbarPolicy = new();
+    MobileToolbar toolbar;
+    bool hideToolbar;
     MobileHost host;
     Panels panels;
     SpriteBatch batch;
@@ -309,6 +312,7 @@ public class ModEntry : Mod
     public override void Entry(IModHelper helper)
     {
         panels = new Panels(helper, Monitor);
+        hideToolbar = helper.ReadConfig<ModConfig>().HideToolbarWithCompanion;
         var build = System.Reflection.CustomAttributeExtensions.GetCustomAttributes<System.Reflection.AssemblyMetadataAttribute>(GetType().Assembly)
             .Single(a => a.Key == "ThorBuildId").Value;
         Monitor.Log($"THOR_ANDROID build={build}; game={typeof(Game1).Assembly.GetName().Version}", LogLevel.Info);
@@ -331,7 +335,8 @@ public class ModEntry : Mod
                 Monitor.Log("Mobile companion disabled: " + string.Join("; ", unsupported), LogLevel.Error);
                 return;
             }
-            host = new MobileHost(MobileHost.ResolveGameActivity(), Monitor, state, frames);
+            toolbar = MobileToolbar.TryInstall(Monitor);
+            host = new MobileHost(MobileHost.ResolveGameActivity(), Monitor, state, frames, toolbarPolicy);
         }
         catch (Exception ex) { Monitor.Log($"Mobile companion initialization failed: {ex}", LogLevel.Error); }
     }
@@ -365,6 +370,8 @@ public class ModEntry : Mod
     {
         if (stopped) return;
         if (Game1.quit) { Stop(); return; }
+        bool pressed = Game1.input.GetMouseState().LeftButton == Microsoft.Xna.Framework.Input.ButtonState.Pressed;
+        toolbar?.SetHidden(toolbarPolicy.Step(hideToolbar, Context.IsWorldReady, pressed));
         if (host?.Ready != true) return;
         try
         {
@@ -397,6 +404,7 @@ public class ModEntry : Mod
         }
         catch (Exception ex)
         {
+            toolbarPolicy.Unavailable(); host?.RenderFailed();
             InvalidateInput();
             Monitor.LogOnce($"Mobile companion update failed: {ex}", LogLevel.Error);
         }
@@ -448,6 +456,7 @@ public class ModEntry : Mod
     {
         if (stopped) return;
         stopped = true;
+        toolbar?.Dispose();
         state.Dispose(); host?.Dispose(); frames.Dispose();
         Helper.Events.GameLoop.GameLaunched -= Launched;
         Helper.Events.GameLoop.UpdateTicked -= UpdateMobile;
@@ -476,4 +485,5 @@ public class ModConfig
     public string LastTab { get; set; } = "Today";
     /// <summary>Write performance numbers to the SMAPI log every 10 s (for troubleshooting stutter).</summary>
     public bool Diagnostics { get; set; } = false;
+    public bool HideToolbarWithCompanion { get; set; } = true;
 }

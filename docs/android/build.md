@@ -27,6 +27,8 @@ one of each of the following in the flat .local/refs/mobile directory:
 
 - StardewValley.dll and StardewValley.GameData.dll from the Play APKs.
 - StardewModdingAPI.dll, MonoGame.Framework.dll and xTile.dll from the matching host.
+- 0Harmony.dll from the same host (2.4.2-junimogate.64 for the toolbar update).
+  It is a build reference only and is not included in the mod ZIP.
 
 Do not mix identities. The build record includes each reference SHA256.
 Never commit or distribute these private references, APKs or game content.

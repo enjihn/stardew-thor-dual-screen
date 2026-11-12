@@ -20,9 +20,11 @@
     <Compile Include="../mod/Panels.cs" Link="Panels.cs" />
     <Compile Include="../mod/CropTracker.cs" Link="CropTracker.cs" />
     <Compile Include="../mod/CompanionState.cs" Link="CompanionState.cs" />
+    <Compile Include="../mod/MobileToolbar.cs" Link="MobileToolbar.cs" />
     <Compile Include="../mod/MobileHost.cs" Link="MobileHost.cs" />
     <Compile Include="../mod/MobileGameAdapter.cs" Link="MobileGameAdapter.cs" />
     <AssemblyMetadata Include="ThorBuildId" Value="$(ThorBuildId)" />
+    <Reference Include="0Harmony"><HintPath>$(MobileReferenceDir)/0Harmony.dll</HintPath><Private>false</Private></Reference>
     <Reference Include="StardewValley"><HintPath>$(MobileReferenceDir)/StardewValley.dll</HintPath><Private>false</Private></Reference>
     <Reference Include="StardewValley.GameData"><HintPath>$(MobileReferenceDir)/StardewValley.GameData.dll</HintPath><Private>false</Private></Reference>
     <Reference Include="StardewModdingAPI"><HintPath>$(MobileReferenceDir)/StardewModdingAPI.dll</HintPath><Private>false</Private></Reference>

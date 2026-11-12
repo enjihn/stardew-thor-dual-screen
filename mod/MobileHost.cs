@@ -20,6 +20,10 @@ internal sealed class MobileHost : IDisposable
     readonly IMonitor monitor;
     readonly CompanionState state;
     readonly LatestFrameQueue frames;
+    readonly ToolbarVisibilityPolicy toolbar;
+    long presentedEpoch;
+    readonly FrameCommitSlot<Java.Lang.Runnable> commits = new();
+    ViewTreeObserver? commitTree;
     readonly Handler ui = new(Looper.MainLooper!);
     readonly Java.Lang.Runnable pulse, push;
     readonly Bitmap?[] bitmaps = new Bitmap[2];
@@ -32,9 +36,9 @@ internal sealed class MobileHost : IDisposable
     int pointer = -1, bitmapIndex;
     public bool Ready { get; private set; }
 
-    public MobileHost(Activity activity, IMonitor monitor, CompanionState state, LatestFrameQueue frames)
+    public MobileHost(Activity activity, IMonitor monitor, CompanionState state, LatestFrameQueue frames, ToolbarVisibilityPolicy toolbar)
     {
-        this.activity = activity; this.monitor = monitor; this.state = state; this.frames = frames;
+        this.activity = activity; this.monitor = monitor; this.state = state; this.frames = frames; this.toolbar = toolbar;
         pulse = new Java.Lang.Runnable(Pulse);
         push = new Java.Lang.Runnable(PushFrame);
         Microsoft.Xna.Framework.AndroidGameActivity.Paused += OnPaused;
@@ -45,6 +49,7 @@ internal sealed class MobileHost : IDisposable
     public void Submit(LatestFrameQueue.Frame frame, CompanionScope scope)
     {
         frame.Scope = scope;
+        frame.PresentationEpoch = toolbar.CurrentEpoch;
         if (frames.Publish(frame, scope.Generation)) ui.Post(push);
     }
 
@@ -68,6 +73,9 @@ internal sealed class MobileHost : IDisposable
                 view.LayoutChange += OnLayout;
                 window.SetContentView(view);
                 window.Show();
+                commitTree = view.ViewTreeObserver ?? throw new InvalidOperationException("Companion view observer unavailable.");
+                commitTree.PreDraw += OnPreDraw;
+                toolbar.BeginWindow();
                 hidden = false;
                 Ready = true;
                 monitor.Log($"Companion opened on logical display {display.DisplayId}.", LogLevel.Info);
@@ -75,6 +83,7 @@ internal sealed class MobileHost : IDisposable
             else if (!Ready)
             {
                 window.Show();
+                toolbar.BeginWindow();
                 hidden = false;
                 Ready = true;
             }
@@ -136,18 +145,63 @@ internal sealed class MobileHost : IDisposable
             }
             view.SetImageDrawable(drawable);
             presented = frame.Scope;
+            presentedEpoch = frame.PresentationEpoch;
             hasImage = true;
         }
         catch (Exception ex) { monitor.LogOnce($"Companion frame upload failed: {ex}", LogLevel.Error); CloseWindow(); }
         finally { if (frames.Complete(frame)) ui.Post(push); }
     }
 
-    void Invalidate() { hasImage = false; pointer = -1; state.Invalidate(); frames.Invalidate(); }
+    // PreDraw registers the callback before Android submits the current frame.
+    void OnPreDraw(object? sender, ViewTreeObserver.PreDrawEventArgs e)
+    {
+        e.Handled = true;
+        if (disposed || paused || !Ready || !hasImage || view == null || commitTree == null
+            || commits.Current != null || toolbar.IsAvailable(presentedEpoch) || !OperatingSystem.IsAndroidVersionAtLeast(29) || !view.IsHardwareAccelerated) return;
+        var targetView = view;
+        var targetDrawable = view.Drawable;
+        var scope = presented;
+        long epoch = presentedEpoch;
+        Java.Lang.Runnable? callback = null;
+        callback = new Java.Lang.Runnable(() =>
+        {
+            try
+            {
+                if (!disposed && !paused && Ready && hasImage && ReferenceEquals(view, targetView)
+                    && ReferenceEquals(view.Drawable, targetDrawable) && state.IsCurrent(scope))
+                    toolbar.Present(epoch);
+                else if (!disposed && Ready && view != null) view.Invalidate();
+            }
+            finally { commits.Complete(callback!); }
+        });
+        try
+        {
+            var liveTree = view.ViewTreeObserver;
+            if (liveTree == null || !liveTree.IsAlive) { callback.Dispose(); return; }
+            commitTree = liveTree;
+            commits.Set(callback);
+            liveTree.RegisterFrameCommitCallback(callback);
+        }
+        catch (Exception ex)
+        {
+            commits.Cancel(_ => true); Invalidate();
+            monitor.LogOnce($"Companion frame commit unavailable: {ex}", LogLevel.Warn);
+        }
+    }
+
+    void Invalidate() { toolbar.Unavailable(); hasImage = false; pointer = -1; state.Invalidate(); frames.Invalidate(); }
+    void CancelCommit() => commits.Cancel(callback => commitTree?.IsAlive == true
+        && OperatingSystem.IsAndroidVersionAtLeast(29) && commitTree.UnregisterFrameCommitCallback(callback));
     void CloseWindow()
     {
         Ready = false;
         hidden = false;
         Invalidate();
+        if (commitTree?.IsAlive == true)
+        {
+            commitTree.PreDraw -= OnPreDraw;
+        }
+        CancelCommit(); commitTree = null;
         if (view != null)
         {
             view.Touch -= OnTouch; view.LayoutChange -= OnLayout;
@@ -167,6 +221,7 @@ internal sealed class MobileHost : IDisposable
         // window context; repeated construction retained Binder resources on API33.
         Ready = false;
         Invalidate();
+        CancelCommit();
         if (window != null) { window.Hide(); hidden = true; }
     });
     void OnResumed(object? sender, EventArgs e) => ui.Post(() =>
@@ -176,10 +231,12 @@ internal sealed class MobileHost : IDisposable
         ui.RemoveCallbacks(pulse);
         Pulse();
     });
+    public void RenderFailed() => ui.Post(() => { if (!disposed) { Invalidate(); } });
     public void Dispose()
     {
         if (disposed) return;
         disposed = true;
+        toolbar.Unavailable();
         Ready = false;
         state.Invalidate(); frames.Dispose();
         Microsoft.Xna.Framework.AndroidGameActivity.Paused -= OnPaused;

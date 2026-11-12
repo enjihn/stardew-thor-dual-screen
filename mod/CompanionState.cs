@@ -38,6 +38,52 @@ internal sealed class SlotIdentityRevision
     }
 }
 
+/// <summary>Coordinates presented frames and safe toolbar visibility transitions.</summary>
+internal sealed class ToolbarVisibilityPolicy
+{
+    readonly object sync = new();
+    long epoch;
+    bool available, hidden, previouslyPressed;
+    public long CurrentEpoch { get { lock (sync) return epoch; } }
+    public long BeginWindow() { lock (sync) { available = false; return ++epoch; } }
+    public void Unavailable() { lock (sync) { available = false; ++epoch; } }
+    public void Present(long candidate) { lock (sync) { if (candidate == epoch) available = true; } }
+    public bool IsAvailable(long candidate) { lock (sync) return candidate == epoch && available; }
+    public bool Step(bool enabled, bool worldReady, bool pressed)
+    {
+        lock (sync)
+        {
+            bool desired = enabled && worldReady && available;
+            if (!pressed && !previouslyPressed) hidden = desired;
+            previouslyPressed = pressed;
+            return hidden;
+        }
+    }
+}
+
+/// <summary>UI-thread callback ownership, including callbacks already dispatched by Android.</summary>
+internal sealed class FrameCommitSlot<T> where T : class, IDisposable
+{
+    public T? Current { get; private set; }
+    public void Set(T callback)
+    {
+        if (Current != null) throw new InvalidOperationException("A frame commit is already pending.");
+        Current = callback;
+    }
+    public void Complete(T callback)
+    {
+        if (ReferenceEquals(Current, callback)) Current = null;
+        callback.Dispose();
+    }
+    public void Cancel(Func<T, bool> unregister)
+    {
+        var callback = Current;
+        Current = null;
+        // A false result means Android may still invoke it. Its completion owns disposal.
+        if (callback != null && unregister(callback)) callback.Dispose();
+    }
+}
+
 internal enum TouchAction { Down, Move, Up, Cancel }
 internal readonly record struct CompanionScope(long Generation, object? Menu, int Layout);
 internal readonly record struct CompanionTouch(CompanionScope Scope, TouchAction Action, int X, int Y);
@@ -114,6 +160,7 @@ internal sealed class LatestFrameQueue : IDisposable
     {
         public readonly byte[] Bytes;
         public long Generation { get; internal set; }
+        public long PresentationEpoch { get; set; }
         public CompanionScope Scope { get; set; }
         internal long Epoch;
         internal int State; // 0 free, 1 writing, 2 pending, 3 transferring

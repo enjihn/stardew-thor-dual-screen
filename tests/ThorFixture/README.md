@@ -8,6 +8,16 @@ The fixture polls its own external-files ThorFixture/request.json. Requests cont
 
 Supported operations: state, seed, warp, menu, export, timing-start and timing-stop. Seed replaces only the disposable player's inventory and optionally its money/time/trash level or Junimo reading progression. Menus are native game menus. No fixture method calls production companion code. User actions must be sent through actual Android touch. Export reads only the designated regular saved pair and creates a new archive, without overwriting saves.
 
+Toolbar acceptance adds `toolbar-state`, `toolbar-config` and
+`toolbar-upload-fault`, under the same disposable-farm guard. The observer
+reads native toolbar state and companion availability. Configuration writes
+only the test group's config and applies its boolean to the test session.
+The fault temporarily replaces upload destinations with fresh recycled test
+bitmaps for 12 seconds, causing the real Android upload to throw. It restores
+the original bitmap references automatically; displayed bitmaps are never
+recycled. It does not call the production failure or availability handlers.
+These operations are test instrumentation and are excluded from release.
+
 Timing samples are intervals between SMAPI Rendered callbacks. They are instrumentation, not hardware input or final fixture-free acceptance. All responses, timing arrays, save archives, request files and raw device evidence stay under ignored private paths.
 
 The optional latency observer matches the lower ImageView bitmap in PreDraw and
