@@ -1,16 +1,18 @@
 # Visual mod acceptance
 
-Status: in progress. No combined release is accepted yet.
+Status: accepted. Low release installed and selected; owner physical check passed.
 Specification: ../superpowers/plans/2026-11-12-visual-mod-integration.md.
 Device: AYN Thor57ae2a4f, Android13/API33 ARM64. Runtime: Play1.6.15.3/code245,
 JunimoGate0.3.1-thor.2/code12, SMAPI4.5.2-junimogate.41,
 Harmony2.4.2-junimogate.64, ThorDualScreen0.5.2-android.3/build03.
 
-The user reported moving the character during tests. Prior performance and
-movement/touch attribution may be contaminated, so clean matched performance
-and touch reruns are being coordinated with the user idle. Retain the actual
-measurements and visual outcomes below; source checks and captured functional
-images remain valid. No final performance-blocked conclusion is made yet.
+The user selected Low and relaxed the strict frame-pacing criterion: "Use the
+low mode, the fps doesn't have to be perfectly60." The clean Low day run averages
+59.9982FPS with a minimum rolling5sec59.8FPS. The user confirmed59.8 is fine and
+requested an end to further performance work. The p95 limitation is accepted
+under that changed criterion and is not a release blocker. Earlier results
+remain recorded. The Low package/configuration and fixture-free cold launch are
+complete. The owner completed the physical check and replied "Seems fine".
 
 ## Preservation and packages
 
@@ -21,18 +23,31 @@ Package hashes: visual-mod-packages.json. Dependencies came from author-owned
 CurseForge pages, recorded in the private dependency-provenance.json.
 Thor production source, game assets, host and direct icon are unchanged. Fashion Sense has the narrow compatibility guard documented below.
 
+The final fixture-free six-component ThorVisualModsRelease-Low.zip is imported
+and selected:38054874bytes, SHA256
+1ae18953214b5f974d2609938aa11720d8c0478d7f549b7c09e01b21d017da50.
+Metadata is in outputs/visual-mods/ThorVisualModsRelease-Low-package.json.
+Freshly exported exact settings are in configuration-Low/index.json, with mod
+identity, config size and SHA256. The earlier Quality ZIP is superseded.
+After measurement, waiting advanced ThorTest to day22 and autosaved. All four
+original test-save files were restored again before Low testing. Real saves
+were not changed.
+For the owner check, only ThorTest was cold-loaded: a native
+Spring22 save with a Hand Mirror and five tools. All four original backup files
+remain retained. No real save was accessed.
+
 ## Gates
 
 | Gate | Status |
 |---|---|
 | Existing coordination and packaging tests | Fresh Python10/10, C#23/23 and both compatibility self-tests pass |
 | Seasonal sprites, portraits, seasons, lower People/Gifts | Passed spring/winter direct checks |
-| Fashion Sense mirror, presets, recoloring, tools, previews, persistence | Passed with narrow Android guard; physical controls pending |
+| Fashion Sense mirror, presets, recoloring, tools, previews, persistence | Passed with narrow Android guard and owner physical check |
 | Radiance effects, shaders, hooks, settings, interiors/rain/resume | Direct water/reflection, shadow, interior light, night/rain and touch settings checks passed; precision fallback noted |
-| Combined companion tabs, mini row, world touches, fallback/recovery | Visual/UI outcomes observed; coordinated movement/touch recheck pending |
-| Matched presentation performance | Prior runs potentially contaminated by user movement; clean coordinated reruns pending |
-| Owner physical controls and new menus | Pending |
-| Fixture-free six-component release and direct launch | Pending |
+| Combined companion tabs, mini row, world touches, fallback/recovery | Direct checks passed; user-idle Beach touch revalidation passed |
+| Matched presentation performance | User accepted Low59.9982FPS/min5sec59.8 and uneven pacing; original p95 failure retained; further performance work stopped at user request |
+| Owner physical controls and new menus | Passed: owner replied "Seems fine" after movement, bumpers/triggers, tools, Hand Mirror touch/controller and Mod Options check |
+| Fixture-free six-component release and direct launch | Low group imported/selected; actual Cocoon icon cold launch confirms five code mods plus one content pack, no fixture |
 
 Performance uses completed primary game SurfaceView presentation timestamps
 from SurfaceFlinger FrameTracker, not callback FPS. Same Town route, Aim active,
@@ -50,7 +65,7 @@ and Gifts; Robin/Demetrius sprites render. No content errors observed.
 GMCM in-game Options > Mod Options opens by touch. Beach Outfits was toggled
 off, saved, reopened as off, then restored on and saved. No keyboard required.
 Title cog did not respond to touchscreen tests; the native Options route works,
-so no patch is justified for task completion. Controller check remains pending.
+so no patch is justified for task completion. The owner subsequently accepted the controller/menu check.
 
 Winter21 ThorTest load showed Robin in a red winter outfit on the native
 dialogue portrait and lower People panel, with changed NPC sprite clothing.
@@ -125,24 +140,73 @@ loaded. Bundled appearance presets and recoloring render in world/Aim, and hoe
 use created dirt at Farm66,20. Inventory works, the mini row appears and expires,
 and Home pause followed by direct resume leaves the companion available.
 
-The open-Beach strip test, combined-strip-real-before/after, observed movement
-from30,15 to16,14 while held slot20 stayed unchanged and strip hit=false.
-Earlier Town touches blocked by scenery and the earlier Beach Willy cutscene
-attempt are invalid evidence. The open-Beach input attribution will be
-rechecked with the user idle.
+The clean user-idle Beach rerun, idle-touch-before/after/toolbar, moved30,15 to16,14.
+Held slot0 stayed unchanged, companion available=true and toolbar hidden=true,
+strip hit=false, eventUp=false and currentEvent=null. This validates world touch
+through the passive strip. Earlier slot20 observations are retained in private
+evidence; Town touches blocked by scenery and the Beach Willy cutscene attempt
+are invalid evidence.
 
 Real companion failure produced available=false, toolbar hidden=false, native
 visible=true and native hit=true. Clicking the native bar selected slot8.
 Recovery produced available=true, hidden=true, native visible=false and hit=false.
-Owner physical controller/menu navigation remains pending after automated
-acceptance. No physical-control pass is claimed.
+The owner completed the requested movement, bumpers/triggers, tool use, Hand Mirror
+touch/controller and Options > Mod Options check on the final fixture-free
+release and replied "Seems fine". This is owner-observed physical acceptance.
+
+## Selected Low configuration and launch
+
+The refreshed export confirms Radiance Enabled=true, ActivePerfPreset=LowSpec,
+RenderScale=1.0 and RenderScaleAuto=true. Smooth Art, object shadows, chromatic
+aberration, tilt-shift, God Rays, sun rays, cloud shadows, sprite relief, fog,
+color grading, windy spells and wet ground are disabled. WaterReflection=true,
+WaterReflectReach=0.2 and ShadowCastsPerCharacter=1. Directional character
+shadows remain enabled. Earlier Farm object-shadow visual checks used the
+previous configuration.
+
+Root imported and selected the six-component Low group, then cold-launched the
+actual Cocoon Stardew Dual Screen icon. Startup confirmed five code mods and
+one content pack with no fixture. This verifies selected-group/direct-icon
+startup; the owner subsequently accepted the physical check.
+Final release-farm-top/bottom images show ThorTest Spring22, upper lighting,
+lower Aim native art, Hand Mirror available in slot6 and companion available.
 
 ## Current performance result
 
-All four combined day runs exceed120seconds, with the same Town touch route,
-Aim, zoom, display and power settings as baseline. Mean and minimum rolling5sec
-FPS pass, but p95 exceeds the baseline16.919635ms plus20% bound20.303562ms.
-No tested Radiance setting has passed the combined day performance gate.
+The coordinated user-idle baseline and combined Quality runs are complete.
+Each exceeds120seconds with the matched Town route, Aim, zoom, power and display
+settings. Quality's approximately25.36ms p95 exceeds the clean baseline plus20%
+bounds:20.304876ms day and20.300125ms night/rain. Mean and sustained FPS pass.
+This is a controlled Quality failure; it does not identify an individual mod
+as the cause. The user subsequently selected Low with the criterion below.
+
+| Clean run | Duration seconds | Mean FPS | Minimum rolling5sec FPS | p95 ms |
+|---|---:|---:|---:|---:|
+| Baseline day | 120.271 | 59.9813 | 59.6 | 16.920730 |
+| Quality combined day | 120.471 | 59.9898 | 59.6 | 25.360052 |
+| Baseline night/rain | 120.161 | 60.0029 | 59.8 | 16.916771 |
+| Quality combined night/rain | 121.387 | 59.9980 | 59.6 | 25.359479 |
+
+Source: idle-baseline-day/night and idle-combined-day/night present-summary.json.
+These clean measurements supersede the prior contamination uncertainty for the
+Quality comparison. They do not pass the original allowance.
+
+The completed clean Low day run, idle-low-day-present-summary.json, lasted
+120.937seconds:mean59.998163943FPS,minimum rolling5sec59.8FPS,p95=25.367449ms.
+There was no sustained drop into the40s in this measured route; individual
+frames still arrive unevenly. The original approximately20.3ms p95 allowance
+fails. The user explicitly accepts that uneven pacing and chose Low for the
+release, relaxing the strict gate rather than changing its recorded result.
+The follow-up Low night benchmark was stopped midrun at the user's request;
+it is neither a completed result nor a failure. The existing Quality night run
+remains the completed night measurement. No further performance tests are
+required by the user. The latest release-low-confirmed.png shows persisted
+LowSpec with automatic scaling on and a100% ceiling.
+
+### Earlier measurements
+
+The following results preceded the coordinated idle window and remain recorded
+without establishing a final verdict for Low or a causal attribution.
 
 | Radiance state | Duration seconds | Mean FPS | Minimum rolling5sec FPS | p95 ms |
 |---|---:|---:|---:|---:|
@@ -172,16 +236,11 @@ Cold baseline rechecks verified only Thor and fixture as the two loaded mods:
 | Day | 121.165 | 59.9926 | 59.6 | 25.363802 |
 | Night/rain | 120.952 | 59.9988 | 59.8 | 25.362083 |
 
-Source: baseline-recheck-day/night present-summary.json. The later baseline
-does not support attributing the pacing difference to the added mods. The user's
-reported concurrent character movement materially limits the earlier matched
-comparisons. Performance remains unresolved until the clean coordinated reruns.
-The original16.92ms baseline and its20% bound remain recorded; rebasing to later
-results does not constitute a pass. No speculative compatibility or performance
-patch is justified by the existing measurements.
+Source: baseline-recheck-day/night present-summary.json. The user's reported
+concurrent movement limits those earlier comparisons. They do not replace the
+clean baseline to declare a pass, and no speculative patch follows from them.
 
-Root is preparing the configured test-group export and fixture-free six-component
-candidate/local package, then accepted-group reselection and original test-save
-restoration. Those actions are not yet recorded as complete. The performance
-gate, coordinated touch recheck, owner physical controls and final fixture-free
-release checks remain open.
+The selected Low package, exact configs and fixture-free direct-icon cold launch
+and owner physical controls are complete. Source is delivered on the personal
+fork branch android/visual-mod-integration; the delivery commit contains this report.
+ThorItemSwitchRelease is retained as the separate accepted rollback.

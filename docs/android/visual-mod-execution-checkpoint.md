@@ -1,14 +1,20 @@
 # Visual mod integration checkpoint
 
-Status: executing. Specification: ../superpowers/plans/2026-11-12-visual-mod-integration.md.
+Status: device integration accepted. Specification: ../superpowers/plans/2026-11-12-visual-mod-integration.md.
 Branch android/visual-mod-integration starts at eb23b776fec16a01d5f1cc480ce74d2a2478dac3.
 
-Current evidence limit: the user reported moving the character during testing.
-Prior performance and movement/touch attribution may be contaminated. Actual
-measurements and visual observations are retained; source checks and captured
-functional images remain valid. Root is coordinating an idle-device window
-for clean matched performance and touch reruns, then owner controls. No final
-performance-blocked conclusion is made from the prior runs.
+Current state: the user-idle baseline/combined Quality comparison and Beach
+touch revalidation are complete. Quality passes mean/sustained FPS but fails
+p95 in day and night/rain. The user now selected Low and accepts uneven frame
+pacing, relaxing the strict p95 criterion without claiming it passed. Clean
+Low day is59.9982FPS,minimum rolling5sec59.8FPS,p95=25.367449ms.
+The user confirmed59.8 is fine and stopped further performance work. The Low
+night run stopped midrun without a completed or failed result. Performance is
+accepted under the user's changed criterion. The refreshed Low group is imported
+and selected, with fixture-free direct-icon startup verified. The owner completed
+the final physical controls/menu check and replied "Seems fine". Source delivery
+is on the personal fork branch android/visual-mod-integration.
+Prior potentially contaminated measurements remain recorded as history.
 
 Root owns the device and coupled code. The dedicated existing checkout is
 reused on the isolated requested branch, retaining private build tools.
@@ -84,7 +90,7 @@ art. GMCM and the Radiance tuner work by touch. Smooth Art is off. Android Low
 was selected automatically. reliefreplay falls back to its original precision
 after the driver's full-precision compile refusal.
 
-Matched day presentation runs all exceed120seconds. Baseline p95=16.919635ms;
+Earlier day presentation runs all exceed120seconds. Baseline p95=16.919635ms;
 the allowed20% bound is20.303562ms. Every combined run below passes mean and
 rolling5sec FPS, but fails that p95 bound:
 
@@ -105,11 +111,29 @@ run gives p95=25.355052ms; the run without both Radiance and Fashion Sense gives
 Baseline rechecks cold-loaded only Thor and fixture, confirmed by startup's two
 mods. Day:59.9926FPS, rolling5sec59.6FPS, p95=25.363802ms.
 Night/rain:59.9988FPS, rolling5sec59.8FPS, p95=25.362083ms.
-These do not support attribution of the pacing change to the added mods, and the
-reported concurrent character movement also limits the matched comparison.
-Performance remains unresolved pending clean coordinated runs against the
-original16.92ms baseline and20% bound. The later baseline is not substituted to
-declare a pass; no speculative patch is justified by the existing measurements.
+The user's reported concurrent movement limits those earlier comparisons. They
+do not replace the clean baseline to declare a pass or establish mod causality.
+
+Completed clean user-idle runs:
+
+| Run | Mean FPS | Minimum rolling5sec FPS | p95 ms |
+|---|---:|---:|---:|
+| Baseline day | 59.9813 | 59.6 | 16.920730 |
+| Combined Quality day | 59.9898 | 59.6 | 25.360052 |
+| Baseline night/rain | 60.0029 | 59.8 | 16.916771 |
+| Combined Quality night/rain | 59.9980 | 59.6 | 25.359479 |
+
+All exceed120seconds. Quality conclusively fails the clean20% p95 bounds,
+20.304876ms day and20.300125ms night, while mean and sustained FPS pass.
+This supersedes contamination uncertainty for Quality without attributing the
+change to one mod. The clean Low day run lasted120.937seconds,mean59.998163943FPS,
+minimum rolling5sec59.8FPS,p95=25.367449ms. This shows no sustained drop into
+the40s on the measured route, while the original approximately20.3ms p95 bound
+still fails. The user selected Low and accepts the uneven pacing; this is an
+explicit criterion change, not a pass of the original gate. The user requested
+no further performance work; the follow-up Low night run stopped midrun and
+is not counted as complete or failed. release-low-confirmed.png shows persisted
+LowSpec, automatic scaling on and a100% ceiling.
 
 Combined functional checks: root observed Radiance water/reflections, Farm tree
 and object shadows by on/off comparison, Saloon night light pools, and night/rain
@@ -119,19 +143,38 @@ and recoloring render in world/Aim, and hoe use created dirt at Farm66,20.
 Inventory works; mini row appears and expires; Home pause and direct resume
 recover companion available=true.
 
-The open-Beach strip test observed movement30,15 to16,14 with held slot20
-unchanged and strip hit=false. Coordinated idle-device touch revalidation is
-pending because of the user's reported concurrent movement. Earlier Town scenery-blocked and Beach Willy
-cutscene attempts are invalid. Real fallback showed available=false, hidden=false,
+Clean idle-touch-before/after/toolbar confirms Beach movement30,15 to16,14,
+held slot0 unchanged, companion available=true, toolbar hidden=true, strip
+hit=false, eventUp=false and no current event. Earlier Town scenery-blocked
+and Beach Willy cutscene attempts are invalid. Real fallback showed available=false, hidden=false,
 native visible=true and hit=true; a native bar click selected slot8. Recovery
 showed available=true, hidden=true, native visible=false and hit=false.
 
-Root owns the device. Configured test-group export, a fixture-free six-component
-candidate/local package, accepted-group reselection and original test-save
-restoration are being prepared and are not yet claimed complete.
-Pending: clean coordinated performance/touch reruns, owner physical controls after automated
-acceptance, fixture-free release/direct-launch checks, commit/push. No combined
-release is accepted.
+Root owns the device. The refreshed fixture-free six-component
+ThorVisualModsRelease-Low.zip is imported and selected:38054874bytes,
+SHA2561ae18953214b5f974d2609938aa11720d8c0478d7f549b7c09e01b21d017da50.
+Metadata is outputs/visual-mods/ThorVisualModsRelease-Low-package.json.
+Exact freshly exported configs and their mod/hash mapping are in configuration-Low
+and index.json. The earlier Quality package is superseded.
+
+Selected Radiance settings:Enabled=true,LowSpec,RenderScale=1.0,Auto=true.
+Smooth Art, object shadows, chromatic aberration, tilt-shift, God Rays, sun rays,
+cloud shadows, sprite relief, fog, color grading, windy spells and wet ground
+are off. Water reflection stays on with reach0.2; one shadow cast per character.
+The actual Cocoon Stardew Dual Screen icon cold-launched the selected group;
+startup confirmed five code mods and one content pack, no fixture.
+Waiting after measurement advanced ThorTest to day22 and autosaved; all four
+original test-save files were restored again before Low testing.
+Only disposable ThorTest was cold-loaded for the owner check: Spring22 with a
+Hand Mirror and five tools, saved natively. All four original backup files remain
+retained; real saves were not accessed.
+Final release-farm-top/bottom images show upper lighting, native lower Aim art,
+Hand Mirror available in slot6 and companion available. The owner accepted movement, bumpers/triggers, tool use, Hand Mirror touch/controller
+and Mod Options operation with "Seems fine". Leave the running game alone.
+The original p95 gate remains failed; the user accepted that limitation, so it
+does not block the accepted release. No mandatory device gate remains open under
+the revised user instruction. On resume, do not repeat completed testing. The
+source delivery commit contains this checkpoint.
 Private summaries/raw evidence: artifacts/private/visual-mods/*-present-summary.json
 and related files. Dependency packages and delivery files are in workspace
 outputs/visual-mods, outside the source repository.

@@ -1,5 +1,5 @@
 {
-  "status": "candidate-not-accepted",
+  "status": "accepted-installed-selected",
   "game": "1.6.15.3 (245)",
   "host": "0.3.1-thor.2 (12)",
   "smapi": "4.5.2-junimogate.41",
@@ -61,7 +61,7 @@
       "compatibilityNotes": "compatibility/Radiance/README.md"
     }
   ],
-  "inventoryScope": "Candidate packages only. Diagnostic test-group enablement and settings vary; this inventory does not declare a selected or accepted combined release.",
+  "inventoryScope": "Component source archives and the selected Low complete-profile release are recorded separately. The six-component Low group is imported and selected; owner physical acceptance remains pending. The accepted Thor-only rollback is retained.",
   "contentIdMethod": "Same as prepare_group.py: SHA256 of sorted relative mod-root files; each record is big-endian >Iq name-byte-length/data-length, then UTF-8 name bytes and file bytes.",
   "acceptedRollback": {
     "group": "ThorItemSwitchRelease",
@@ -72,7 +72,7 @@
     "groupExportFile": "accepted-group-rollback.zip",
     "groupExportSha256": "58d5e95c72c13e746b810088710f9af2f9da398ca1c68e6f192fd197c1091ce4"
   },
-  "performanceStatus": "Combined Quality, Balanced, Low and toggled-OFF day p95 failed the original baseline bound. Correctly unloaded Radiance and Fashion Sense runs also showed about 25.36 ms p95. Baseline recheck is in progress; no cause is attributed and no combined acceptance is claimed.",
+  "performanceStatus": "User selected Low and accepted measured clean-day mean 59.998163943 FPS, minimum rolling five-second 59.8 FPS and occasional uneven pacing. Original p95 criterion still fails at 25.367449 ms; user relaxed that criterion and requested no further performance work. Low night benchmark was stopped midrun at user request, not completed or failed.",
   "originalReleaseProvenance": [
     {
       "file": "Fashion Sense 7.5.0-9969-7-5-0-1773351944.zip",
@@ -107,5 +107,122 @@
       "manifestMinimumApiVersion": "4.1",
       "manifestMinimumGameVersion": "1.6.14"
     }
-  ]
+  ],
+  "selectedRelease": {
+    "file": "ThorVisualModsRelease-Low.zip",
+    "sha256": "1ae18953214b5f974d2609938aa11720d8c0478d7f549b7c09e01b21d017da50",
+    "bytes": 38054874,
+    "status": "accepted-installed-selected",
+    "configurationDirectory": "configuration-Low",
+    "configurationIndex": "configuration-Low/index.json",
+    "launchCheck": "Cold launch through actual Cocoon Stardew Dual Screen icon confirmed five code mods and one content pack, with no fixture.",
+    "members": [
+      {
+        "uniqueId": "Hung.ThorDualScreen",
+        "expectedVersion": "0.5.2-android.3",
+        "sourceLibraryItemId": "ec9d667409a08fc65b2638493d1d67695025883df32c1be86bcaeddf615db8d6",
+        "packagedContentId": "86edc3a6d2670516210d2965a1a436e39f76c4e31a92bc6ca97b01682e18f7f9"
+      },
+      {
+        "uniqueId": "Pathoschild.ContentPatcher",
+        "expectedVersion": "2.9.1",
+        "sourceLibraryItemId": "3b2bb6f48f5194036b5c173a92b0a446e114efdd9ee242041b7bcaebf77cb571",
+        "packagedContentId": "b415b3936248c09347f1e9a121d7e466c3c3b013958bbb5b51a825465ed17e09"
+      },
+      {
+        "uniqueId": "spacechase0.GenericModConfigMenu",
+        "expectedVersion": "1.16.0",
+        "sourceLibraryItemId": "44a2e61d97d97fc8854c6bab27c65182904e6eb9da6359618495b76aad3a8e65",
+        "packagedContentId": "9dfb88f06b80ec31ac318bb9a8cd8924f935a871f558daa0706a585ca41007c1"
+      },
+      {
+        "uniqueId": "Poltergeister.SeasonalCuteCharacters",
+        "expectedVersion": "6.1.4",
+        "sourceLibraryItemId": "8edb5b147a12799e17c70771650f7181e84ea29f3d57a33648e6114c42e0163e",
+        "packagedContentId": "2f1cac1a35d0cdf0e5a150f0735af308105b8b5a31e76dd2354d9232dbddc2b5"
+      },
+      {
+        "uniqueId": "PeacefulEnd.FashionSense",
+        "expectedVersion": "7.5.0-android.1",
+        "sourceLibraryItemId": "a0b81da68d53bcfc79c1f77050f99d76e08de141d3af6623b3a631add645899a",
+        "packagedContentId": "42c68028d0c1e165c570a33a239febaf11bcdd2aafa83757afa39cb5154711e8"
+      },
+      {
+        "uniqueId": "phuicmt.SDVRadiance",
+        "expectedVersion": "2.4.8-android.2",
+        "sourceLibraryItemId": "b26763902b2c6d4cd3c1d5ccf633fd08700e016975afdf65b6be58a0cb636df5",
+        "packagedContentId": "95d6a6b1fb242cd5935b8e97b2b773addf76874ff876948a3cbb9d5773ae6ba4"
+      }
+    ],
+    "configurationFiles": [
+      {
+        "uniqueId": "Hung.ThorDualScreen",
+        "file": "Hung.ThorDualScreen/config.json",
+        "bytes": 230,
+        "sha256": "776740a62b329b4fd5c4c78d34cf1701596db7567993e1a5d3d91f6369c2260e"
+      },
+      {
+        "uniqueId": "Pathoschild.ContentPatcher",
+        "file": "Pathoschild.ContentPatcher/config.json",
+        "bytes": 158,
+        "sha256": "b8e7c4e8c28349793a1613df2b3e428c12446bbc81c2d0161184aa119a972c5c"
+      },
+      {
+        "uniqueId": "spacechase0.GenericModConfigMenu",
+        "file": "spacechase0.GenericModConfigMenu/config.json",
+        "bytes": 49,
+        "sha256": "bbe0048abc4eef1bbe3c560ad66f995e22bbbfbc3676896a1bef8449eae072ea"
+      },
+      {
+        "uniqueId": "Poltergeister.SeasonalCuteCharacters",
+        "file": "Poltergeister.SeasonalCuteCharacters/config.json",
+        "bytes": 2228,
+        "sha256": "5eae7e410f24e77c03fc528dc66ab7628cacfbce37fdbed38f1269a8c3e8c937"
+      },
+      {
+        "uniqueId": "PeacefulEnd.FashionSense",
+        "file": "PeacefulEnd.FashionSense/config.json",
+        "bytes": 143,
+        "sha256": "107adc2055bf66794c49a0be4880d884050f9045909cc854b91f4d0ff0d438b3"
+      },
+      {
+        "uniqueId": "phuicmt.SDVRadiance",
+        "file": "phuicmt.SDVRadiance/config.json",
+        "bytes": 11837,
+        "sha256": "ad8aea57f73feaac1f20475c2a876ad26914f51fd2416e927433ff126c46098c"
+      }
+    ],
+    "radianceSettings": {
+      "Enabled": true,
+      "ActivePreset": "Custom",
+      "ActivePerfPreset": "LowSpec",
+      "RenderScale": 1.0,
+      "RenderScaleAuto": true,
+      "SheetUpscaleEnabled": false,
+      "LightingEnabled": true,
+      "DirectionalShadowsEnabled": true,
+      "DirectionalShadowObjects": false,
+      "WaterEnabled": true,
+      "WaterReflection": true,
+      "WaterReflectReach": 0.2,
+      "ShadowCastsPerCharacter": 1,
+      "ChromaticAberrationEnabled": false,
+      "TiltShiftEnabled": false,
+      "GodRaysEnabled": false,
+      "GodRaysSun": false,
+      "CloudShadowEnabled": false,
+      "SpriteReliefEnabled": false,
+      "FogEnabled": false,
+      "ColorGradeEnabled": false,
+      "WindySpellsEnabled": false,
+      "WetWorldEnabled": false
+    },
+    "ownerTestSave": "Only disposable ThorTest was cold-loaded for the owner check: native Spring22 save with Hand Mirror and five tools. Final farm images show upper lighting, native lower Aim art, mirror available in slot6 and companion available. All four original backups are retained; no real save was accessed. Owner replied \"Seems fine\" to the final physical controls and menu check."
+  },
+  "supersededRelease": {
+    "file": "ThorVisualModsRelease.zip",
+    "sha256": "5cc985af0d6bca57248e463ae5cee91b4ebef6402b17e17648ce5f0326daa165",
+    "bytes": 38054875,
+    "reason": "Earlier Quality configuration; replaced by selected ThorVisualModsRelease-Low.zip."
+  }
 }
